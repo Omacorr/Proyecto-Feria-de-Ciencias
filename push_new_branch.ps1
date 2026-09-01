@@ -1,9 +1,10 @@
 # push_new_branch.ps1
-# Crea una rama nueva, comitea el avance de hoy (etapas 2 a 5: gaze, estados,
-# InteractiveObject/Collectable, reticulo) y la sube a GitHub. Deja "main" intacta.
+# Crea una rama nueva, comitea el avance de hoy (teleport con fade y altura
+# fija, puntos que se ocultan/muestran correctamente, y el loop de juego:
+# GameManager, menu, victoria y derrota) y la sube a GitHub.
 
 param(
-    [string]$BranchName = "gaze-system-etapas-2-5"
+    [string]$BranchName = "teleport-fade-y-gameloop"
 )
 
 $ErrorActionPreference = "Stop"
@@ -38,7 +39,7 @@ if ($confirm -ne "SI") {
     exit 0
 }
 
-git commit -m "Etapas 2 a 5: raycast/gaze, estados Enter-Stay-Exit-Select, InteractiveObject, Collectable y GazeReticle"
+git commit -m "Teleport con fade y altura fija, puntos que se ocultan/muestran bien, y loop de juego (menu, victoria, derrota)"
 
 Write-Host "== Subiendo la rama a GitHub ==" -ForegroundColor Cyan
 git push -u origin $BranchName
@@ -47,8 +48,6 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host ""
     Write-Host "Listo! Rama '$BranchName' subida." -ForegroundColor Green
     Write-Host "https://github.com/Omacorr/Proyecto-Feria-de-Ciencias/tree/$BranchName" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "Seguis trabajando en esta rama en las proximas sesiones de Unity." -ForegroundColor Yellow
 } else {
     Write-Host ""
     Write-Host "El push fallo. Puede que te haya pedido iniciar sesion de nuevo en GitHub." -ForegroundColor Red
