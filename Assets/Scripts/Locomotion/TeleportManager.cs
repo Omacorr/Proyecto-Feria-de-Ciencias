@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Etapa 6/7: centraliza el movimiento del jugador entre puntos de
-/// teletransporte, con fundido a negro (VRFadeController) para evitar el
-/// salto brusco. Todos los TeleportPoint registrados quedan visibles siempre,
-/// excepto el que el jugador esta pisando en este momento (para que no se
-/// vea la camara metida adentro del marcador).
+/// Centraliza el movimiento del jugador entre puntos de teletransporte.
+/// Soporta dos modos, elegibles desde el Inspector:
+///  - Caminata (por defecto): se desplaza gradualmente hacia el destino a
+///    velocidad constante, con sonido de pasos en loop mientras camina.
+///  - Fade: fundido a negro, salto instantaneo, fundido de vuelta (mas comodo
+///    para VR, queda disponible como alternativa si el caminar marea a
+///    alguien probando la app).
+/// En ambos casos, todos los TeleportPoint quedan visibles siempre, excepto
+/// el que el jugador esta pisando en este momento.
 /// </summary>
 public class TeleportManager : MonoBehaviour
 {
@@ -15,7 +19,19 @@ public class TeleportManager : MonoBehaviour
     [Tooltip("Transform raiz del jugador (el objeto 'Player'), no la camara.")]
     [SerializeField] private Transform _playerTransform;
 
-    [Tooltip("Opcional. Si se asigna, se usa para el fundido a negro durante el teletransporte.")]
+    [Header("Modo de movimiento")]
+    [Tooltip("Tildado: camina gradualmente hacia el destino. Destildado: usa el fade (instantaneo, mas comodo).")]
+    [SerializeField] private bool _useWalkAnimation = true;
+
+    [Header("Caminata")]
+    [Tooltip("Velocidad de desplazamiento, en metros por segundo.")]
+    [SerializeField] private float _walkSpeed = 2f;
+
+    [Tooltip("Opcional. AudioSource que reproduce el sonido de pasos en loop mientras camina.")]
+    [SerializeField] private AudioSource _footstepsAudioSource;
+
+    [Header("Fade (alternativa)")]
+    [Tooltip("Opcional. Se usa solo si 'Use Walk Animation' esta destildado.")]
     [SerializeField] private VRFadeController _fadeController;
 
     public bool IsTeleporting { get; private set; }
@@ -45,7 +61,7 @@ public class TeleportManager : MonoBehaviour
     {
         if (IsTeleporting)
         {
-            Debug.Log("[TeleportManager] Solicitud ignorada, ya se esta teletransportando.");
+            Debug.Log("[TeleportManager] Solicitud ignorada, ya se esta moviendo.");
             return;
         }
 
@@ -55,42 +71,93 @@ public class TeleportManager : MonoBehaviour
             return;
         }
 
-        StartCoroutine(DoTeleport(destination, sourcePoint));
-    }
-
-    private IEnumerator DoTeleport(Vector3 destination, TeleportPoint sourcePoint)
-    {
-        IsTeleporting = true;
-
-        if (_fadeController != null)
+        if (_useWalkAnimation)
         {
-            yield return StartCoroutine(_fadeController.FadeOutAndIn(() => MovePlayer(destination, sourcePoint)));
+            StartCoroutine(DoWalk(destination, sourcePoint));
         }
         else
         {
-            MovePlayer(destination, sourcePoint);
+            StartCoroutine(DoFadeTeleport(destination, sourcePoint));
         }
-
-        IsTeleporting = false;
     }
 
-    private void MovePlayer(Vector3 destination, TeleportPoint sourcePoint)
+    private IEnumerator DoWalk(Vector3 destination, TeleportPoint sourcePoint)
     {
-        // Vuelve a habilitar el punto anterior (si habia uno) - ahora se
-        // puede volver a mirar y seleccionar para teletransportarse de nuevo.
+        IsTeleporting = true;
+
+        // Libera el punto anterior apenas arranca a caminar (asi se puede
+        // volver a mirar mientras te alejas).
         if (_currentOccupiedPoint != null)
         {
             _currentOccupiedPoint.SetVisible(true);
         }
 
-        // Solo cambia X/Z. La altura de los ojos del jugador no depende de
-        // a que altura este puesto el marcador de destino.
+        Vector3 startPos = _playerTransform.position;
+        // Solo cambia X/Z. La altura de los ojos del jugador no depende de a
+        // que altura este puesto el marcador de destino.
+        Vector3 targetPos = new Vector3(destination.x, startPos.y, destination.z);
+
+        float distance = Vector3.Distance(startPos, targetPos);
+        float duration = _walkSpeed > 0f ? distance / _walkSpeed : 0f;
+
+        if (_footstepsAudioSource != null && duration > 0f)
+        {
+            _footstepsAudioSource.loop = true;
+            _footstepsAudioSource.Play();
+        }
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            _playerTransform.position = Vector3.Lerp(startPos, targetPos, t);
+            yield return null;
+        }
+
+        _playerTransform.position = targetPos;
+
+        if (_footstepsAudioSource != null)
+        {
+            _footstepsAudioSource.Stop();
+        }
+
+        Debug.Log($"[TeleportManager] Llego caminando a {_playerTransform.position}");
+
+        sourcePoint.SetVisible(false);
+        _currentOccupiedPoint = sourcePoint;
+
+        IsTeleporting = false;
+    }
+
+    private IEnumerator DoFadeTeleport(Vector3 destination, TeleportPoint sourcePoint)
+    {
+        IsTeleporting = true;
+
+        if (_fadeController != null)
+        {
+            yield return StartCoroutine(_fadeController.FadeOutAndIn(() => MoveInstant(destination, sourcePoint)));
+        }
+        else
+        {
+            MoveInstant(destination, sourcePoint);
+        }
+
+        IsTeleporting = false;
+    }
+
+    private void MoveInstant(Vector3 destination, TeleportPoint sourcePoint)
+    {
+        if (_currentOccupiedPoint != null)
+        {
+            _currentOccupiedPoint.SetVisible(true);
+        }
+
         Vector3 current = _playerTransform.position;
         _playerTransform.position = new Vector3(destination.x, current.y, destination.z);
 
         Debug.Log($"[TeleportManager] Teletransportado a {_playerTransform.position}");
 
-        // Oculta el punto nuevo, porque el jugador esta parado ahi.
         sourcePoint.SetVisible(false);
         _currentOccupiedPoint = sourcePoint;
     }
