@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -28,6 +29,16 @@ public class ExamineTrigger : MonoBehaviour, IGazeInteractable
     [SerializeField] private Material _inactiveMaterial;
     [SerializeField] private Material _gazedAtMaterial;
 
+    [Header("Requiere pista (opcional)")]
+    [Tooltip("Si se asigna, el jugador no puede acercarse al candado hasta que CodeClueTracker.HasSeenCode sea true (por ejemplo, hasta que haya pisado el TeleportPoint de enfrente de las notas). Dejalo vacio si el candado se puede examinar desde el principio, sin buscar nada antes.")]
+    [SerializeField] private CodeClueTracker _clueTracker;
+
+    [Tooltip("Objeto con un cartel tipo 'Todavia no se el codigo' (Text/TextMeshPro). Arranca desactivado en la escena. Se usa solo si Clue Tracker esta asignado.")]
+    [SerializeField] private GameObject _lockedHintSign;
+
+    [Tooltip("Cuantos segundos se queda visible el cartel de aviso.")]
+    [SerializeField] private float _lockedHintDuration = 2.5f;
+
     [Header("Eventos")]
     [Tooltip("Se dispara apenas se arranca el acercamiento. Util para apagar la linterna del jugador y prender una luz propia del candado, para que no quede tan brillante y se puedan leer los numeros.")]
     [SerializeField] private UnityEvent _onExamineStart;
@@ -37,11 +48,17 @@ public class ExamineTrigger : MonoBehaviour, IGazeInteractable
 
     private Renderer _renderer;
     private TeleportPoint _previousPoint;
+    private Coroutine _hintCoroutine;
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
         SetGazed(false);
+
+        if (_lockedHintSign != null)
+        {
+            _lockedHintSign.SetActive(false);
+        }
     }
 
     public void OnGazeEnter()
@@ -66,9 +83,38 @@ public class ExamineTrigger : MonoBehaviour, IGazeInteractable
             return;
         }
 
+        if (_clueTracker != null && !_clueTracker.HasSeenCode)
+        {
+            ShowLockedHint();
+            return;
+        }
+
         _previousPoint = _teleportManager.CurrentOccupiedPoint;
         _teleportManager.RequestTeleport(_examinePoint.transform.position, _examinePoint);
         _onExamineStart?.Invoke();
+    }
+
+    private void ShowLockedHint()
+    {
+        if (_lockedHintSign == null)
+        {
+            return;
+        }
+
+        if (_hintCoroutine != null)
+        {
+            StopCoroutine(_hintCoroutine);
+        }
+
+        _hintCoroutine = StartCoroutine(ShowHintTemporarily());
+    }
+
+    private IEnumerator ShowHintTemporarily()
+    {
+        _lockedHintSign.SetActive(true);
+        yield return new WaitForSeconds(_lockedHintDuration);
+        _lockedHintSign.SetActive(false);
+        _hintCoroutine = null;
     }
 
     /// <summary>

@@ -42,6 +42,18 @@ public class Door : MonoBehaviour, IGazeInteractable
     [SerializeField] private Material _inactiveMaterial;
     [SerializeField] private Material _gazedAtMaterial;
 
+    [Header("Audio (opcional)")]
+    [Tooltip("AudioSource desde donde suena el clip al abrirse. Puede estar en la propia puerta o en otro objeto (por ejemplo uno central, si son varias hojas y no queres que suene una vez por cada una).")]
+    [SerializeField] private AudioSource _audioSource;
+
+    [Tooltip("Sonido que se reproduce una vez apenas arranca a abrirse la puerta.")]
+    [SerializeField] private AudioClip _openSound;
+
+    [Header("Restriccion de posicion (opcional)")]
+    [Tooltip("Si se asigna, mirar la puerta solo la abre cuando el jugador esta parado exactamente sobre este TeleportPoint (por ejemplo, el punto justo frente a ella). Dejalo vacio si la puerta se puede abrir desde cualquier lado. No afecta a Open() cuando se llama desde otro script (como CodeLock.OnUnlocked) - esa sigue funcionando aunque el jugador este en otro lado.")]
+    [SerializeField] private TeleportManager _teleportManager;
+    [SerializeField] private TeleportPoint _requiredPoint;
+
     private Renderer _renderer;
     private Vector3 _closedLocalPosition;
     private Quaternion _closedLocalRotation;
@@ -80,7 +92,7 @@ public class Door : MonoBehaviour, IGazeInteractable
 
     public void OnGazeSelect()
     {
-        if (_isOpen || _isMoving)
+        if (_isOpen || _isMoving || !IsPlayerInRange())
         {
             return;
         }
@@ -98,6 +110,22 @@ public class Door : MonoBehaviour, IGazeInteractable
     }
 
     /// <summary>
+    /// True si no hay restriccion de posicion, o si la hay y el jugador
+    /// esta parado exactamente sobre el Required Point. Solo se usa para
+    /// filtrar la apertura por mirada (OnGazeSelect) - Open() llamado
+    /// desde afuera (por ejemplo CodeLock) no pasa por aca.
+    /// </summary>
+    private bool IsPlayerInRange()
+    {
+        if (_requiredPoint == null)
+        {
+            return true;
+        }
+
+        return _teleportManager != null && _teleportManager.CurrentOccupiedPoint == _requiredPoint;
+    }
+
+    /// <summary>
     /// Abre la puerta directamente, sin pasar por el chequeo de llave.
     /// Publica para que otros scripts la puedan abrir por su cuenta - por
     /// ejemplo, CodeLock.OnUnlocked cableado a esta funcion en las dos hojas
@@ -112,6 +140,12 @@ public class Door : MonoBehaviour, IGazeInteractable
         }
 
         _isOpen = true;
+
+        if (_audioSource != null && _openSound != null)
+        {
+            _audioSource.PlayOneShot(_openSound);
+        }
+
         Quaternion openRotation = _closedLocalRotation * Quaternion.Euler(_openLocalEulerRotation);
         StartCoroutine(MoveDoor(_closedLocalPosition, _openLocalPosition, _closedLocalRotation, openRotation));
     }

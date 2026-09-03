@@ -16,8 +16,8 @@ using UnityEngine;
 public class TeleportManager : MonoBehaviour
 {
     [Header("Referencias")]
-    [Tooltip("Transform raiz del jugador (el objeto 'Player'), no la camara.")]
-    [SerializeField] private Transform _playerTransform;
+    [Tooltip("Transform de Main Camera (NO el objeto 'Player'). Desde que Main Camera se separo de ser hijo de Player (fix del profesor para el drift del punto de mira), es la camara la que hay que mover para que el jugador vea que se desplazo - moverla a ella es lo unico que hace que la vista cambie de lugar. Player deja de moverse desde aca: en cambio, sigue solo por su cuenta a la camara (ver PlayerFollowsCamera, puesto en el objeto Player). ARRASTRA MAIN CAMERA ACA, no Player.")]
+    [SerializeField] private Transform _cameraTransform;
 
     [Header("Modo de movimiento")]
     [Tooltip("Tildado: camina gradualmente hacia el destino. Destildado: usa el fade (instantaneo, mas comodo).")]
@@ -35,7 +35,7 @@ public class TeleportManager : MonoBehaviour
     [SerializeField] private VRFadeController _fadeController;
 
     public bool IsTeleporting { get; private set; }
-    public Vector3 PlayerPosition => _playerTransform != null ? _playerTransform.position : Vector3.zero;
+    public Vector3 PlayerPosition => _cameraTransform != null ? _cameraTransform.position : Vector3.zero;
 
     /// <summary>
     /// El TeleportPoint que el jugador esta pisando ahora mismo (o null si
@@ -73,9 +73,9 @@ public class TeleportManager : MonoBehaviour
             return;
         }
 
-        if (_playerTransform == null)
+        if (_cameraTransform == null)
         {
-            Debug.LogWarning("[TeleportManager] Falta asignar Player Transform en el Inspector.");
+            Debug.LogWarning("[TeleportManager] Falta asignar Camera Transform en el Inspector (tiene que ser Main Camera, no Player).");
             return;
         }
 
@@ -100,7 +100,7 @@ public class TeleportManager : MonoBehaviour
             _currentOccupiedPoint.SetVisible(true);
         }
 
-        Vector3 startPos = _playerTransform.position;
+        Vector3 startPos = _cameraTransform.position;
         // Por defecto solo cambia X/Z y mantiene la altura de ojos actual.
         // Si este punto en particular pide una altura especifica (agacharse
         // para pasar por un hueco, o pararse de nuevo del otro lado), se usa
@@ -122,21 +122,22 @@ public class TeleportManager : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
-            _playerTransform.position = Vector3.Lerp(startPos, targetPos, t);
+            _cameraTransform.position = Vector3.Lerp(startPos, targetPos, t);
             yield return null;
         }
 
-        _playerTransform.position = targetPos;
+        _cameraTransform.position = targetPos;
 
         if (_footstepsAudioSource != null)
         {
             _footstepsAudioSource.Stop();
         }
 
-        Debug.Log($"[TeleportManager] Llego caminando a {_playerTransform.position}");
+        Debug.Log($"[TeleportManager] Llego caminando a {_cameraTransform.position}");
 
         sourcePoint.SetVisible(false);
         _currentOccupiedPoint = sourcePoint;
+        sourcePoint.NotifyArrived();
 
         IsTeleporting = false;
     }
@@ -164,13 +165,14 @@ public class TeleportManager : MonoBehaviour
             _currentOccupiedPoint.SetVisible(true);
         }
 
-        Vector3 current = _playerTransform.position;
+        Vector3 current = _cameraTransform.position;
         float targetY = sourcePoint.OverridesPlayerHeight ? sourcePoint.TargetPlayerHeight : current.y;
-        _playerTransform.position = new Vector3(destination.x, targetY, destination.z);
+        _cameraTransform.position = new Vector3(destination.x, targetY, destination.z);
 
-        Debug.Log($"[TeleportManager] Teletransportado a {_playerTransform.position}");
+        Debug.Log($"[TeleportManager] Teletransportado a {_cameraTransform.position}");
 
         sourcePoint.SetVisible(false);
         _currentOccupiedPoint = sourcePoint;
+        sourcePoint.NotifyArrived();
     }
 }

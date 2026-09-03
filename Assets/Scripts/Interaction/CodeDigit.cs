@@ -70,6 +70,11 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
 
     public void OnGazeSelect()
     {
+        // LOG TEMPORAL: confirma que este cilindro puntual es el que
+        // realmente recibio la seleccion (y no el candado entero). Sacar
+        // despues de resolver el bug de la hitbox.
+        Debug.Log($"[CodeDigit] OnGazeSelect en {gameObject.name} (isRotating={_isRotating})");
+
         if (_isRotating || string.IsNullOrEmpty(_symbols))
         {
             return;

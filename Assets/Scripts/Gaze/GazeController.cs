@@ -79,6 +79,16 @@ public class GazeController : MonoBehaviour
             ? newObject.GetComponentInParent<IGazeInteractable>()
             : null;
 
+        // LOG TEMPORAL: para diagnosticar que collider esta golpeando el
+        // rayo realmente (newObject) y en que GameObject se encontro el
+        // IGazeInteractable (puede ser distinto si el Collider esta en un
+        // hijo y el script en un padre). Sacar despues de resolver el bug
+        // del candado.
+        string interactableOwner = _currentInteractable != null
+            ? ((Component)_currentInteractable).gameObject.name
+            : "ninguno";
+        Debug.Log($"[GazeController] Gaze cambio -> collider golpeado: {(newObject != null ? newObject.name : "nada")} | interactuable en: {interactableOwner}");
+
         // Entro al objeto nuevo.
         if (_currentInteractable != null)
         {
