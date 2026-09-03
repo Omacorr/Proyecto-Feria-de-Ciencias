@@ -21,6 +21,16 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     [Tooltip("Material cuando SI se esta mirando el punto.")]
     [SerializeField] private Material _gazedAtMaterial;
 
+    [Header("Altura del jugador (opcional)")]
+    [Tooltip("Tildado: este punto lleva al jugador a una altura de ojos especifica en vez de mantener la altura actual. Sirve para agacharse y pasar por huecos bajos (o para volver a pararse del otro lado).")]
+    [SerializeField] private bool _overridePlayerHeight;
+
+    [Tooltip("Posicion Y (mundial) a la que queda el jugador si 'Override Player Height' esta tildado. Ajustala a ojo probando en Play/Build hasta que pase justo por el hueco.")]
+    [SerializeField] private float _targetPlayerHeight;
+
+    public bool OverridesPlayerHeight => _overridePlayerHeight;
+    public float TargetPlayerHeight => _targetPlayerHeight;
+
     private Renderer _renderer;
     private Collider _collider;
 

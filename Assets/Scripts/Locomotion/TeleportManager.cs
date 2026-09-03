@@ -37,6 +37,14 @@ public class TeleportManager : MonoBehaviour
     public bool IsTeleporting { get; private set; }
     public Vector3 PlayerPosition => _playerTransform != null ? _playerTransform.position : Vector3.zero;
 
+    /// <summary>
+    /// El TeleportPoint que el jugador esta pisando ahora mismo (o null si
+    /// nunca piso ninguno). Pensado para que otros scripts (por ejemplo
+    /// ExamineTrigger) puedan guardarlo antes de mandar al jugador a otro
+    /// lado, y volver ahi despues.
+    /// </summary>
+    public TeleportPoint CurrentOccupiedPoint => _currentOccupiedPoint;
+
     private readonly List<TeleportPoint> _registeredPoints = new List<TeleportPoint>();
     private TeleportPoint _currentOccupiedPoint;
 
@@ -93,9 +101,12 @@ public class TeleportManager : MonoBehaviour
         }
 
         Vector3 startPos = _playerTransform.position;
-        // Solo cambia X/Z. La altura de los ojos del jugador no depende de a
-        // que altura este puesto el marcador de destino.
-        Vector3 targetPos = new Vector3(destination.x, startPos.y, destination.z);
+        // Por defecto solo cambia X/Z y mantiene la altura de ojos actual.
+        // Si este punto en particular pide una altura especifica (agacharse
+        // para pasar por un hueco, o pararse de nuevo del otro lado), se usa
+        // esa en cambio.
+        float targetY = sourcePoint.OverridesPlayerHeight ? sourcePoint.TargetPlayerHeight : startPos.y;
+        Vector3 targetPos = new Vector3(destination.x, targetY, destination.z);
 
         float distance = Vector3.Distance(startPos, targetPos);
         float duration = _walkSpeed > 0f ? distance / _walkSpeed : 0f;
@@ -154,7 +165,8 @@ public class TeleportManager : MonoBehaviour
         }
 
         Vector3 current = _playerTransform.position;
-        _playerTransform.position = new Vector3(destination.x, current.y, destination.z);
+        float targetY = sourcePoint.OverridesPlayerHeight ? sourcePoint.TargetPlayerHeight : current.y;
+        _playerTransform.position = new Vector3(destination.x, targetY, destination.z);
 
         Debug.Log($"[TeleportManager] Teletransportado a {_playerTransform.position}");
 

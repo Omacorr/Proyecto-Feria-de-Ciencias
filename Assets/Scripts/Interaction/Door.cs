@@ -14,7 +14,10 @@ using UnityEngine;
 public class Door : MonoBehaviour, IGazeInteractable
 {
     [Header("Referencias")]
-    [Tooltip("El KeyInventory que sabe si el jugador ya tiene la llave.")]
+    [Tooltip("Tildado (por defecto): la puerta pide la llave del KeyInventory para abrirse. Destildado: se abre directo al mirarla, sin pedir nada - sirve para puertas comunes del mapa que no son parte de un puzzle.")]
+    [SerializeField] private bool _requiresKey = true;
+
+    [Tooltip("El KeyInventory que sabe si el jugador ya tiene la llave. No hace falta asignarlo si 'Requires Key' esta destildado.")]
     [SerializeField] private KeyInventory _keyInventory;
 
     [Tooltip("Objeto con el cartel 'Te falta la llave' (Text/TextMeshPro). Arranca desactivado en la escena.")]
@@ -23,12 +26,17 @@ public class Door : MonoBehaviour, IGazeInteractable
     [Tooltip("Cuantos segundos se queda visible el cartel de aviso.")]
     [SerializeField] private float _signDuration = 2.5f;
 
-    [Header("Apertura")]
-    [Tooltip("Posicion LOCAL a la que se mueve la puerta al abrirse (relativa a su posicion inicial).")]
+    [Header("Apertura - Posicion")]
+    [Tooltip("Posicion LOCAL ABSOLUTA a la que queda la puerta abierta (es el valor final de transform.localPosition, no un offset que se suma). Dejala en (0,0,0) si la puerta solo va a girar, sin desplazarse. Ver nota abajo sobre como conseguir este valor sin calcularlo a mano.")]
     [SerializeField] private Vector3 _openLocalPosition;
 
-    [Tooltip("Velocidad del movimiento de apertura, en metros por segundo.")]
-    [SerializeField] private float _openSpeed = 1.5f;
+    [Header("Apertura - Rotacion")]
+    [Tooltip("Rotacion LOCAL adicional (grados, Euler XYZ) que gira la puerta al abrirse, sumada a su rotacion inicial - por ejemplo (0, 90, 0) para que gire como puerta de gozne. Dejala en (0,0,0) si la puerta solo se desplaza, sin girar.")]
+    [SerializeField] private Vector3 _openLocalEulerRotation;
+
+    [Header("Duracion")]
+    [Tooltip("Cuantos segundos tarda la animacion de apertura (posicion y rotacion se mueven juntas en ese mismo tiempo). A diferencia de una velocidad en metros/segundo, esto no depende de la escala del objeto padre - por eso lo usamos en vez de una velocidad.")]
+    [SerializeField] private float _openDuration = 1.5f;
 
     [Header("Feedback de mirada (opcional)")]
     [SerializeField] private Material _inactiveMaterial;
@@ -36,6 +44,7 @@ public class Door : MonoBehaviour, IGazeInteractable
 
     private Renderer _renderer;
     private Vector3 _closedLocalPosition;
+    private Quaternion _closedLocalRotation;
     private bool _isOpen;
     private bool _isMoving;
     private Coroutine _signCoroutine;
@@ -44,6 +53,7 @@ public class Door : MonoBehaviour, IGazeInteractable
     {
         _renderer = GetComponent<Renderer>();
         _closedLocalPosition = transform.localPosition;
+        _closedLocalRotation = transform.localRotation;
 
         if (_missingKeySign != null)
         {
@@ -75,17 +85,35 @@ public class Door : MonoBehaviour, IGazeInteractable
             return;
         }
 
-        bool hasKey = _keyInventory != null && _keyInventory.HasKey;
+        bool canOpen = !_requiresKey || (_keyInventory != null && _keyInventory.HasKey);
 
-        if (hasKey)
+        if (canOpen)
         {
-            _isOpen = true;
-            StartCoroutine(MoveDoor(_closedLocalPosition, _openLocalPosition));
+            Open();
         }
         else
         {
             ShowMissingKeySign();
         }
+    }
+
+    /// <summary>
+    /// Abre la puerta directamente, sin pasar por el chequeo de llave.
+    /// Publica para que otros scripts la puedan abrir por su cuenta - por
+    /// ejemplo, CodeLock.OnUnlocked cableado a esta funcion en las dos hojas
+    /// de una puerta doble, para que ambas se abran juntas apenas se
+    /// resuelve el candado, sin que el jugador tenga que mirar cada hoja.
+    /// </summary>
+    public void Open()
+    {
+        if (_isOpen || _isMoving)
+        {
+            return;
+        }
+
+        _isOpen = true;
+        Quaternion openRotation = _closedLocalRotation * Quaternion.Euler(_openLocalEulerRotation);
+        StartCoroutine(MoveDoor(_closedLocalPosition, _openLocalPosition, _closedLocalRotation, openRotation));
     }
 
     private void ShowMissingKeySign()
@@ -112,23 +140,37 @@ public class Door : MonoBehaviour, IGazeInteractable
         _signCoroutine = null;
     }
 
-    private IEnumerator MoveDoor(Vector3 from, Vector3 to)
+    private IEnumerator MoveDoor(Vector3 fromPos, Vector3 toPos, Quaternion fromRot, Quaternion toRot)
     {
         _isMoving = true;
 
-        float distance = Vector3.Distance(from, to);
-        float duration = _openSpeed > 0f ? distance / _openSpeed : 0f;
+        // Duracion fija en segundos (Open Duration), no una velocidad en
+        // metros/segundo. Antes calculabamos el tiempo como distancia /
+        // velocidad, pero esa distancia se mide en unidades LOCALES, y si el
+        // padre de la puerta tiene una escala rara (comun en mapas
+        // importados), unidades locales chicas pueden representar
+        // muchisimos metros reales (o al reves) - eso hacia que la puerta
+        // pareciera "trabada" tardando minutos u horas en terminar de
+        // moverse aunque la posicion en si estuviera bien puesta.
+        float duration = Mathf.Max(0f, _openDuration);
         float elapsed = 0f;
+
+        Debug.Log($"[Door] {gameObject.name} arranca MoveDoor. fromPos={fromPos} toPos={toPos} duration={duration} worldPosAntes={transform.position}");
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            transform.localPosition = Vector3.Lerp(from, to, Mathf.Clamp01(elapsed / duration));
+            float t = Mathf.Clamp01(elapsed / duration);
+            transform.localPosition = Vector3.Lerp(fromPos, toPos, t);
+            transform.localRotation = Quaternion.Slerp(fromRot, toRot, t);
             yield return null;
         }
 
-        transform.localPosition = to;
+        transform.localPosition = toPos;
+        transform.localRotation = toRot;
         _isMoving = false;
+
+        Debug.Log($"[Door] {gameObject.name} termino MoveDoor. localPosFinal={transform.localPosition} worldPosDespues={transform.position}");
     }
 
     private void SetGazed(bool gazedAt)
