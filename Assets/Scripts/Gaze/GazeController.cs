@@ -69,9 +69,25 @@ public class GazeController : MonoBehaviour
         CurrentGazedObject = newObject;
         _gazeTimer = 0f;
         GazeProgress = 0f;
+        // GetComponentInParent (no GetComponent) porque en mallas importadas
+        // el Collider que golpea el rayo suele estar en un objeto hijo
+        // distinto de donde pusimos el script interactuable (por ejemplo,
+        // Door en el padre de la puerta+vidrio). GetComponentInParent
+        // revisa el propio objeto primero y despues sube por la jerarquia,
+        // asi que sigue encontrando todo lo que ya funcionaba antes.
         _currentInteractable = newObject != null
-            ? newObject.GetComponent<IGazeInteractable>()
+            ? newObject.GetComponentInParent<IGazeInteractable>()
             : null;
+
+        // LOG TEMPORAL: para diagnosticar que collider esta golpeando el
+        // rayo realmente (newObject) y en que GameObject se encontro el
+        // IGazeInteractable (puede ser distinto si el Collider esta en un
+        // hijo y el script en un padre). Sacar despues de resolver el bug
+        // del candado.
+        string interactableOwner = _currentInteractable != null
+            ? ((Component)_currentInteractable).gameObject.name
+            : "ninguno";
+        Debug.Log($"[GazeController] Gaze cambio -> collider golpeado: {(newObject != null ? newObject.name : "nada")} | interactuable en: {interactableOwner}");
 
         // Entro al objeto nuevo.
         if (_currentInteractable != null)
