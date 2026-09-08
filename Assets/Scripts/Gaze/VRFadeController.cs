@@ -32,6 +32,17 @@ public class VRFadeController : MonoBehaviour
         IsFading = false;
     }
 
+    /// <summary>
+    /// Solo funde a negro y se queda en negro (no vuelve). Util antes de cargar
+    /// otra escena: la pantalla queda tapada hasta que la escena nueva aparece.
+    /// </summary>
+    public IEnumerator FadeToBlack()
+    {
+        IsFading = true;
+        yield return Fade(0f, 1f);
+        IsFading = false;
+    }
+
     private IEnumerator Fade(float from, float to)
     {
         if (_fadeImage == null)

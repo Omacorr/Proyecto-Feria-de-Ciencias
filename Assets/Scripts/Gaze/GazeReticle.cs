@@ -18,6 +18,47 @@ public class GazeReticle : MonoBehaviour
     [Tooltip("Punto central que siempre esta visible, mirando algo interactivo o no.")]
     [SerializeField] private Image _dotImage;
 
+    // Escala original de cada grafico al arrancar. El menu de configuracion
+    // multiplica SOBRE esto (no sobre el valor ya escalado), asi cambiar de
+    // preset varias veces no acumula. Solo se tocan estos dos graficos: el
+    // fundido a negro y cualquier otra cosa del canvas quedan intactos.
+    private Vector3 _baseProgressScale = Vector3.one;
+    private Vector3 _baseDotScale = Vector3.one;
+    private float _sizeMultiplier = 1f;
+
+    private void Awake()
+    {
+        if (_progressImage != null)
+        {
+            _baseProgressScale = _progressImage.rectTransform.localScale;
+        }
+        if (_dotImage != null)
+        {
+            _baseDotScale = _dotImage.rectTransform.localScale;
+        }
+    }
+
+    /// <summary>
+    /// Ajusta el tamaño del reticulo como multiplo de su tamaño original de
+    /// escena. Lo usa GameSettings.Apply() con el preset elegido en el menu de
+    /// configuracion.
+    /// </summary>
+    public void SetSizeMultiplier(float multiplier)
+    {
+        _sizeMultiplier = Mathf.Max(0.1f, multiplier);
+
+        if (_progressImage != null)
+        {
+            _progressImage.rectTransform.localScale = _baseProgressScale * _sizeMultiplier;
+        }
+        // El punto tambien se re-escala en Update (tiene un latido al mirar
+        // algo), pero lo dejamos consistente aca por si Update todavia no corrio.
+        if (_dotImage != null)
+        {
+            _dotImage.rectTransform.localScale = _baseDotScale * _sizeMultiplier;
+        }
+    }
+
     private void Update()
     {
         if (_gazeController == null)
@@ -35,11 +76,11 @@ public class GazeReticle : MonoBehaviour
 
         if (_dotImage != null)
         {
-            // Refuerza el feedback: el punto crece un poco cuando hay algo
-            // interactivo en la mira, ademas del anillo llenandose.
-            _dotImage.transform.localScale = isGazingAtSomething
-                ? Vector3.one * 1.3f
-                : Vector3.one;
+            // Latido: el punto crece un poco cuando hay algo interactivo en la
+            // mira. Se combina con el multiplicador de tamaño elegido en
+            // configuracion (por eso se parte de _baseDotScale y no de one).
+            float pulse = isGazingAtSomething ? 1.3f : 1f;
+            _dotImage.rectTransform.localScale = _baseDotScale * (_sizeMultiplier * pulse);
         }
     }
 }
