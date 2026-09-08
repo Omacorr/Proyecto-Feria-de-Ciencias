@@ -96,6 +96,20 @@ public class GazeController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Cambia en runtime los segundos de mirada sostenida necesarios para
+    /// seleccionar. Lo usa GameSettings.Apply() con el preset elegido en el menu
+    /// de configuracion. Ignora valores &lt;= 0 para no dejar el gaze en un
+    /// estado donde selecciona al instante o nunca.
+    /// </summary>
+    public void SetSelectDuration(float seconds)
+    {
+        if (seconds > 0f)
+        {
+            _gazeSelectDuration = seconds;
+        }
+    }
+
     private void HandleGazeStay()
     {
         _gazeTimer += Time.deltaTime;
