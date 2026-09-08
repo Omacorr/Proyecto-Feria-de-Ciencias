@@ -79,13 +79,20 @@ public class TeleportManager : MonoBehaviour
             return;
         }
 
-        if (_useWalkAnimation)
+        // Los puntos que redirigen a otro objetivo (Destination Override, por
+        // ejemplo puertas) siempre usan fade, sin importar el modo general de
+        // la escena: caminar hacia un destino que no es el punto que se esta
+        // mirando queda confuso. El resto de los puntos respeta "Use Walk
+        // Animation" como siempre.
+        bool useFade = !_useWalkAnimation || sourcePoint.UsesFadeTransition;
+
+        if (useFade)
         {
-            StartCoroutine(DoWalk(destination, sourcePoint));
+            StartCoroutine(DoFadeTeleport(destination, sourcePoint));
         }
         else
         {
-            StartCoroutine(DoFadeTeleport(destination, sourcePoint));
+            StartCoroutine(DoWalk(destination, sourcePoint));
         }
     }
 
