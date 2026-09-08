@@ -29,12 +29,26 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     [Tooltip("Posicion Y (mundial) a la que queda el jugador si 'Override Player Height' esta tildado. Ajustala a ojo probando en Play/Build hasta que pase justo por el hueco.")]
     [SerializeField] private float _targetPlayerHeight;
 
+    [Header("Destino (opcional)")]
+    [Tooltip("Si se asigna, mirar este punto teletransporta a la posicion de ESTE Transform en vez de a la posicion propia. Util para puertas: la puerta se queda quieta donde se ve bien, pero el destino real es otro punto (por ejemplo, un Cube vacio puesto del otro lado de la puerta). Dejalo vacio para el comportamiento normal (moverse a la posicion de este mismo objeto).")]
+    [SerializeField] private Transform _destinationOverride;
+
     [Header("Eventos (opcional)")]
     [Tooltip("Se dispara cada vez que el jugador llega parado a este punto (lo llama TeleportManager apenas termina de moverlo). Util para marcar que el jugador 'ya vio' algo puesto en este lugar - por ejemplo, tp14 (frente a las notas con el codigo) puede cablear esto a CodeClueTracker.MarkSeen().")]
     [SerializeField] private UnityEvent _onPlayerArrived;
 
     public bool OverridesPlayerHeight => _overridePlayerHeight;
     public float TargetPlayerHeight => _targetPlayerHeight;
+
+    /// <summary>
+    /// True si este punto redirige a otro objetivo (Destination Override
+    /// asignado) en vez de llevar al jugador a su propia posicion. TeleportManager
+    /// usa esto para forzar el fade a negro en estos casos puntuales (puertas,
+    /// etc.), sin importar si "Use Walk Animation" esta tildado para el resto
+    /// de la escena - caminar hacia un destino que no es visualmente el mismo
+    /// punto que se esta mirando queda raro.
+    /// </summary>
+    public bool UsesFadeTransition => _destinationOverride != null;
 
     private Renderer _renderer;
     private Collider _collider;
@@ -79,7 +93,8 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
             return;
         }
 
-        _teleportManager.RequestTeleport(transform.position, this);
+        Vector3 destination = _destinationOverride != null ? _destinationOverride.position : transform.position;
+        _teleportManager.RequestTeleport(destination, this);
     }
 
     /// <summary>

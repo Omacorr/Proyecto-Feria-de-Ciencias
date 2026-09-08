@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Parte 3 - Pasillo de hotel.unity
     guid: aab26e9a4feccb24d9860dec986cd994
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Parte 1 - El Despertar.unity
     guid: 3d9f662675e534341af672267b7a1ebc
   - enabled: 0
