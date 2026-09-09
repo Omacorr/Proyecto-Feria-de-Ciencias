@@ -48,22 +48,57 @@ quedan sólidos** con `renderQueue` alta para leerse siempre por encima.
 
 ## Secuencia de entrada (puerta)
 
-El generador crea un objeto **"Puerta"** (geometría propia: jambas, dintel y una
-hoja con pivote) a `DoorDistance` (3,0 m), justo detrás del menú. Al mirar
-**EMPEZAR**, `MainMenuController`:
+El generador junta **todas las mallas de `horror_room.glb` cuyo nombre tiene
+"door"/"puerta"** (o `DoorNameHint` = "door low"), excluyendo marco/frame/jamba,
+y las **reparenta bajo un pivote `PuertaMenu`** con bisagra en un borde de la
+caja envolvente combinada. `MainMenuController._door` apunta a ese `PuertaMenu`,
+así que al abrir **giran todas las partes juntas** ~100° alrededor de la
+vertical. La consola loguea qué nodos encontró y cuántas partes agrupó. Si NO
+encuentra ninguna, cae en una puerta propia a `DoorDistance`.
+
+El menú va **entre la cámara y `PuertaMenu`**, pegado a la puerta.
+
+El jugador **aparece a `PlayerStandDistance` (2,6 m) delante de la puerta,
+mirándola** (se rota la raíz del Player), con el menú a `MenuGapFromDoor` (0,7 m)
+de la puerta. Se crea un `PuertaCentro` en el centro de la puerta como objetivo
+del avance.
+
+Si la puerta abre para el lado equivocado: flag `DoorHingeAtFarEdge` en el
+generador, o invertí `_doorOpenAngle` (ej. `-100`) en `MenuManager`.
+
+Al mirar **EMPEZAR**, `MainMenuController`:
 
 1. apaga los paneles y desactiva `PlayerFollowsCamera`,
-2. **abre la puerta** (`_doorOpenLocalEuler`, ~100° en `_doorOpenDuration` s),
-3. **avanza el rig** cruzándola (`_walkDistance` 3,8 m / `_walkDuration` 2 s),
-4. **funde a negro**, prende **"CARGANDO..."** y hace `LoadSceneAsync`
-   (`allowSceneActivation = false`),
-5. espera `_minLoadSeconds` (2,5 s) **y** a que la escena esté lista, y ahí
+2. **abre la puerta**: gira `PuertaMenu` `_doorOpenAngle` (~100°) alrededor de la
+   vertical que pasa por su origen — la bisagra — (`_doorOpenDuration` 1,4 s),
+3. **avanza el rig** en línea recta hacia `PuertaCentro` y `_extraWalkPastDoor`
+   (1,5 m) más, cruzando la puerta (`_walkDuration` 2 s),
+4. **funde a negro** y muestra la **pantalla de carga** con el nombre del nivel
+   grande (`_levelDisplayName` = **TUTORIAL**) y `cargando...` chico debajo, y
+   hace `LoadSceneAsync` (`allowSceneActivation = false`),
+5. espera `_minLoadSeconds` (3 s) **y** a que la escena esté lista, y ahí
    activa → aparecés en el Tutorial.
 
 Todo eso se cablea solo (`_door` = pivote de la hoja, `_cameraRig` = raíz del
-Player, `_loadingText` = "CargandoText"). Si querés usar otra puerta (la del
+Player, `_loadingText` = "PantallaCarga"). Si querés usar otra puerta (la del
 `.glb`), arrastrá su transform a `_door` en `MenuManager` y ajustá los euler. Si
 dejás `_door` / `_cameraRig` vacíos, EMPEZAR carga directo con fundido.
+
+## Locución del Tutorial (voz explicando el nivel)
+
+`Assets/Scripts/Ambient/SceneNarration.cs`: componente que reproduce un clip de
+voz **una vez** al empezar la escena (con delay configurable y subtítulo TMP
+opcional). Sirve para cualquier escena.
+
+Para el Tutorial:
+
+1. Grabá la voz (celular / web de texto-a-voz) y guardala como
+   **`Assets/Audios/TutorialLocucion.wav`** (o `.mp3` / `.ogg` / `.flac`).
+2. Menú **`Tools > Feria de Ciencias > Agregar locucion al Tutorial`**: crea el
+   objeto **"Locucion"** (AudioSource + SceneNarration) en `Tutorial.unity` y le
+   asigna el clip. Es idempotente (re-corrélo cuando cambies el audio).
+3. Opcional: en el Inspector de "Locucion", asignar un TMP a `Subtitle Label` y
+   escribir el texto en `Subtitle Text` para que se vea mientras habla.
 
 Ajustes finos (constantes al principio del generador): `FogDensity`,
 `AmbientColor`, `FillLightIntensity`, `FlickerLightIntensity`, `FlickerLightRange`,
@@ -125,11 +160,38 @@ Presets y valores concretos: en `Assets/Scripts/Settings/GameSettings.cs`
 Cambios menores en scripts existentes: `GazeController.SetSelectDuration(float)`
 y `GazeReticle.SetSizeMultiplier(float)` (retrocompatibles).
 
+## Sonidos del menú
+
+- `InteractiveObject` ahora tiene `_hoverSound` (al posar la mirada) y
+  `_selectSound` (al activar), que suenan por un `AudioSource` compartido.
+- El generador crea `MenuAudio` (AudioSource 2D) y `Assets/Audios/MenuHover.wav`
+  / `MenuSelect.wav` (generados por código), y los cablea en cada botón.
+- Tamaño de todas las letras: constante `TextScale` (1.3) en el generador.
+
+## Preparar el Tutorial (rig + teleports + llave + puerta)
+
+`Tools > Feria de Ciencias > Preparar Tutorial` (`Assets/Editor/TutorialSetup.cs`):
+
+- Agrega el rig de VR (prefab `Player`) si la escena no lo tiene, ubicándolo en
+  la Main Camera vieja y borrándola.
+- Convierte cada objeto `Teletransportadores*` en `TeleportPoint` funcional
+  (Collider + layer `Interactive` + ref al `TeleportManager`).
+- Asegura `KeyInventory`; si no hay llave, crea `LlaveTutorial` (usa
+  `Assets/Models/keys.glb` si existe) con `Collectable` cableado a `CollectKey`.
+- Crea/usa la **puerta de salida** con `LevelDoor`
+  (`Assets/Scripts/Interaction/LevelDoor.cs`): al mirarla (con la llave) funde a
+  negro, muestra **"PARTE 1 / HOSPITAL"** y carga `Parte 1 - El Despertar`.
+- Sonido relajante en loop: poné `Assets/Audios/TutorialAmbiente.wav`
+  (o `.mp3/.ogg/.flac`) y (re)corré el menú.
+- Habilita `Parte 1 - El Despertar` en Build Settings.
+
+Es idempotente y loguea todo. Después ajustá a mano la posición de
+`LlaveTutorial` / `PuertaSalida` si las creó el tool. La locución la sigue
+poniendo `Tools > Feria de Ciencias > Agregar locucion al Tutorial`.
+
 ## Notas
 
-- La escena `Tutorial` hoy **no tiene el rig de gaze** (sólo cámara, teleports y
-  un cartel). "EMPEZAR" te lleva ahí igual, pero hay que terminar esa escena
-  aparte (arrastrarle el prefab `Player`, etc.).
+- La escena `Tutorial` se prepara con el tool de arriba.
 - Si el prefab `Player` no tuviera `VRFadeController`, "EMPEZAR" corta seco sin
   fundido (el generador lo avisa en consola).
 - Si algún texto o botón queda mal de posición en el visor, es sólo moverlo en

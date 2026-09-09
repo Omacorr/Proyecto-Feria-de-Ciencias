@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -28,31 +29,37 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] private VRFadeController _fade;
 
     [Header("Secuencia de entrada (opcional)")]
-    [Tooltip("Pivote de la puerta que se abre al Empezar. Si se deja vacio (junto con Camera Rig), Empezar carga directo con fundido.")]
+    [Tooltip("Objeto de la puerta que se abre al Empezar (el del modelo). Si se deja vacio (junto con Camera Rig), Empezar carga directo con fundido.")]
     [SerializeField] private Transform _door;
 
-    [Tooltip("Rotacion local de la puerta CERRADA.")]
-    [SerializeField] private Vector3 _doorClosedLocalEuler = Vector3.zero;
-
-    [Tooltip("Rotacion local de la puerta ABIERTA.")]
-    [SerializeField] private Vector3 _doorOpenLocalEuler = new Vector3(0f, 100f, 0f);
+    [Tooltip("Grados que gira la puerta al abrirse, alrededor de la vertical. Negativo = abre para el otro lado.")]
+    [SerializeField] private float _doorOpenAngle = 100f;
 
     [Tooltip("Segundos que tarda en abrirse la puerta.")]
-    [SerializeField] private float _doorOpenDuration = 1.1f;
+    [SerializeField] private float _doorOpenDuration = 1.4f;
 
     [Tooltip("Transform que avanza hacia/por la puerta (la RAIZ del objeto Player). Si tiene PlayerFollowsCamera, se desactiva durante el avance.")]
     [SerializeField] private Transform _cameraRig;
 
-    [Tooltip("Metros que avanza la camara cruzando la puerta.")]
+    [Tooltip("Punto por el que el jugador cruza (centro de la puerta). Si esta asignado, el avance va hacia aca.")]
+    [SerializeField] private Transform _walkThroughPoint;
+
+    [Tooltip("Metros que sigue avanzando DESPUES de llegar a la puerta.")]
+    [SerializeField] private float _extraWalkPastDoor = 1.5f;
+
+    [Tooltip("Metros de avance si no hay Walk Through Point (respaldo).")]
     [SerializeField] private float _walkDistance = 3.8f;
 
     [Tooltip("Segundos que dura el avance.")]
     [SerializeField] private float _walkDuration = 2f;
 
-    [Tooltip("Segundos minimos en negro 'cargando' antes de aparecer en el Tutorial.")]
-    [SerializeField] private float _minLoadSeconds = 2.5f;
+    [Tooltip("Segundos minimos en negro con el cartel del nivel antes de aparecer en el juego.")]
+    [SerializeField] private float _minLoadSeconds = 3f;
 
-    [Tooltip("Opcional: objeto de texto 'CARGANDO...' que se prende durante la carga (encima del fundido).")]
+    [Tooltip("Nombre del nivel que se muestra GRANDE en la pantalla de carga (ej: TUTORIAL).")]
+    [SerializeField] private string _levelDisplayName = "TUTORIAL";
+
+    [Tooltip("Opcional: objeto de texto que se prende durante la carga (encima del fundido). Se le setea '<nivel> / cargando...'.")]
     [SerializeField] private GameObject _loadingText;
 
     // Evita que mirar Empezar dos veces (el gaze re-selecciona) dispare la
@@ -116,25 +123,34 @@ public class MainMenuController : MonoBehaviour
             follow.enabled = false;
         }
 
-        // Direccion de avance: la del marco de la puerta (su padre, que NO rota
-        // al abrirse), tomada ANTES de abrir. Asi se entra derecho aunque estes
-        // mirando para otro lado al elegir Empezar.
-        Transform dirSource = _door.parent != null ? _door.parent : _door;
-        Vector3 dir = dirSource.forward;
-        dir.y = 0f;
-        if (dir.sqrMagnitude < 0.0001f) dir = Vector3.forward;
-        dir.Normalize();
+        // Distancia y direccion CAMARA -> centro de la puerta, horizontal,
+        // calculadas ANTES de abrir (rotar la puerta no mueve su posicion).
+        Transform camT = Camera.main != null ? Camera.main.transform : _cameraRig;
+        Vector3 camStart = camT.position;
+        Vector3 aim = _walkThroughPoint != null ? _walkThroughPoint.position
+                    : (_door != null ? _door.position : camStart + camT.forward);
+        Vector3 flat = aim - camStart;
+        flat.y = 0f;
+        if (flat.sqrMagnitude < 0.0001f) flat = new Vector3(camT.forward.x, 0f, camT.forward.z);
+        if (flat.sqrMagnitude < 0.0001f) flat = Vector3.forward;
+        float camToDoor = flat.magnitude;
+        Vector3 dir = flat / camToDoor;
 
-        // 1. Abrir la puerta.
-        yield return RotateLocal(_door, _doorClosedLocalEuler, _doorOpenLocalEuler, _doorOpenDuration);
+        // 1. Abrir la puerta: girar _door (el pivote "PuertaMenu", ya ubicado en
+        //    la bisagra por el generador) _doorOpenAngle grados sobre la vertical.
+        Debug.Log("[MainMenuController] Abriendo puerta '" + _door.name + "' pos=" +
+                  _door.position.ToString("0.00") + " angulo=" + _doorOpenAngle);
+        yield return SwingAround(_door, _door.position, Vector3.up, _doorOpenAngle, _doorOpenDuration);
 
         // Respiro corto una vez abierta.
-        yield return new WaitForSeconds(0.15f);
+        yield return new WaitForSeconds(0.2f);
 
-        // 2. Avanzar cruzando la puerta.
-        Vector3 from = _cameraRig.position;
-        Vector3 to = from + dir * _walkDistance;
-        yield return MovePosition(_cameraRig, from, to, _walkDuration);
+        // 2. Avanzar: se mueve la RAIZ del rig, pero la distancia se mide sobre
+        //    la CAMARA (la camara viaja camToDoor + _extraWalkPastDoor y cruza).
+        float walk = _walkThroughPoint != null ? camToDoor + _extraWalkPastDoor : _walkDistance;
+        Vector3 rigStart = _cameraRig.position;
+        Vector3 rigEnd = rigStart + dir * walk;
+        yield return MovePosition(_cameraRig, rigStart, rigEnd, _walkDuration);
 
         // 3. Fundido a negro (se queda en negro), "cargando" unos segundos, y
         //    recien ahi aparecer en el Tutorial.
@@ -144,6 +160,12 @@ public class MainMenuController : MonoBehaviour
         }
         if (_loadingText != null)
         {
+            TMP_Text label = _loadingText.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                label.richText = true;
+                label.text = "<size=160%><b>" + _levelDisplayName + "</b></size>\n<size=55%>cargando...</size>";
+            }
             _loadingText.SetActive(true);
         }
 
@@ -167,21 +189,27 @@ public class MainMenuController : MonoBehaviour
         yield return _fade.FadeOutAndIn(() => SceneManager.LoadScene(_gameSceneName));
     }
 
-    private static IEnumerator RotateLocal(Transform t, Vector3 fromEuler, Vector3 toEuler, float duration)
+    // Gira 't' 'angle' grados alrededor del eje 'axis' que pasa por 'pivot'
+    // (mundo), sin reparentar: reposiciona y rota en cada frame.
+    private static IEnumerator SwingAround(Transform t, Vector3 pivot, Vector3 axis, float angle, float duration)
     {
-        Quaternion a = Quaternion.Euler(fromEuler);
-        Quaternion b = Quaternion.Euler(toEuler);
-        t.localRotation = a;
+        Quaternion startRot = t.rotation;
+        Vector3 startPos = t.position;
 
         float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
-            t.localRotation = Quaternion.Slerp(a, b, k);
+            Quaternion r = Quaternion.AngleAxis(angle * k, axis);
+            t.rotation = r * startRot;
+            t.position = pivot + r * (startPos - pivot);
             yield return null;
         }
-        t.localRotation = b;
+
+        Quaternion rf = Quaternion.AngleAxis(angle, axis);
+        t.rotation = rf * startRot;
+        t.position = pivot + rf * (startPos - pivot);
     }
 
     private static IEnumerator MovePosition(Transform t, Vector3 from, Vector3 to, float duration)

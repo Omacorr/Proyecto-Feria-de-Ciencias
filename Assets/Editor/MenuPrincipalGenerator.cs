@@ -41,6 +41,11 @@ public static class MenuPrincipalGenerator
     // generador antes de tener los assets y volver a correrlo despues.
     private const string RoomModelPath = "Assets/Modelos 3D/horror_room.glb";
     private const string AmbientAudioPath = "Assets/Audios/AmbienteMenuPrincipal.flac";
+    private const string HoverSfxPath = "Assets/Audios/MenuHover.wav";
+    private const string SelectSfxPath = "Assets/Audios/MenuSelect.wav";
+
+    // Multiplicador del tamaño de TODAS las letras del menu.
+    private const float TextScale = 1.3f;
 
     // Altura de ojos (m) por ENCIMA del piso de la habitacion. El generador
     // detecta el piso con los bounds del modelo (su punto mas bajo) y sube el
@@ -53,9 +58,23 @@ public static class MenuPrincipalGenerator
 
     // Distancia del menu a la camara (m) y de la puerta a la camara (m).
     // El menu va delante de la puerta; al Empezar la puerta se abre y la camara
-    // avanza cruzandola antes de cargar el Tutorial.
+    // avanza cruzandola antes de cargar el Tutorial. DoorDistance solo se usa si
+    // NO se encuentra una puerta en el modelo.
     private const float MenuDistance = 2.5f;
     private const float DoorDistance = 3.0f;
+
+    // Nombre (aprox.) del objeto puerta DENTRO de horror_room.glb. Se busca sin
+    // distinguir mayusculas ni separadores: "door low" == "door_low" == "DoorLow".
+    private const string DoorNameHint = "door low";
+
+    // Bisagra en el borde LEJANO de la puerta (true) o en el cercano (false).
+    // Si la puerta abre desde el lado equivocado, cambiar esto y regenerar.
+    private const bool DoorHingeAtFarEdge = false;
+
+    // El jugador aparece a esta distancia (m) DELANTE de la puerta, mirandola;
+    // el menu queda MenuGapFromDoor (m) delante de la puerta.
+    private const float PlayerStandDistance = 2.6f;
+    private const float MenuGapFromDoor = 0.7f;
 
     // "Casi a oscuras": ambiente y niebla casi negros. Una luz parpadeante
     // mantiene iluminada la zona del menu (atmosferica, sin llegar a tapar).
@@ -68,6 +87,11 @@ public static class MenuPrincipalGenerator
     private static readonly Color FlickerLightColor = new Color(1f, 0.80f, 0.58f, 1f); // point calida, tipo lampara
     private const float FlickerLightIntensity = 1.5f;
     private const float FlickerLightRange = 8.5f;
+
+    // Audio de UI compartido, seteado en Generate() y usado por MakeButton.
+    private static AudioSource _sMenuAudio;
+    private static AudioClip _sHoverClip;
+    private static AudioClip _sSelectClip;
 
     // Colores del menu, pensados para que resalte sobre negro. El alpha < 1 deja
     // el menu "un toque" transparente (se ve algo de la sala por detras). Los
@@ -117,8 +141,19 @@ public static class MenuPrincipalGenerator
         if (matPanel.HasProperty("_BaseMap")) matPanel.SetTexture("_BaseMap", haze);
         if (matPanel.HasProperty("_MainTex")) matPanel.SetTexture("_MainTex", haze);
 
+        // --- sonidos de UI (hover / select en los botones) ---
+        _sHoverClip = AssetDatabase.LoadAssetAtPath<AudioClip>(HoverSfxPath);
+        _sSelectClip = AssetDatabase.LoadAssetAtPath<AudioClip>(SelectSfxPath);
+
         // --- escena vacia ---
         Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        // AudioSource 2D compartido para los sonidos del menu.
+        GameObject menuAudioGO = new GameObject("MenuAudio");
+        _sMenuAudio = menuAudioGO.AddComponent<AudioSource>();
+        _sMenuAudio.playOnAwake = false;
+        _sMenuAudio.spatialBlend = 0f;
+        _sMenuAudio.volume = 0.7f;
 
         // --- rig de VR ---
         GameObject player = (GameObject)PrefabUtility.InstantiatePrefab(playerPrefab, scene);
@@ -153,22 +188,59 @@ public static class MenuPrincipalGenerator
             floorY = FloorYOverride;
         }
 
-        // Reubica el rig para que la camara quede a EyeHeight por encima del
-        // piso, y centrada en X/Z sobre el origen. El pivote del prefab tiene la
-        // camara en un offset raro; esto lo normaliza.
+        // Bounds de toda la habitacion (para saber hacia que lado de la puerta
+        // esta el interior del cuarto).
+        Bounds roomBounds = default;
+        bool haveRoomBounds = false;
+        if (room != null)
+        {
+            Renderer[] rr = room.GetComponentsInChildren<Renderer>();
+            if (rr.Length > 0)
+            {
+                roomBounds = rr[0].bounds;
+                for (int i = 1; i < rr.Length; i++) roomBounds.Encapsulate(rr[i].bounds);
+                haveRoomBounds = true;
+            }
+        }
+
+        // --- puerta del modelo: agrupamos TODAS las partes con "door"/"puerta"
+        //     (menos marco/frame) bajo un pivote de bisagra, para que abran juntas ---
+        Bounds doorBounds = default;
+        Transform doorGroup = GroupDoorParts(room, out doorBounds);
+        bool haveDoor = doorGroup != null;
+        Vector3 doorCenter = haveDoor ? doorBounds.center : Vector3.zero;
+        Vector3 doorNormal = Vector3.forward; // desde la puerta HACIA el interior del cuarto
+        if (haveDoor)
+        {
+            // El eje horizontal mas FINO de la puerta es su normal (frente/dorso).
+            Vector3 axis = doorBounds.size.x <= doorBounds.size.z ? Vector3.right : Vector3.forward;
+            Vector3 towardRoom = (haveRoomBounds ? roomBounds.center : Vector3.zero) - doorCenter;
+            towardRoom.y = 0f;
+            doorNormal = axis * (Vector3.Dot(towardRoom, axis) >= 0f ? 1f : -1f);
+        }
+        else
+        {
+            Debug.LogWarning("[MenuPrincipalGenerator] No encontre partes de puerta en la habitacion; uso una puerta propia. Ajusta DoorNameHint.");
+        }
+
+        // Donde aparece el jugador: delante de la puerta, mirandola. Rotamos la
+        // RAIZ del Player (el TrackedPoseDriver solo mueve la rotacion local de
+        // la camara).
+        Vector3 standPos = haveDoor
+            ? new Vector3(doorCenter.x, floorY + EyeHeight, doorCenter.z) + doorNormal * PlayerStandDistance
+            : new Vector3(0f, floorY + EyeHeight, 0f);
+        Quaternion standRot = haveDoor
+            ? Quaternion.LookRotation(-doorNormal, Vector3.up)
+            : Quaternion.identity;
+
         if (cam != null)
         {
-            Vector3 camWorld = cam.transform.position;
-            player.transform.position += new Vector3(
-                -camWorld.x,
-                (floorY + EyeHeight) - camWorld.y,
-                -camWorld.z);
+            player.transform.rotation = standRot;
+            player.transform.position += standPos - cam.transform.position;
         }
-        Debug.Log("[MenuPrincipalGenerator] Piso detectado en Y=" + floorY.ToString("0.00") +
-                  " -> camara a Y=" + (floorY + EyeHeight).ToString("0.00") +
-                  ". Si aparecés pegado al piso o flotando, ajusta EyeHeight o FloorYOverride.");
 
         EnsureInteractiveLayerInMask(player, interactiveLayer);
+        KeepOneAudioListener(cam);
 
         // --- GameSettings (se auto-crearia igual, pero lo dejamos visible) ---
         new GameObject("GameSettings").AddComponent<GameSettings>();
@@ -177,50 +249,73 @@ public static class MenuPrincipalGenerator
         GameObject managerGO = new GameObject("MenuManager");
         MainMenuController menu = managerGO.AddComponent<MainMenuController>();
 
-        // --- raiz del menu, plantada frente a la camara ---
-        Vector3 camPos = cam != null ? cam.transform.position : new Vector3(0f, EyeHeight, 0f);
-        Vector3 camFwd = cam != null ? cam.transform.forward : Vector3.forward;
-        if (camFwd.sqrMagnitude < 0.001f) camFwd = Vector3.forward;
-        camFwd = new Vector3(camFwd.x, 0f, camFwd.z).normalized; // horizontal: el menu no queda inclinado
-        if (camFwd.sqrMagnitude < 0.001f) camFwd = Vector3.forward;
+        // --- raiz del menu: entre la camara y la puerta, pegado a la puerta ---
+        Vector3 camPos = cam != null ? cam.transform.position : standPos;
+        Vector3 toDoor = haveDoor
+            ? (doorCenter - camPos)
+            : (cam != null ? cam.transform.forward : Vector3.forward);
+        toDoor.y = 0f;
+        if (toDoor.sqrMagnitude < 0.0001f) toDoor = Vector3.forward;
+        toDoor.Normalize();
+
+        float doorDist = haveDoor
+            ? Vector2.Distance(new Vector2(camPos.x, camPos.z), new Vector2(doorCenter.x, doorCenter.z))
+            : DoorDistance;
+        float menuDist = Mathf.Clamp(doorDist - MenuGapFromDoor, 1.0f, MenuDistance);
 
         GameObject menuRoot = new GameObject("MenuRoot");
-        menuRoot.transform.position = camPos + camFwd * MenuDistance;
+        menuRoot.transform.position = camPos + toDoor * menuDist;
         menuRoot.transform.rotation = Quaternion.LookRotation(menuRoot.transform.position - camPos, Vector3.up);
 
         BuildAtmosphere(scene, menuRoot.transform, cam, camPos);
 
-        // Puerta detras del menu; se abre y se cruza al Empezar.
-        Transform doorPivot = BuildDoor(camPos, camFwd, floorY);
+        // La puerta que rota MainMenuController: el grupo "PuertaMenu" (o una
+        // puerta propia si no se encontro ninguna parte).
+        Transform doorPivot = haveDoor ? doorGroup : BuildDoor(camPos, toDoor, floorY);
 
-        GameObject panelMain = MakePanel("PanelPrincipal", menuRoot.transform, matPanel, 5.0f, 4.2f);
-        GameObject panelConfig = MakePanel("PanelConfig", menuRoot.transform, matPanel, 5.2f, 4.8f);
-        GameObject panelCreditos = MakePanel("PanelCreditos", menuRoot.transform, matPanel, 5.0f, 3.8f);
+        // Punto por el que el jugador cruza al Empezar (centro de la puerta).
+        GameObject walkPoint = new GameObject("PuertaCentro");
+        if (room != null) walkPoint.transform.SetParent(room.transform, true);
+        walkPoint.transform.position = haveDoor
+            ? new Vector3(doorCenter.x, floorY + 1.0f, doorCenter.z)
+            : menuRoot.transform.position + toDoor * (DoorDistance - menuDist);
+        SetRef(menu, "_walkThroughPoint", walkPoint.transform);
+
+        Debug.Log("[MenuPrincipalGenerator] " + (haveDoor
+            ? "Puerta a " + doorDist.ToString("0.0") + " m (normal " + doorNormal + "); jugador aparece mirandola"
+            : "SIN puerta del modelo (uso propia)") + ". Piso Y=" + floorY.ToString("0.00") + ".");
+
+        GameObject panelMain = MakePanel("PanelPrincipal", menuRoot.transform, matPanel, 5.2f, 3.4f);
+        GameObject panelConfig = MakePanel("PanelConfig", menuRoot.transform, matPanel, 5.4f, 3.6f);
+        GameObject panelCreditos = MakePanel("PanelCreditos", menuRoot.transform, matPanel, 5.0f, 2.6f);
+
+        // Todo el contenido de cada panel se mantiene entre Y local +1.55 y -1.2
+        // (mundo: ~piso+0.4 hasta ~piso+3.2), asi nada queda bajo el piso.
 
         // ---------- Panel principal ----------
-        MakeText("Titulo", panelMain.transform, "MENÚ PRINCIPAL", new Vector3(0f, 1.15f, -0.02f), 0.5f, FontStyles.Bold);
-        GameObject bStart = MakeButton("BotonEmpezar", panelMain.transform, new Vector3(0f, 0.25f, 0f), "EMPEZAR", 3.4f, matIdle, matHot, interactiveLayer);
-        GameObject bConfig = MakeButton("BotonConfiguracion", panelMain.transform, new Vector3(0f, -0.45f, 0f), "CONFIGURACIÓN", 3.4f, matIdle, matHot, interactiveLayer);
-        GameObject bCred = MakeButton("BotonCreditos", panelMain.transform, new Vector3(0f, -1.15f, 0f), "CRÉDITOS", 3.4f, matIdle, matHot, interactiveLayer);
+        MakeText("Titulo", panelMain.transform, "MENÚ PRINCIPAL", new Vector3(0f, 1.25f, -0.02f), 0.52f, FontStyles.Bold);
+        GameObject bStart = MakeButton("BotonEmpezar", panelMain.transform, new Vector3(0f, 0.4f, 0f), "EMPEZAR", 3.8f, matIdle, matHot, interactiveLayer);
+        GameObject bConfig = MakeButton("BotonConfiguracion", panelMain.transform, new Vector3(0f, -0.35f, 0f), "CONFIGURACIÓN", 3.8f, matIdle, matHot, interactiveLayer);
+        GameObject bCred = MakeButton("BotonCreditos", panelMain.transform, new Vector3(0f, -1.1f, 0f), "CRÉDITOS", 3.8f, matIdle, matHot, interactiveLayer);
 
         WireButton(bStart, menu, nameof(MainMenuController.StartGame));
         WireButton(bConfig, menu, nameof(MainMenuController.OpenConfig));
         WireButton(bCred, menu, nameof(MainMenuController.OpenCredits));
 
         // ---------- Panel configuracion ----------
-        MakeText("Titulo", panelConfig.transform, "CONFIGURACIÓN", new Vector3(0f, 1.5f, -0.02f), 0.42f, FontStyles.Bold);
+        MakeText("Titulo", panelConfig.transform, "CONFIGURACIÓN", new Vector3(0f, 1.5f, -0.02f), 0.46f, FontStyles.Bold);
 
-        GameObject lblGaze = MakeText("LabelGaze", panelConfig.transform, "Velocidad del gaze: Medio", new Vector3(0f, 0.75f, -0.02f), 0.26f, FontStyles.Normal);
-        GameObject gLow = MakeButton("GazeBajo", panelConfig.transform, new Vector3(-1.25f, 0.2f, 0f), "Bajo", 1.05f, matIdle, matHot, interactiveLayer);
-        GameObject gMid = MakeButton("GazeMedio", panelConfig.transform, new Vector3(0f, 0.2f, 0f), "Medio", 1.05f, matIdle, matHot, interactiveLayer);
-        GameObject gHigh = MakeButton("GazeAlto", panelConfig.transform, new Vector3(1.25f, 0.2f, 0f), "Alto", 1.05f, matIdle, matHot, interactiveLayer);
+        GameObject lblGaze = MakeText("LabelGaze", panelConfig.transform, "Velocidad del gaze: Medio", new Vector3(0f, 1.0f, -0.02f), 0.24f, FontStyles.Normal);
+        GameObject gLow = MakeButton("GazeBajo", panelConfig.transform, new Vector3(-1.35f, 0.55f, 0f), "Bajo", 1.15f, matIdle, matHot, interactiveLayer);
+        GameObject gMid = MakeButton("GazeMedio", panelConfig.transform, new Vector3(0f, 0.55f, 0f), "Medio", 1.15f, matIdle, matHot, interactiveLayer);
+        GameObject gHigh = MakeButton("GazeAlto", panelConfig.transform, new Vector3(1.35f, 0.55f, 0f), "Alto", 1.15f, matIdle, matHot, interactiveLayer);
 
-        GameObject lblRet = MakeText("LabelReticulo", panelConfig.transform, "Tamaño del retículo: Medio", new Vector3(0f, -0.55f, -0.02f), 0.26f, FontStyles.Normal);
-        GameObject rLow = MakeButton("ReticuloBajo", panelConfig.transform, new Vector3(-1.25f, -1.1f, 0f), "Bajo", 1.05f, matIdle, matHot, interactiveLayer);
-        GameObject rMid = MakeButton("ReticuloMedio", panelConfig.transform, new Vector3(0f, -1.1f, 0f), "Medio", 1.05f, matIdle, matHot, interactiveLayer);
-        GameObject rHigh = MakeButton("ReticuloAlto", panelConfig.transform, new Vector3(1.25f, -1.1f, 0f), "Alto", 1.05f, matIdle, matHot, interactiveLayer);
+        GameObject lblRet = MakeText("LabelReticulo", panelConfig.transform, "Tamaño del retículo: Medio", new Vector3(0f, -0.05f, -0.02f), 0.24f, FontStyles.Normal);
+        GameObject rLow = MakeButton("ReticuloBajo", panelConfig.transform, new Vector3(-1.35f, -0.5f, 0f), "Bajo", 1.15f, matIdle, matHot, interactiveLayer);
+        GameObject rMid = MakeButton("ReticuloMedio", panelConfig.transform, new Vector3(0f, -0.5f, 0f), "Medio", 1.15f, matIdle, matHot, interactiveLayer);
+        GameObject rHigh = MakeButton("ReticuloAlto", panelConfig.transform, new Vector3(1.35f, -0.5f, 0f), "Alto", 1.15f, matIdle, matHot, interactiveLayer);
 
-        GameObject bBackCfg = MakeButton("BotonVolver", panelConfig.transform, new Vector3(0f, -1.85f, 0f), "VOLVER", 2.2f, matIdle, matHot, interactiveLayer);
+        GameObject bBackCfg = MakeButton("BotonVolver", panelConfig.transform, new Vector3(0f, -1.15f, 0f), "VOLVER", 2.4f, matIdle, matHot, interactiveLayer);
 
         ConfigMenu cfg = panelConfig.AddComponent<ConfigMenu>();
         SetRef(cfg, "_gazeSpeedLabel", lblGaze.GetComponent<TextMeshPro>());
@@ -235,9 +330,9 @@ public static class MenuPrincipalGenerator
         WireButton(bBackCfg, menu, nameof(MainMenuController.OpenMain));
 
         // ---------- Panel creditos ----------
-        MakeText("Titulo", panelCreditos.transform, "CRÉDITOS", new Vector3(0f, 1.1f, -0.02f), 0.46f, FontStyles.Bold);
-        MakeText("Nombres", panelCreditos.transform, "Pablo Prato\nOmar Correa", new Vector3(0f, 0f, -0.02f), 0.42f, FontStyles.Normal);
-        GameObject bBackCred = MakeButton("BotonVolver", panelCreditos.transform, new Vector3(0f, -1.25f, 0f), "VOLVER", 2.2f, matIdle, matHot, interactiveLayer);
+        MakeText("Titulo", panelCreditos.transform, "CRÉDITOS", new Vector3(0f, 0.95f, -0.02f), 0.48f, FontStyles.Bold);
+        MakeText("Nombres", panelCreditos.transform, "Pablo Prato\nOmar Correa", new Vector3(0f, 0.05f, -0.02f), 0.4f, FontStyles.Normal);
+        GameObject bBackCred = MakeButton("BotonVolver", panelCreditos.transform, new Vector3(0f, -0.95f, 0f), "VOLVER", 2.4f, matIdle, matHot, interactiveLayer);
         WireButton(bBackCred, menu, nameof(MainMenuController.OpenMain));
 
         // ---------- referencias del MainMenuController ----------
@@ -245,6 +340,7 @@ public static class MenuPrincipalGenerator
         SetRef(menu, "_configPanel", panelConfig);
         SetRef(menu, "_creditsPanel", panelCreditos);
         SetStr(menu, "_gameSceneName", "Tutorial");
+        SetStr(menu, "_levelDisplayName", "TUTORIAL");
         if (fade != null)
         {
             SetRef(menu, "_fade", fade);
@@ -289,13 +385,14 @@ public static class MenuPrincipalGenerator
                   "- Ambiente: " + (roomOk ? "habitacion cargada" : "SIN habitacion (falta " + RoomModelPath + ")") +
                   " / " + (audioOk ? "audio cargado" : "SIN audio (falta " + AmbientAudioPath + ")") +
                   " / niebla + luz parpadeante OK.\n" +
-                  "- Menu MUY transparente (halo difuso, sin fondo solido) a " + MenuDistance +
-                  " m; puerta justo detras a " + DoorDistance + " m. 'Empezar': se abre la puerta, " +
-                  "la camara la cruza, funde a negro, 'CARGANDO...' unos segundos y aparece en el Tutorial.\n" +
+                  "- Menu MUY transparente (halo difuso, sin fondo solido) pegado a la puerta del modelo.\n" +
+                  "- 'Empezar': se abre la puerta " + "(~" + "100 grados" + "), la camara camina hacia ella y la cruza, " +
+                  "funde a negro, cartel del nivel unos segundos y aparece en el Tutorial.\n" +
                   (fade == null ? "NOTA: el prefab Player no tiene VRFadeController; el fundido final de 'Empezar' se saltea.\n" : "") +
                   (roomOk ? "" : "Para el fondo: agrega el .glb a Assets/Modelos 3D/, edita la constante RoomModelPath y volve a correr.\n") +
                   (audioOk ? "" : "Para el sonido: agrega el audio a Assets/Audios/, edita la constante AmbientAudioPath y volve a correr.\n") +
-                  "Abri la escena y dale Play. Ajustes a mano si hace falta: objeto 'Habitacion' (si el pivote del .glb no cae bien) y objeto 'Puerta' (posicion/tamaño del hueco).");
+                  "Si la puerta abre para el lado equivocado: flag DoorHingeAtFarEdge o invertir _doorOpenAngle en MenuManager. " +
+                  "Si en el celu la camara se descontrola: revisa el aviso de TrackedPoseDriver arriba.");
     }
 
     // ------------------------------------------------------------------ helpers
@@ -360,31 +457,183 @@ public static class MenuPrincipalGenerator
 
     private static void ForceCameraRotationOnly(GameObject player)
     {
-        Camera cam = player.GetComponentInChildren<Camera>(true);
-        if (cam == null)
-        {
-            return;
-        }
-
-        foreach (Component comp in cam.GetComponents<Component>())
+        int found = 0;
+        foreach (Component comp in player.GetComponentsInChildren<Component>(true))
         {
             if (comp == null || comp.GetType().Name != "TrackedPoseDriver")
             {
                 continue;
             }
+            found++;
 
             SerializedObject so = new SerializedObject(comp);
-            // Input System TrackedPoseDriver: m_TrackingType (0 = Rot+Pos,
-            // 1 = Rotation Only, 2 = Position Only).
+            // TrackedPoseDriver (Input System): m_TrackingType (0 = Rot+Pos,
+            // 1 = Rotation Only, 2 = Position Only). El legacy usa el mismo
+            // nombre de campo y el mismo orden de enum.
             SerializedProperty p = so.FindProperty("m_TrackingType");
-            if (p != null && p.enumValueIndex != 1)
+            if (p == null)
+            {
+                p = so.FindProperty("trackingType");
+            }
+            if (p != null)
             {
                 p.enumValueIndex = 1;
                 so.ApplyModifiedPropertiesWithoutUndo();
-                Debug.Log("[MenuPrincipalGenerator] TrackedPoseDriver de la camara -> Rotation Only.");
+                Debug.Log("[MenuPrincipalGenerator] TrackedPoseDriver en '" + comp.gameObject.name + "' -> Rotation Only.");
+            }
+            else
+            {
+                Debug.LogWarning("[MenuPrincipalGenerator] TrackedPoseDriver encontrado pero no pude cambiar el Tracking Type; hacelo a mano (Rotation Only).");
             }
         }
+
+        if (found == 0)
+        {
+            Debug.LogWarning("[MenuPrincipalGenerator] No encontre ningun TrackedPoseDriver en el rig. Si en el celu la camara 'se va para cualquier lado', revisá el Tracking Type de la camara (tiene que ser Rotation Only).");
+        }
     }
+
+    private static string HierarchyPath(Transform t)
+    {
+        string p = t.name;
+        for (Transform cur = t.parent; cur != null; cur = cur.parent)
+        {
+            p = cur.name + "/" + p;
+        }
+        return p;
+    }
+
+    private static string Norm(string s)
+    {
+        var sb = new System.Text.StringBuilder(s.Length);
+        foreach (char c in s.ToLowerInvariant())
+        {
+            if (char.IsLetterOrDigit(c)) sb.Append(c);
+        }
+        return sb.ToString();
+    }
+
+    // Junta TODAS las mallas cuyo nombre tiene "door"/"puerta" (excluyendo
+    // marco/frame/jamba/dintel) bajo un pivote "PuertaMenu" con bisagra en un
+    // borde de la caja envolvente combinada. Devuelve el pivote (o null si no
+    // hay ninguna). 'combinedBounds' = bounds mundial de todas las partes.
+    private static Transform GroupDoorParts(GameObject room, out Bounds combinedBounds)
+    {
+        combinedBounds = default;
+        if (room == null)
+        {
+            return null;
+        }
+
+        string hint = Norm(DoorNameHint);
+        var doorish = new System.Collections.Generic.List<Transform>();
+        var hintish = new System.Collections.Generic.List<Transform>();
+        var seen = new System.Collections.Generic.List<string>();
+        foreach (Transform t in room.GetComponentsInChildren<Transform>(true))
+        {
+            string n = Norm(t.name);
+            bool isDoor = n.Contains("door") || n.Contains("puerta");
+            bool isHint = hint.Length > 0 && n.Contains(hint);
+            if (!isDoor && !isHint)
+            {
+                continue;
+            }
+            seen.Add(t.name);
+            // Necesita geometria propia o en algun hijo (los nodos "Door_low.002"
+            // suelen ser grupos con las mallas colgando adentro).
+            if (t.GetComponentInChildren<Renderer>(true) == null)
+            {
+                continue;
+            }
+            doorish.Add(t);
+            if (isHint) hintish.Add(t);
+        }
+
+        // Si hay nodos que matchean el hint ("door low"), usamos SOLO esos
+        // (ignora otras puertas del modelo). Si no, todos los "door".
+        var pool = hintish.Count > 0 ? hintish : doorish;
+
+        // Nos quedamos con los nodos MAS ALTOS: si A es ancestro de B, sacamos B.
+        var parts = new System.Collections.Generic.List<Transform>();
+        foreach (Transform c in pool)
+        {
+            bool insideAnother = false;
+            foreach (Transform p in pool)
+            {
+                if (p != c && c.IsChildOf(p))
+                {
+                    insideAnother = true;
+                    break;
+                }
+            }
+            if (!insideAnother)
+            {
+                parts.Add(c);
+            }
+        }
+
+        Debug.Log("[MenuPrincipalGenerator] Nodos 'door'/'puerta': " +
+                  (seen.Count > 0 ? string.Join(", ", seen) : "(ninguno)") +
+                  " | pool: " + pool.Count + " | nodos raiz tomados: " + parts.Count +
+                  (parts.Count > 0 ? " (" + string.Join(", ", parts.ConvertAll(x => x.name)) + ")" : ""));
+
+        if (parts.Count == 0)
+        {
+            return null;
+        }
+
+        bool has = false;
+        foreach (Transform p in parts)
+        {
+            foreach (Renderer r in p.GetComponentsInChildren<Renderer>())
+            {
+                if (!has) { combinedBounds = r.bounds; has = true; }
+                else combinedBounds.Encapsulate(r.bounds);
+            }
+        }
+        if (!has)
+        {
+            return null;
+        }
+
+        Bounds b = combinedBounds;
+
+        // Centro del cuarto para decidir hacia que esquina va la bisagra: la
+        // ponemos en la esquina vertical MAS LEJANA del centro del cuarto, asi la
+        // puerta barre hacia adentro (hacia el jugador). DoorHingeAtFarEdge
+        // invierte. Una ESQUINA (no el centro de un lado) garantiza que la hoja
+        // quede bien despegada del pivote y el giro se note.
+        Vector3 roomC = Vector3.zero;
+        {
+            Renderer[] rr = room.GetComponentsInChildren<Renderer>();
+            if (rr.Length > 0)
+            {
+                Bounds rb = rr[0].bounds;
+                for (int i = 1; i < rr.Length; i++) rb.Encapsulate(rr[i].bounds);
+                roomC = rb.center;
+            }
+        }
+        bool xMin = (roomC.x >= b.center.x) != DoorHingeAtFarEdge;
+        bool zMin = (roomC.z >= b.center.z) != DoorHingeAtFarEdge;
+        Vector3 hinge = new Vector3(xMin ? b.min.x : b.max.x, b.center.y, zMin ? b.min.z : b.max.z);
+
+        // El pivote cuelga de la raiz de la habitacion (identidad), NO del nodo
+        // interno del .glb (que suele tener rotacion/escala rara y ensuciaria el
+        // giro). Asi rotar pivot.rotation alrededor de la vertical es limpio.
+        GameObject pivot = new GameObject("PuertaMenu");
+        pivot.transform.SetParent(room.transform, true);
+        pivot.transform.SetPositionAndRotation(hinge, Quaternion.identity);
+        foreach (Transform p in parts)
+        {
+            p.SetParent(pivot.transform, true); // conserva la pose mundial de cada parte
+        }
+
+        Debug.Log("[MenuPrincipalGenerator] 'PuertaMenu' agrupa " + parts.Count + " partes | tamaño puerta " +
+                  b.size.ToString("0.00") + " | centro " + b.center.ToString("0.00") + " | bisagra " + hinge.ToString("0.00") +
+                  " | offset hoja->bisagra " + (b.center - hinge).ToString("0.00"));
+        return pivot.transform;
+    }
+
 
     private static GameObject SpawnRoom(Scene scene)
     {
@@ -415,17 +664,20 @@ public static class MenuPrincipalGenerator
         }
 
         // Hijo de la camara, delante del fundido a negro, con renderQueue muy
-        // alta para dibujarse encima de todo. Arranca apagado.
-        GameObject go = new GameObject("CargandoText", typeof(RectTransform), typeof(TextMeshPro));
+        // alta para dibujarse encima de todo. Arranca apagado. MainMenuController
+        // le setea el texto real ("<NIVEL> / cargando...") antes de prenderlo.
+        GameObject go = new GameObject("PantallaCarga", typeof(RectTransform), typeof(TextMeshPro));
         go.transform.SetParent(camTransform, false);
-        go.transform.localPosition = new Vector3(0f, -0.12f, 1.0f);
+        go.transform.localPosition = new Vector3(0f, 0f, 1.0f);
         go.transform.localRotation = Quaternion.identity;
         go.transform.localScale = Vector3.one * 0.03f;
 
         TextMeshPro tmp = go.GetComponent<TextMeshPro>();
-        tmp.text = "CARGANDO...";
+        tmp.richText = true;
+        tmp.text = "<size=160%><b>TUTORIAL</b></size>\n<size=55%>cargando...</size>";
         tmp.alignment = TextAlignmentOptions.Center;
-        tmp.fontSize = 8f;
+        tmp.fontSize = 7f;
+        tmp.lineSpacing = -8f;
         tmp.color = Color.white;
         tmp.enableAutoSizing = false;
         TMP_FontAsset font = TMP_Settings.defaultFontAsset;
@@ -434,7 +686,7 @@ public static class MenuPrincipalGenerator
             tmp.font = font;
             if (tmp.fontMaterial != null) tmp.fontMaterial.renderQueue = 5000;
         }
-        tmp.rectTransform.sizeDelta = new Vector2(20f, 6f);
+        tmp.rectTransform.sizeDelta = new Vector2(26f, 12f);
 
         go.SetActive(false);
         return go;
@@ -595,7 +847,7 @@ public static class MenuPrincipalGenerator
         quad.name = "Halo";
         UnityEngine.Object.DestroyImmediate(quad.GetComponent<Collider>());
         quad.transform.SetParent(go.transform, false);
-        quad.transform.localPosition = new Vector3(0f, -0.35f, 0.06f);
+        quad.transform.localPosition = new Vector3(0f, 0.15f, 0.06f); // centrado sobre el contenido, no colgando bajo el piso
         quad.transform.localScale = new Vector3(width, height, 1f);
         quad.GetComponent<MeshRenderer>().sharedMaterial = halo;
         return go;
@@ -613,7 +865,7 @@ public static class MenuPrincipalGenerator
         TextMeshPro tmp = go.GetComponent<TextMeshPro>();
         tmp.text = text;
         tmp.alignment = TextAlignmentOptions.Center;
-        tmp.fontSize = size;
+        tmp.fontSize = size * TextScale;
         tmp.fontStyle = style;
         tmp.color = Color.white;
         tmp.enableAutoSizing = false;
@@ -652,29 +904,34 @@ public static class MenuPrincipalGenerator
         InteractiveObject io = quad.AddComponent<InteractiveObject>();
         SetRef(io, "_inactiveMaterial", idle);
         SetRef(io, "_gazedAtMaterial", hot);
+        if (_sMenuAudio != null) SetRef(io, "_audioSource", _sMenuAudio);
+        if (_sHoverClip != null) SetRef(io, "_hoverSound", _sHoverClip);
+        if (_sSelectClip != null) SetRef(io, "_selectSound", _sSelectClip);
 
-        // Etiqueta: contra-escalada para que el texto NO salga deformado por la
-        // escala no uniforme del quad.
-        GameObject lab = new GameObject("Label", typeof(RectTransform), typeof(TextMeshPro));
-        lab.transform.SetParent(quad.transform, false);
-        lab.transform.localPosition = new Vector3(0f, 0f, -0.06f);
+        // Etiqueta: hija del PANEL (escala 1), NO del quad escalado. Asi el texto
+        // sale con proporcion normal, sin contra-escalas raras. Se posa justo
+        // delante del boton.
+        GameObject lab = new GameObject(name + "_Label", typeof(RectTransform), typeof(TextMeshPro));
+        lab.transform.SetParent(parent, false);
+        lab.transform.localPosition = localPos + new Vector3(0f, 0f, -0.05f);
         lab.transform.localRotation = Quaternion.identity;
-        lab.transform.localScale = new Vector3(1f / width, 1f / height, 1f);
+        lab.transform.localScale = Vector3.one;
 
         TextMeshPro tmp = lab.GetComponent<TextMeshPro>();
         tmp.text = label;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.color = Color.white;
+        tmp.fontStyle = FontStyles.Bold;
         tmp.enableAutoSizing = true;
-        tmp.fontSizeMin = 0.05f;
-        tmp.fontSizeMax = 0.44f;
+        tmp.fontSizeMin = 0.14f * TextScale;
+        tmp.fontSizeMax = 0.36f * TextScale;
         TMP_FontAsset font = TMP_Settings.defaultFontAsset;
         if (font != null)
         {
             tmp.font = font;
             if (tmp.fontMaterial != null) tmp.fontMaterial.renderQueue = 3010;
         }
-        tmp.rectTransform.sizeDelta = new Vector2(width * 0.92f, height * 0.82f);
+        tmp.rectTransform.sizeDelta = new Vector2(width * 0.9f, height * 0.9f);
         return quad;
     }
 
@@ -758,6 +1015,29 @@ public static class MenuPrincipalGenerator
         }
         prop.floatValue = value;
         so.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void KeepOneAudioListener(Camera cam)
+    {
+        AudioListener keep = cam != null ? cam.GetComponent<AudioListener>() : null;
+        if (keep == null && cam != null)
+        {
+            keep = cam.gameObject.AddComponent<AudioListener>();
+        }
+        int removed = 0;
+        foreach (AudioListener al in UnityEngine.Object.FindObjectsByType<AudioListener>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (al == keep)
+            {
+                continue;
+            }
+            UnityEngine.Object.DestroyImmediate(al);
+            removed++;
+        }
+        if (removed > 0)
+        {
+            Debug.Log("[MenuPrincipalGenerator] Quitados " + removed + " AudioListener de sobra (queda solo el de la camara).");
+        }
     }
 
     private static void EnsureInteractiveLayerInMask(GameObject player, int interactiveLayer)
