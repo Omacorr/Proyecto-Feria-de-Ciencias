@@ -27,11 +27,14 @@ public class Door : MonoBehaviour, IGazeInteractable
     [SerializeField] private float _signDuration = 2.5f;
 
     [Header("Apertura - Posicion")]
-    [Tooltip("Posicion LOCAL ABSOLUTA a la que queda la puerta abierta (es el valor final de transform.localPosition, no un offset que se suma). Dejala en (0,0,0) si la puerta solo va a girar, sin desplazarse. Ver nota abajo sobre como conseguir este valor sin calcularlo a mano.")]
+    [Tooltip("RECOMENDADO: arrastra a la Scene View un objeto vacio (GameObject vacio, Create Empty) hasta el lugar EXACTO donde tiene que terminar la puerta abierta, y GIRALO tambien hasta que se vea con la orientacion final que queres (usa el gizmo de rotacion, como si fuera la puerta ya abierta). Asignalo aca. En Play/Build la puerta va a terminar exactamente en esa posicion Y esa rotacion, sin importar rotaciones o escalas raras que tenga el padre - se convierte todo solo. Si esto esta asignado, se ignoran 'Open Local Position' y 'Open Local Euler Rotation' de abajo (los dos).")]
+    [SerializeField] private Transform _openPositionTarget;
+
+    [Tooltip("Alternativa vieja (legacy): Posicion LOCAL ABSOLUTA a la que queda la puerta abierta (es el valor final de transform.localPosition, no un offset que se suma). Solo se usa si 'Open Position Target' esta vacio arriba. Ojo: si el padre de la puerta tiene rotacion o escala rara (comun en modelos importados), el valor que ves al arrastrar la puerta a mano en el Editor puede no coincidir con lo que hace en Play/Build - por eso conviene usar 'Open Position Target' en vez de este campo.")]
     [SerializeField] private Vector3 _openLocalPosition;
 
     [Header("Apertura - Rotacion")]
-    [Tooltip("Rotacion LOCAL adicional (grados, Euler XYZ) que gira la puerta al abrirse, sumada a su rotacion inicial - por ejemplo (0, 90, 0) para que gire como puerta de gozne. Dejala en (0,0,0) si la puerta solo se desplaza, sin girar.")]
+    [Tooltip("Alternativa vieja (legacy): rotacion LOCAL adicional (grados, Euler XYZ) que gira la puerta al abrirse, sumada a su rotacion inicial - por ejemplo (0, 90, 0) para que gire como puerta de gozne. Se ignora si 'Open Position Target' esta asignado arriba (en ese caso se usa la rotacion del target directamente, ver tooltip de Open Position Target). Mismo problema que con la posicion vieja: si el padre tiene rotacion rara, el angulo que tipeas aca puede no coincidir con lo que hace en Play/Build.")]
     [SerializeField] private Vector3 _openLocalEulerRotation;
 
     [Header("Duracion")]
@@ -146,8 +149,32 @@ public class Door : MonoBehaviour, IGazeInteractable
             _audioSource.PlayOneShot(_openSound);
         }
 
+        // Si hay un Open Position Target asignado, convertimos su posicion Y
+        // rotacion MUNDIALES (las que ves en la Scene View, sin ambiguedad
+        // posible) a los valores LOCALES que le corresponden segun el padre
+        // actual de la puerta. Asi el resultado en Play/Build es exactamente
+        // donde y como orientaste el objeto vacio, sin importar rotacion o
+        // escala rara que tenga el padre - se convierte todo solo. Si no hay
+        // target asignado, se usan los valores viejos tipeados a mano
+        // (Open Local Position / Open Local Euler Rotation, legacy).
+        Vector3 targetLocalPosition = _openLocalPosition;
         Quaternion openRotation = _closedLocalRotation * Quaternion.Euler(_openLocalEulerRotation);
-        StartCoroutine(MoveDoor(_closedLocalPosition, _openLocalPosition, _closedLocalRotation, openRotation));
+
+        if (_openPositionTarget != null)
+        {
+            if (transform.parent != null)
+            {
+                targetLocalPosition = transform.parent.InverseTransformPoint(_openPositionTarget.position);
+                openRotation = Quaternion.Inverse(transform.parent.rotation) * _openPositionTarget.rotation;
+            }
+            else
+            {
+                targetLocalPosition = _openPositionTarget.position;
+                openRotation = _openPositionTarget.rotation;
+            }
+        }
+
+        StartCoroutine(MoveDoor(_closedLocalPosition, targetLocalPosition, _closedLocalRotation, openRotation));
     }
 
     private void ShowMissingKeySign()

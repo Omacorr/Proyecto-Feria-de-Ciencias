@@ -7852,6 +7852,7 @@ GameObject:
   - component: {fileID: 3626106416988864837}
   - component: {fileID: 2874046415421190134}
   - component: {fileID: 7219842130027060525}
+  - component: {fileID: 6747717089780648146}
   m_Layer: 0
   m_Name: Spot Light
   m_TagString: Untagged
@@ -8582,3 +8583,20 @@ SceneRoots:
   - {fileID: 1421029559}
   - {fileID: 531118589}
   - {fileID: 4213043971841299935}
+--- !u!114 &6747717089780648146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3260786585271746500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7bdf50ca21480642a542673eb7094e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
+  _baseIntensity: 0
+  _flickerAmount: 0.35
+  _flickerSpeed: 8
+  _blackoutChancePerSecond: 0.25
+  _blackoutMaxDuration: 0.08
