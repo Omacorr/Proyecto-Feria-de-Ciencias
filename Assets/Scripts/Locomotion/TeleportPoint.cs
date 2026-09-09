@@ -33,8 +33,15 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     [Tooltip("Si se asigna, mirar este punto teletransporta a la posicion de ESTE Transform en vez de a la posicion propia. Util para puertas: la puerta se queda quieta donde se ve bien, pero el destino real es otro punto (por ejemplo, un Cube vacio puesto del otro lado de la puerta). Dejalo vacio para el comportamiento normal (moverse a la posicion de este mismo objeto).")]
     [SerializeField] private Transform _destinationOverride;
 
+    [Header("Audio (opcional)")]
+    [Tooltip("AudioSource desde donde suena el clip al activar este punto (mismo patron que Door). Puede estar en el propio punto o en otro objeto - por ejemplo uno central si tenes varios TeleportPoint juntos y no queres que cada uno tenga su propia fuente de sonido.")]
+    [SerializeField] private AudioSource _audioSource;
+
+    [Tooltip("Sonido que se reproduce apenas seleccionas este punto con la mirada (antes de moverte/fundir a negro). Dejalo vacio si no queres sonido de teletransporte.")]
+    [SerializeField] private AudioClip _teleportSound;
+
     [Header("Eventos (opcional)")]
-    [Tooltip("Se dispara cada vez que el jugador llega parado a este punto (lo llama TeleportManager apenas termina de moverlo). Util para marcar que el jugador 'ya vio' algo puesto en este lugar - por ejemplo, tp14 (frente a las notas con el codigo) puede cablear esto a CodeClueTracker.MarkSeen().")]
+    [Tooltip("Se dispara cada vez que el jugador llega parado a este punto (lo llama TeleportManager apenas termina de moverlo). Util para marcar que el jugador 'ya vio' algo puesto en este lugar - por ejemplo, tp14 (frente a las notas con el codigo) puede cablear esto a CodeClueTracker.MarkSeen(). Tambien sirve para un sonido de LLEGADA (distinto al de arriba): arrastra un objeto con AudioSource aca y elegi la funcion AudioSource.Play() (con el clip ya asignado en ese AudioSource) - no hace falta tocar codigo para eso.")]
     [SerializeField] private UnityEvent _onPlayerArrived;
 
     public bool OverridesPlayerHeight => _overridePlayerHeight;
@@ -55,7 +62,12 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
 
     private void Awake()
     {
-        _renderer = GetComponent<Renderer>();
+        // GetComponentInChildren (no GetComponent): permite que el modelo visual
+        // sea un hijo (por ejemplo un modelo importado con jerarquia propia, como
+        // el orbe), mientras el Collider de interaccion sigue viviendo en este
+        // mismo objeto. Sigue encontrando el caso simple de siempre (Renderer y
+        // Collider en el propio objeto) exactamente igual que antes.
+        _renderer = GetComponentInChildren<Renderer>();
         _collider = GetComponent<Collider>();
         SetGazed(false);
     }
@@ -91,6 +103,14 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
         {
             Debug.LogWarning($"[TeleportPoint] {gameObject.name} no tiene TeleportManager asignado.");
             return;
+        }
+
+        // Si ya esta en medio de otro teletransporte, RequestTeleport lo va a
+        // ignorar igual - chequeamos aca tambien para no reproducir el sonido
+        // de un teletransporte que en realidad no va a pasar.
+        if (!_teleportManager.IsTeleporting && _audioSource != null && _teleportSound != null)
+        {
+            _audioSource.PlayOneShot(_teleportSound);
         }
 
         Vector3 destination = _destinationOverride != null ? _destinationOverride.position : transform.position;

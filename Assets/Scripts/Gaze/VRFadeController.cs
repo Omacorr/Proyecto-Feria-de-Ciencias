@@ -33,8 +33,9 @@ public class VRFadeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Solo funde a negro y se queda en negro (no vuelve). Util antes de cargar
-    /// otra escena: la pantalla queda tapada hasta que la escena nueva aparece.
+    /// Funde a negro y se QUEDA en negro (no vuelve a fundir de regreso).
+    /// Pensado para justo antes de cargar una escena nueva - MainMenuController
+    /// la usa al final de la secuencia de entrada, antes de LoadSceneAsync.
     /// </summary>
     public IEnumerator FadeToBlack()
     {
