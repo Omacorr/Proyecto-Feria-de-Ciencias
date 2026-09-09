@@ -62,7 +62,12 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
 
     private void Awake()
     {
-        _renderer = GetComponent<Renderer>();
+        // GetComponentInChildren (no GetComponent): permite que el modelo visual
+        // sea un hijo (por ejemplo un modelo importado con jerarquia propia, como
+        // el orbe), mientras el Collider de interaccion sigue viviendo en este
+        // mismo objeto. Sigue encontrando el caso simple de siempre (Renderer y
+        // Collider en el propio objeto) exactamente igual que antes.
+        _renderer = GetComponentInChildren<Renderer>();
         _collider = GetComponent<Collider>();
         SetGazed(false);
     }

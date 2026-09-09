@@ -371,7 +371,15 @@ Editor y guarde con Ctrl+S.
 
 **Receta exacta (leída de `Parte 3` antes de aplicarla, no inventada):**
 - `RenderSettings.fog = true`, `fogMode = ExponentialSquared`, `fogColor =
-  (0.5, 0.5, 0.5)`, `fogDensity = 0.037`.
+  (0.5, 0.5, 0.5)`, `fogDensity = 0.037`. **Actualizado 2026-09-09:** Omar
+  pidió bajarle la niebla y preferir oscuridad en su lugar ("prefiero que
+  este nivel se vea muy oscuro en vez de que haya mucha niebla") —
+  `fogDensity` bajado a `0.012` y `fogColor` oscurecido a
+  `(0.03, 0.03, 0.035)` (casi negro, en vez del gris `0.5` original), así lo
+  lejano se pierde en oscuridad real en vez de un gris lechoso. Ver la
+  sección "Reflejos del skybox filtrándose..." más abajo — esto se hizo en
+  la misma sesión donde se encontró que el reflejo del skybox estaba
+  aportando gran parte de lo que hasta entonces se veía como "iluminado".
 - `RenderSettings.ambientMode = Skybox`, `ambientIntensity = 0` (esto es lo
   que realmente mata la luz ambiente por defecto de Unity — los colores
   `ambientSkyColor`/`ambientEquatorColor` quedan copiados por prolijidad pero
@@ -538,6 +546,49 @@ real** — las posiciones se derivaron matemáticamente de datos de mesh
 (`Renderer.bounds`), no de haber caminado la escena, así que conviene que
 Omar lo pruebe en el Editor (o compile) antes de darlo por confirmado. Sigue
 sin haber ninguna `Door` en esta escena.
+
+### Tamaño de los `TeleportPoint` y modelo visual (2026-09-09)
+
+Dos ajustes a pedido de Omar sobre los `tp1`-`tp9` de `Parte 4`:
+
+- **Tamaño:** el cubo achatado original quedó chico/desproporcionado
+  (`0.8 x 0.05 x 0.8`) comparado con el resto del proyecto. Se midió el
+  tamaño real (en MUNDO, no el valor local del Inspector, que puede estar
+  afectado por escalas de padres) de los `TeleportPoint` de `Parte 3` —
+  **`1.0 x 0.2 x 1.0`**, consistente en casi todos — y se re-escalaron los 9
+  de `Parte 4` para igualarlo, corrigiendo también la posición Y (el pivote
+  de un `Cube` está centrado, así que al subir la altura de `0.05` a `0.2`
+  había que subir el objeto la mitad de esa diferencia para que la base
+  siguiera apoyada en el piso, no hundida).
+- **Modelo visual:** Omar importó `Assets/Modelos 3D/model_3glow_orb.glb`
+  (un orbe emisivo amarillo, ~0.42m de diámetro, con `Animator` propio) para
+  reemplazar los cubos grises. Se probó en los 9 puntos de `Parte 4`:
+  - Se sacó el `MeshFilter`/`MeshRenderer` del cubo primitivo de cada
+    `TeleportPoint`, dejando el `BoxCollider` (agrandado a `0.9x0.9x0.9` y
+    centrado en la altura del orbe) como interacción.
+    Se instanció el orbe como HIJO (`OrbVisual`), flotando `0.35` unidades
+    arriba del pivote y escalado x1.8 (~0.76m de diámetro final).
+  - **Hizo falta un cambio de código, chico y retrocompatible:**
+    `TeleportPoint.Awake()` buscaba el `Renderer` con `GetComponent`
+    (solo en el propio objeto), lo cual no encuentra el mesh real del orbe
+    porque vive varios niveles adentro de la jerarquía importada
+    (`OrbVisual > Sketchfab_model > root > GLTF_SceneRootNode > Cube_0 >
+    Object_4`). Se cambió a `GetComponentInChildren<Renderer>()` (el
+    `Collider` se dejó como estaba, `GetComponent`, porque ese sigue
+    viviendo en el propio `TeleportPoint`, no en el modelo visual) — esto
+    **no rompe ningún `TeleportPoint` existente** en `Parte 1`/`Parte 3`
+    (`GetComponentInChildren` encuentra el componente igual si está en el
+    propio objeto, es un superconjunto de `GetComponent`), pero ahora
+    también sirve para decorar cualquier `TeleportPoint` futuro con un
+    modelo importado con jerarquía propia.
+  - Verificado visualmente: el orbe se ve flotando con su propio brillo
+    (material emisivo + Bloom), mucho más integrado que el cubo gris.
+  - **No se le agregó una `Light` real ni `FlickeringLight`** a los orbes
+    (a propósito, por costo de rendimiento — ya hay 9 luces reales en
+    `Luces Tetricas`, sumar 9 más pareció excesivo para Android/A54) — el
+    brillo que se ve es puramente el material emisivo + Bloom, no ilumina
+    de verdad el entorno. Si Omar quiere que además iluminen, es una
+    decisión aparte a pedir explícitamente.
 - **Materiales PBR de modelos glTF:** el shader `Shader Graphs/glTF-pbrMetallicRoughness`
   expone `Roughness`/`Metallic` en el Inspector del material, NO `Smoothness`.
   Si algo "brilla" o tiene un reflejo especular que rebota raro con el
@@ -905,6 +956,162 @@ comparar contra `mesh.normals` en ese mismo triángulo (`hit.triangleIndex`).
 Un `Vector3.Dot` negativo confirma normales invertidas — no hace falta
 adivinar mirando capturas de pantalla.
 
+## Reflejos del skybox filtrándose en escenas "a oscuras" — bug encontrado en `Parte 4` (2026-09-09)
+
+Omar reportó que varios objetos (alfombra, mesa, puerta, bordes, paneles sobre
+zócalos) se veían con "un contorno gris/celeste" y **se notaban iluminados
+incluso lejos de cualquier luz** — un síntoma distinto al de las normales
+invertidas (sección de arriba), porque acá el shader y las normales estaban
+bien.
+
+**Causa real:** `RenderSettings.reflectionIntensity` seguía en `1` (el
+default de Unity) y `defaultReflectionMode` en `Skybox`, con el skybox
+default de Unity puesto (celeste/azul). **Bajar `ambientIntensity` a 0 (lo
+que se hizo para el ambiente tétrico) NO apaga esto** — son dos sistemas
+separados en Unity: `ambientIntensity` controla la luz ambiente DIFUSA
+derivada del skybox, pero `reflectionIntensity` controla por separado el
+reflejo ESPECULAR (vía sonda de reflexión) del mismo skybox, y ese reflejo
+NO depende de si hay luces reales cerca ni de la niebla — por eso se veía
+"iluminado" a cualquier distancia. Cualquier material con algo de
+`Metallic`/baja `Roughness` (o sea, casi cualquier material PBR no 100%
+mate) capta ese reflejo como un tinte parejo, más notorio en los bordes
+(efecto Fresnel).
+
+**Prueba que lo confirmó:** se comparó una captura con `reflectionIntensity=1`
+vs `=0` desde la misma cámara — con el reflejo apagado, la enorme mayoría de
+lo que se veía "iluminado" en la niebla/oscuridad **desapareció por completo**,
+confirmando que ese reflejo estaba actuando como una luz ambiental fantasma en
+toda la escena, no solo un tinte cosmético en un par de objetos.
+
+**Fix aplicado (solo en `Parte 4` por ahora):** `RenderSettings.reflectionIntensity = 0`.
+
+**Efecto secundario importante (y otro descubrimiento en el proceso):** al
+sacar ese reflejo, se reveló que la iluminación REAL de los 9 focos del
+pasillo (`Luces Tetricas`) era insuficiente por sí sola — porque el
+`Intensity` que se ve en el Inspector del `Light` (que se había dejado en 10)
+**no es el valor real en Play**: `FlickeringLight.Awake()` lo pisa con
+`_baseIntensity`, que estaba en su default de fábrica (`1.5`, pensado
+originalmente para una luz puramente decorativa en `Menu Principal`, no para
+ser la única fuente de luz real de un pasillo entero). Es decir, **todas las
+capturas de este proyecto hechas con `Unity_Camera_Capture` en modo Editor
+(sin Play) venían mostrando una escena más brillante de lo que realmente se
+ve jugando**, porque ese script nunca corre en modo edición. Se subió
+`_baseIntensity` (y el `Intensity` del `Light`, solo por prolijidad visual en
+el Editor) a `20` con `range 14` en las 9 luces para compensar la pérdida del
+reflejo y que el pasillo siga siendo navegable — cada lámpara ahora forma un
+pozo de luz real y bien oscuro alrededor, en vez de un cuarto entero
+iluminado de forma pareja. **Esto es un valor de partida, no definitivo** —
+falta que Omar lo prueebe en Play/Build real (que sí ejecuta el flicker/
+apagones aleatorios) para terminar de calibrarlo a gusto.
+
+**Pendiente real, no aplicado todavía:** `Parte 1`, `Parte 3` y
+`Menu Principal` también tienen `ambientIntensity = 0` (o similar) pero
+**nadie tocó `reflectionIntensity` ahí tampoco** — es muy probable que
+tengan el mismo problema en cualquier material con algo de brillo, solo que
+no se había reportado todavía (quizás porque sus materiales son más mate en
+promedio, o porque nadie miró de cerca un borde). Cuando se vuelva a esas
+escenas, vale la pena chequear `RenderSettings.reflectionIntensity` ahí
+también antes de asumir que están bien.
+
+**Nota sobre la herramienta de captura de Unity MCP
+(`Unity_Camera_Capture`):** parece cachear el render por transform de la
+cámara — si se cambia SOLO algo de iluminación/material sin mover ni rotar
+la cámara ni un poco, puede devolver la imagen anterior sin re-renderizar
+(confirmado: cambiar `Light.intensity` de 8 a 40 dio el mismo PNG byte por
+byte). **Solución:** mover la cámara de verificación una fracción minúscula
+(por ejemplo `+0.001` en un eje) antes de cada captura de comparación si lo
+único que cambió fue algo que no es la cámara misma — si no, el "antes/
+después" puede ser un falso negativo.
+
+## Portales sin interacción tras poner el orbe — escala no-uniforme aplastando al collider (`Parte 4`, 2026-09-09)
+
+Después de swapear los cubos por el orbe, Omar reportó que "los portales no
+reciben interacción". Bug real, causado por mí en el paso anterior — no un
+problema del orbe en sí.
+
+**Causa:** cada `TeleportPoint` tenía `localScale (1, 0.2, 1)` (de cuando se
+ajustó el tamaño para que el CUBO visual coincidiera con el de `Parte 3`).
+Esa escala no-uniforme en el eje Y se hereda multiplicativamente por
+CUALQUIER hijo o por el `BoxCollider` del mismo objeto — así que cuando
+después se le puso `box.size = (0.9,0.9,0.9)` y `box.center = (0,0.35,0)`
+pensando en unidades de MUNDO, en realidad Unity los interpreta en espacio
+LOCAL y los aplasta por ese mismo 0.2 al calcular el collider real: el
+`BoxCollider` terminó midiendo `0.9 x 0.18 x 0.9` en el mundo (no `0.9x0.9x0.9`)
+y centrado más abajo de lo esperado. Lo mismo le pasó a la posición del
+`OrbVisual` hijo (el offset de flotación de 0.35 también quedó aplastado a
+0.07) — por eso además el orbe se veía como un óvalo achatado en vez de una
+esfera pareja.
+
+**Fix:** en vez de tratar de compensar la escala no-uniforme con matemática
+inversa (frágil y confuso), se sacó la escala rara directamente:
+`transform.localScale = Vector3.one` en los 9 `TeleportPoint`, y en su lugar
+el tamaño/posición del collider y del orbe se setean directamente en esas
+unidades ya sin distorsión. **Regla general para el futuro:** evitar
+`localScale` no-uniforme en cualquier GameObject que vaya a tener hijos o
+colliders configurados después por tamaño en unidades de mundo — mejor
+ajustar el tamaño real del `Collider`/mesh directamente y dejar el
+`Transform.scale` en `(1,1,1)` siempre que se pueda.
+
+**Gotcha adicional encontrado mientras se diagnosticaba esto — `Physics.autoSyncTransforms`
+está en `False` en este proyecto:** cambiar `Collider.size`/`.center` (o
+mover/escalar un `Transform`) por código y **en el mismo frame** llamar a
+`Physics.Raycast`/`OverlapBox` puede devolver el estado VIEJO (no se actualiza
+solo). Hace falta llamar a `Physics.SyncTransforms()` explícitamente antes de
+la query para verificar cambios recién hechos por script en el mismo tick —
+esto costó bastante detectar acá porque el síntoma ("el raycast de prueba no
+pega en nada") parecía indicar un collider realmente roto, cuando en
+realidad el collider ya estaba bien pero la consulta de física todavía veía
+la versión anterior. Puede no importar en gameplay real de Play/Build (ahí
+la física se sincroniza sola en su propio ciclo), pero sí importa para
+diagnosticar/verificar cambios hechos por `Unity_RunCommand` en el mismo
+script.
+
+## Linterna del jugador demasiado débil para el tamaño del pasillo (`Parte 4`, 2026-09-09)
+
+Omar reportó que la linterna (el `Spot Light` hijo de `Main Camera`, el
+mismo puntero que también usa el reticle de Cardboard — es un solo objeto
+con doble función) "no ilumina casi nada hacia adelante". Diagnosticado
+apagando primero la hipótesis de las normales invertidas (se revisaron las
+paredes reales frente al spawn con la técnica de siempre — normales
+correctas, `dot ≈ +1`, así que NO era ese bug) — la causa real es más simple:
+`intensity 20` y `range 10` son insuficientes para el tamaño real de este
+pasillo (166x108 unidades, techos de ~12-17 de alto) — a la distancia real
+donde está la pared más cercana al spawn (~6.6 unidades), la caída por
+inverso del cuadrado prácticamente no dejaba nada visible.
+
+**Fix:** `intensity 20 → 45`, `range 10 → 18`. **A diferencia de las 9 luces
+de `Luces Tetricas`, esta linterna NO tiene `FlickeringLight`** — confirmado
+antes de tocar nada, así que el valor que se ve en el Inspector **sí** es el
+valor real en Play (no hay sorpresa de "el número real es otro" acá). Se
+verificó con una captura desde la posición real de spawn del rig, mirando
+por el pasillo: ahora se ve el piso de madera cerca de los pies y la pared
+lejana con su estampado, en vez de nada. **Sigue siendo un punto de
+partida** — recomendable que Omar lo pruebe caminando de verdad antes de
+darlo por definitivo, sobre todo porque una franja "oscura" a distancia
+media (entre el piso cercano bien iluminado y la pared lejana apenas visible)
+puede ser simplemente el volumen abierto del pasillo (nada que iluminar ahí,
+normal en un pasillo con techo muy alto) o puede necesitar más ajuste — no
+se determinó con certeza cuál de las dos cosas es.
+
+## Auditoría de `reflectionIntensity` en el resto de las escenas (2026-09-09)
+
+A pedido de Omar, se chequeó (sin modificar, solo diagnóstico) si el mismo
+bug de reflejos del skybox (ver sección de arriba) también afecta a las
+demás escenas que bajan la luz ambiente:
+
+| Escena | `reflectionIntensity` | `ambientIntensity` | Riesgo |
+|---|---|---|---|
+| `Parte 1 - El Despertar` | **0.1** | 0 | Bajo — alguien ya lo había atenuado antes (no es el default 1), consistente con que Omar no vio el problema ahí. |
+| `Parte 3 - Pasillo de hotel` | **1** (default, sin tocar) | 0 | **Mismo setup riesgoso que tenía `Parte 4` antes del fix** — probablemente tiene el mismo bug latente, simplemente no reportado todavía (quizás sus materiales predominantes son menos brillantes). **No se tocó** — es la escena más activamente trabajada, cualquier cambio de iluminación ahí merece pedirse explícitamente antes de aplicarlo. |
+| `Menu Principal` | 1 (default) | **1** (Flat, sin bajar) | Bajo — esta escena NO apaga la luz ambiente (no es una escena "a oscuras" como las demás), así que el reflejo extra se mezcla con la luz normal en vez de aparecer como una luz fantasma en la nada. |
+
+**Pendiente real:** si en algún momento se decide aplicar el mismo fix a
+`Parte 3`, es literalmente una sola línea (`RenderSettings.reflectionIntensity
+= 0`) — pero conviene probarla ahí con el mismo método de captura antes/
+después usado en `Parte 4`, porque esa escena también tiene luces reales que
+podrían necesitar recalibrarse después (mismo efecto secundario que pasó acá
+con `Luces Tetricas`).
+
 ## Gotchas / lecciones aprendidas (leer antes de tocar cosas relacionadas)
 
 1. **glTFast y FBX no generan Colliders automáticamente.** Cualquier pieza
@@ -1053,7 +1260,7 @@ adivinar mirando capturas de pantalla.
 | `Parte 1 - El Despertar.unity` | 219 KB (+efectos visuales 2026-09-08) | **Completa** (candado, puertas, teletransporte) y ahora con la misma receta de efectos visuales que `Parte 3`/`Parte 4` (fog, Bloom, luces parpadeantes) — ver sección "Efectos visuales de Parte 1" más abajo. Usa `Player 1.prefab`. |
 | `Parte 2 - Cumpleaños.unity` | 12 KB | **Vacía.** Solo `Directional Light` + `Main Camera` default de Unity, nada más. |
 | `Parte 3 - Pasillo de hotel.unity` | 669 KB | **La más trabajada activamente.** 4 `Door` + 6 `TeleportPoint` tipo puerta (fade) con audio ya corregido (ver gotcha de arriba), geometría de `hallway_hotel`, `custom_brown_axminster_carpet_hotel_room`, `hayama_washitsu_raw_scan` y `room_bellis_deluxe`. Rig de cámara propio (no prefab). |
-| `Parte 4 - Pasillo de madera.unity` | 693 KB (+ambiente, rig y TP 2026-09-08) | **Ambiente tétrico, rig de jugador y 9 `TeleportPoint` puestos; falta `Door` y probarlo en Play real.** `Player` + `Main Camera` separada, gaze funcionando, y ahora un recorrido completo de teletransporte (`tp1`-`tp9`) por el loop del pasillo + el tramo en L. Sin ninguna `Door` todavía. Ver secciones "Ambiente tétrico", "Rig de jugador" y "TeleportPoint de Parte 4" más abajo. |
+| `Parte 4 - Pasillo de madera.unity` | 693 KB (+ambiente, rig, TP y fixes de luz 2026-09-09) | **Ambiente tétrico (ahora recalibrado más oscuro), rig de jugador, 9 `TeleportPoint` con orbe emisivo puestos; falta `Door` y probarlo en Play real.** `Player` + `Main Camera` separada, gaze funcionando. Se encontró y corrigió un bug de reflejos del skybox (ver sección dedicada) que hacía ver "iluminados" varios objetos sin luz real cerca — fix aplicado solo acá, pendiente revisar en las demás escenas. Sin ninguna `Door` todavía. Ver secciones "Ambiente tétrico", "Rig de jugador", "TeleportPoint de Parte 4", "Reflejos del skybox" y "Tamaño de los TeleportPoint y modelo visual" más abajo. |
 | `Parte 5 - Backrooms.unity` | 12 KB | **Vacía**, igual que Parte 2. |
 | `Parte Final.unity` | 12 KB | **Vacía**, igual que Parte 2. |
 
@@ -1084,10 +1291,28 @@ Un build real del juego hoy no incluiría el menú ni el resto de las escenas.
 - **`Parte 2`, `Parte 5` y `Parte Final` están completamente vacías** — ni
   siquiera tienen geometría todavía, mucho menos gameplay. Son las partes
   más grandes de trabajo que faltan del proyecto.
-- **`Parte 4` ya tiene rig de cámara, ambiente y 9 `TeleportPoint`** (ver
-  sección dedicada) — sigue sin ninguna `Door`, y falta **probarlo en
-  Play/Build real** en el Editor: las posiciones de los `tp` se calcularon
-  matemáticamente a partir de la geometría, no caminando la escena.
+- **`Parte 4` ya tiene rig de cámara, ambiente, 9 `TeleportPoint` con orbe
+  emisivo** (ver secciones dedicadas) — sigue sin ninguna `Door`, y falta
+  **probarlo en Play/Build real** en el Editor/celular: tanto las posiciones
+  de los `tp` como la calibración de brillo de las 9 luces (`_baseIntensity=20`,
+  puesto para compensar el reflejo del skybox que se sacó) se hicieron sin
+  correr Play — `FlickeringLight` nunca corrió de verdad, así que el brillo
+  final con flicker/apagones aleatorios puede necesitar un ajuste más una
+  vez que se pruebe en serio.
+- **`Parte 3` tiene el mismo `reflectionIntensity=1` riesgoso que tenía
+  `Parte 4`** (auditado 2026-09-09, ver sección dedicada) — probablemente el
+  mismo bug de reflejos del skybox, simplemente no reportado todavía. No se
+  tocó porque es la escena más activamente trabajada y merece un pedido
+  explícito antes de tocar su iluminación. `Parte 1` (`reflectionIntensity
+  0.1`, ya atenuado) y `Menu Principal` (ambiente no apagado) están en bajo
+  riesgo, no necesitan acción.
+- **Calibración final de brillo en `Parte 4` pendiente de probar en Play/Build
+  real** — tanto las 9 luces de `Luces Tetricas` (`_baseIntensity=20,
+  range=14`) como la linterna del jugador (`intensity=45, range=18`) se
+  subieron a mano para compensar haber sacado el reflejo del skybox
+  (`reflectionIntensity=0`), pero se verificaron con capturas en modo Editor
+  sin Play — ni `FlickeringLight` corre en ese modo, ni se caminó la escena
+  de verdad. Son valores de partida razonables, no definitivos.
 - **`Tutorial` es un esqueleto** — tiene teletransportes y un inventario de
   llave puestos, pero no queda claro qué mecánica enseña todavía; confirmar
   con Omar el diseño antes de asumir que falta "completarlo" sin más.
