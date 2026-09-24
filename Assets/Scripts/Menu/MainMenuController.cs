@@ -92,6 +92,15 @@ public class MainMenuController : MonoBehaviour
         {
             return;
         }
+
+        // Chequeo ANTES de abrir la puerta y fundir a negro: si el nombre no
+        // coincide con Build Settings, mejor que Empezar no haga nada (con un
+        // error claro en la consola / adb logcat) a quedar en negro para siempre.
+        if (string.IsNullOrEmpty(_gameSceneName) || !Application.CanStreamedLevelBeLoaded(_gameSceneName))
+        {
+            Debug.LogError("[MainMenuController] La escena '" + _gameSceneName + "' no esta agregada/tildada en File > Build Settings (o el nombre no coincide exacto). Empezar no hace nada.");
+            return;
+        }
         _isLoading = true;
 
         if (_door != null && _cameraRig != null)
@@ -170,6 +179,11 @@ public class MainMenuController : MonoBehaviour
         }
 
         AsyncOperation op = SceneManager.LoadSceneAsync(_gameSceneName);
+        if (op == null)
+        {
+            Debug.LogError("[MainMenuController] No pude cargar '" + _gameSceneName + "'. Esta en File > Build Settings?");
+            yield break;
+        }
         op.allowSceneActivation = false;
 
         float t = 0f;
