@@ -1481,7 +1481,61 @@ confirmar en la escena.
   en estéreo, útil para el plan de prueba de "QA de build Android") y
   sacarlo después.
 
+### Parte 1 sin niebla y más oscura + sustos al ingresar el código (2026-09-24)
+
+Pedido de Omar: "la niebla se ve muy rara, en su lugar hacé el lugar más
+oscuro" y "al escribir el código en el candado que se escuchen pasos y
+susurros". **Reemplaza a lo que dice la sección de abajo (2026-09-08) sobre
+la niebla de Parte 1.**
+
+- **Por qué se veía rara:** la niebla era gris (0.5, 0.5, 0.5),
+  ExponentialSquared 0.01. En un cuarto a oscuras eso tiñe todo de un gris
+  parejo y "ilumina" lo lejano. Capturas antes/después: con niebla se veía el
+  cuarto entero gris; sin niebla queda en penumbra real.
+- **Valores nuevos:** `RenderSettings.fog = false`,
+  `reflectionIntensity = 0` (era 0.1), fondo de `Main Camera` negro (era azul
+  (0.19, 0.30, 0.47): sin niebla se hubiera visto en cualquier hueco).
+  `Spot Light`, `(1)`, `(2)`: `FlickeringLight._baseIntensity` 1.5 → **0.9**
+  (y `Light.intensity` igual). `Spot Light (Candado)`: 1.5 → **1.2** (la
+  puerta del candado se sigue encontrando). Linterna (`Main Camera/Spot
+  Light`, sin FlickeringLight): 5 → **3.5**. Verificado con capturas: las
+  notas **0 6 7** se leen desde `tp14` con la linterna.
+  *Recordatorio:* en las luces con `FlickeringLight` el valor que manda en
+  Play es `_baseIntensity`; el `Intensity` del Inspector (antes decía 2 y 12)
+  era cosmético.
+- **Sustos mientras se ingresa el código (`ExamineScareSounds`,
+  `Scripts/Audio/`):** objeto `Sustos al examinar`. Cableado:
+  `ExamineTrigger (BaseLP) > On Examine Start > StartScares`,
+  `On Examine End > StopScares` y **`CodeLock > On Unlocked[0] >
+  StopScares`** (hace falta este último porque `ReturnToPreviousPoint` sale
+  sin disparar `On Examine End` si el jugador no venía de un tp o si ya se
+  estaba teletransportando; se encontró probando).
+  - Primer sonido a los 3–5 s de entrar a examinar, después cada 5–9 s;
+    nunca tres del mismo tipo seguidos.
+  - **Pasos:** tramo al azar de `pasos_concreto.wav` (2.5–4 s, pitch 0.85,
+    más pesados), en 3D a espaldas del jugador (±50°), a 4–7 m y a la altura
+    del piso, que se acercan 1.8 m mientras suenan (fade in/out).
+  - **Susurros:** `Assets/Audios/Susurros/susurro_01..05` +
+    `respiracion_01`, en 3D a 35 cm de un oído (hijo de la cámara), alternando
+    izquierda/derecha. Se juega con auriculares, así que el lado se nota.
+  - Probado en Play: pasos a ~5.5 m detrás/derecha a la altura del piso,
+    susurro en el oído derecho; al resolver el candado se cortan (fade 0.3 s)
+    y sigue el desmayo a Parte 2.
+- **Los susurros se generaron por código** (no se bajó nada, sin licencias):
+  `Assets/Editor/WhisperGenerator.cs`, menú **Herramientas > Generar
+  susurros (Parte 1)**. Síntesis: ruido filtrado por formantes de vocales
+  (a/e/i/o/u, con transición entre vocales), consonantes de ruido (s, sh, h,
+  f, t), envolventes por sílaba y una "s" arrastrada al final; más una
+  respiración (inspiración + exhalación). Mono 44.1 kHz, pico ≤0.75,
+  importados con Force To Mono + Decompress On Load + Preload. Semillas
+  fijas: regenerar da los mismos sonidos. Cuando Omar pase su susurro
+  grabado, se suma a `Whisper Clips` (o reemplaza a los generados).
+- `pasos_concreto.wav`: Preload Audio Data activado.
+
 ### Efectos visuales de `Parte 1 - El Despertar` (aplicado 2026-09-08 vía Unity MCP)
+
+> **Actualización 2026-09-24:** la niebla de Parte 1 se sacó y las luces se
+> bajaron (ver la sección de arriba). Lo que sigue queda como historia.
 
 A pedido de Omar, se le agregó a `Parte 1` la misma receta de efectos
 visuales que ya tenían `Parte 3`/`Parte 4` (fog + Bloom + luces
@@ -1652,8 +1706,10 @@ Todo en `Assets/Scripts/Puzzles/`. Ninguno está puesto en una escena todavía.
   distorsionada, globos, pasos y grito del monstruo, mirilla, llave, cuadro,
   zumbido fluorescente, papel, entrega, máscara, pitido de monitor. La tabla
   completa con el destino exacto de cada uno (script + campo) está en el
-  reporte de audio-integrator del 2026-09-23; ninguno existe en el proyecto
-  todavía.
+  reporte de audio-integrator del 2026-09-23. **Actualización 2026-09-24:**
+  ya existen susurros y una respiración generados por código
+  (`Assets/Audios/Susurros/`, ver "Parte 1 sin niebla y más oscura"); el
+  susurro "real" para el desmayo lo pasa Omar.
 
 ## Paredes grises que no responden a la luz — normales de shading invertidas (`Parte 4`, 2026-09-08)
 

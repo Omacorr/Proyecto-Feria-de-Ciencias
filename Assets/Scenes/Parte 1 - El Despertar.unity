@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 1
+  m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.01
@@ -35,7 +35,7 @@ RenderSettings:
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 0.1
+  m_ReflectionIntensity: 0
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
   m_UseRadianceAmbientProbe: 0
@@ -178,7 +178,7 @@ Light:
   serializedVersion: 12
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.9
   m_Range: 10
   m_SpotAngle: 179
   m_InnerSpotAngle: 0
@@ -259,7 +259,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7bdf50ca21480642a542673eb7094e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
-  _baseIntensity: 1.5
+  _baseIntensity: 0.9
   _flickerAmount: 0.35
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
@@ -324,7 +324,7 @@ Light:
   serializedVersion: 12
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.9
   m_Range: 10
   m_SpotAngle: 179
   m_InnerSpotAngle: 0
@@ -405,7 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7bdf50ca21480642a542673eb7094e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
-  _baseIntensity: 1.5
+  _baseIntensity: 0.9
   _flickerAmount: 0.35
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
@@ -1297,6 +1297,69 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -96.4562, y: 1.36773, z: 31.375}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &417747321
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 417747323}
+  - component: {fileID: 417747322}
+  m_Layer: 0
+  m_Name: Sustos al examinar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &417747322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417747321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f68ea61d3a7242345ac7ae3fc4ebeb35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExamineScareSounds
+  _listener: {fileID: 4213043971097003896}
+  _footstepsClip: {fileID: 8300000, guid: 87c9d0e94bf352147905ce126af95bbf, type: 3}
+  _footstepsVolume: 0.85
+  _footstepsSeconds: {x: 2.5, y: 4}
+  _footstepsDistance: {x: 4, y: 7}
+  _footstepsApproach: 1.8
+  _footstepsPitch: 0.85
+  _whisperClips:
+  - {fileID: 8300000, guid: 763f5917f0bb58e42b643d9211fbd17e, type: 3}
+  - {fileID: 8300000, guid: 7b07a597e2393f34c8a85136c40ee008, type: 3}
+  - {fileID: 8300000, guid: ae1bb21d79e1da54292660e45388b928, type: 3}
+  - {fileID: 8300000, guid: 2795696d74dd68b46b3b412f39b34e7b, type: 3}
+  - {fileID: 8300000, guid: 296c50c84a6d78e458bbe17e7b9868ca, type: 3}
+  - {fileID: 8300000, guid: b992a05212fb5be4281df906b6cc4d6b, type: 3}
+  _whisperVolume: 0.9
+  _whisperEarDistance: 0.35
+  _firstDelay: {x: 3, y: 5}
+  _gap: {x: 5, y: 9}
+  _whisperChance: 0.5
+--- !u!4 &417747323
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 417747321}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -97.4, y: 1, z: 26.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3094,7 +3157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7bdf50ca21480642a542673eb7094e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
-  _baseIntensity: 1.5
+  _baseIntensity: 1.2
   _flickerAmount: 0.35
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
@@ -3111,7 +3174,7 @@ Light:
   serializedVersion: 12
   m_Type: 0
   m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
-  m_Intensity: 12
+  m_Intensity: 1.2
   m_Range: 8
   m_SpotAngle: 80
   m_InnerSpotAngle: 21.80208
@@ -3771,6 +3834,18 @@ MonoBehaviour:
   _onUnlocked:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 417747322}
+        m_TargetAssemblyTypeName: ExamineScareSounds, Assembly-CSharp
+        m_MethodName: StopScares
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 1219243391}
         m_TargetAssemblyTypeName: ExamineTrigger, Assembly-CSharp
         m_MethodName: ReturnToPreviousPoint
@@ -3937,6 +4012,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 417747322}
+        m_TargetAssemblyTypeName: ExamineScareSounds, Assembly-CSharp
+        m_MethodName: StartScares
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _onExamineEnd:
     m_PersistentCalls:
       m_Calls:
@@ -3963,6 +4050,18 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 417747322}
+        m_TargetAssemblyTypeName: ExamineScareSounds, Assembly-CSharp
+        m_MethodName: StopScares
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
         m_CallState: 2
 --- !u!65 &1219243393
 BoxCollider:
@@ -4797,7 +4896,7 @@ Light:
   serializedVersion: 12
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.9
   m_Range: 10
   m_SpotAngle: 179
   m_InnerSpotAngle: 0
@@ -4878,7 +4977,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7bdf50ca21480642a542673eb7094e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
-  _baseIntensity: 1.5
+  _baseIntensity: 0.9
   _flickerAmount: 0.35
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
@@ -6429,7 +6528,7 @@ Light:
   serializedVersion: 12
   m_Type: 0
   m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
-  m_Intensity: 5
+  m_Intensity: 3.5
   m_Range: 10
   m_SpotAngle: 47.90898
   m_InnerSpotAngle: 0
@@ -6630,7 +6729,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3260786584535838051}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -7389,7 +7488,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0.019607844}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -7687,3 +7786,4 @@ SceneRoots:
   - {fileID: 2056676843}
   - {fileID: 1047498277}
   - {fileID: 687480808}
+  - {fileID: 417747323}
