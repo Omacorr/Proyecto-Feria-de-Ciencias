@@ -264,6 +264,7 @@ MonoBehaviour:
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
   _blackoutMaxDuration: 0.08
+  _burstStepSeconds: 0.05
 --- !u!1 &101177597
 GameObject:
   m_ObjectHideFlags: 0
@@ -409,6 +410,7 @@ MonoBehaviour:
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
   _blackoutMaxDuration: 0.08
+  _burstStepSeconds: 0.05
 --- !u!1 &144736726
 GameObject:
   m_ObjectHideFlags: 0
@@ -581,6 +583,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -769,6 +776,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -905,6 +917,11 @@ MonoBehaviour:
   _overridePlayerHeight: 1
   _targetPlayerHeight: 1.8
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -1041,6 +1058,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -1537,6 +1559,11 @@ MonoBehaviour:
   _overridePlayerHeight: 1
   _targetPlayerHeight: 1.8
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -1970,6 +1997,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -2397,6 +2429,10 @@ MonoBehaviour:
   _blinkOnWake: 1
   _wakeClip: {fileID: 0}
   _overlayMaterial: {fileID: 2100000, guid: de06af1d2ea04ac41bb717307792f905, type: 2}
+  _showLevelText: 1
+  _levelTitle: PARTE 2
+  _levelSubtitle: "EL CUMPLEA\xD1OS"
+  _levelFont: {fileID: 12800000, guid: e717b7083d279f84ebbe62781798cd3f, type: 3}
 --- !u!1001 &888480035
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2885,6 +2921,10 @@ MonoBehaviour:
   _rotationDuration: 0.15
   _inactiveMaterial: {fileID: 0}
   _gazedAtMaterial: {fileID: 0}
+  _gazeHint: 1
+  _hintEmission: {r: 0.3, g: 0.2, b: 0.08, a: 1}
+  _hintNudgeDegrees: 9
+  _hintNudgeSeconds: 0.45
 --- !u!114 &1020603226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2904,6 +2944,10 @@ MonoBehaviour:
   _rotationDuration: 0.15
   _inactiveMaterial: {fileID: 0}
   _gazedAtMaterial: {fileID: 0}
+  _gazeHint: 1
+  _hintEmission: {r: 0.3, g: 0.2, b: 0.08, a: 1}
+  _hintNudgeDegrees: 9
+  _hintNudgeSeconds: 0.45
 --- !u!114 &1020603227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2923,6 +2967,10 @@ MonoBehaviour:
   _rotationDuration: 0.15
   _inactiveMaterial: {fileID: 0}
   _gazedAtMaterial: {fileID: 0}
+  _gazeHint: 1
+  _hintEmission: {r: 0.3, g: 0.2, b: 0.08, a: 1}
+  _hintNudgeDegrees: 9
+  _hintNudgeSeconds: 0.45
 --- !u!65 &1020603228
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3051,6 +3099,7 @@ MonoBehaviour:
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
   _blackoutMaxDuration: 0.08
+  _burstStepSeconds: 0.05
 --- !u!108 &1047498276
 Light:
   m_ObjectHideFlags: 0
@@ -3169,6 +3218,11 @@ MonoBehaviour:
   _overridePlayerHeight: 1
   _targetPlayerHeight: 1.8
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -3812,6 +3866,11 @@ MonoBehaviour:
   _overridePlayerHeight: 1
   _targetPlayerHeight: 1.2
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -3964,6 +4023,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -4100,6 +4164,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -4326,6 +4395,11 @@ MonoBehaviour:
   _overridePlayerHeight: 1
   _targetPlayerHeight: 0.5
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -4561,6 +4635,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -4804,6 +4883,7 @@ MonoBehaviour:
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
   _blackoutMaxDuration: 0.08
+  _burstStepSeconds: 0.05
 --- !u!1001 &1744316751
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5251,6 +5331,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -5477,6 +5562,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -5613,6 +5703,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -5798,6 +5893,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:

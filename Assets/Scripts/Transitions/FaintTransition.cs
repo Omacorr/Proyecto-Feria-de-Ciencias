@@ -76,6 +76,8 @@ public class FaintTransition : MonoBehaviour
     [SerializeField] private string _levelTitle = "";
     [Tooltip("Texto chico debajo, por ejemplo CUMPLEAÑOS.")]
     [SerializeField] private string _levelSubtitle = "";
+    [Tooltip("Tipografia del texto (Assets/Fonts/SpecialElite-Regular). Vacio = fuente interna de Unity. Al estar referenciada aca, entra sola al build.")]
+    [SerializeField] private Font _levelFont;
 
     private bool _triggered;
 
@@ -178,6 +180,7 @@ public class FaintTransition : MonoBehaviour
             ShowText = _showLevelText,
             Title = _levelTitle,
             Subtitle = _levelSubtitle,
+            Font = _levelFont,
         });
     }
 

@@ -1895,9 +1895,10 @@ MonoBehaviour:
   _blinkOnWake: 1
   _wakeClip: {fileID: 0}
   _overlayMaterial: {fileID: 2100000, guid: de06af1d2ea04ac41bb717307792f905, type: 2}
-  _showLevelText: 0
-  _levelTitle: 
-  _levelSubtitle: 
+  _showLevelText: 1
+  _levelTitle: PARTE 4
+  _levelSubtitle: CLAUSTROFOBIA
+  _levelFont: {fileID: 12800000, guid: e717b7083d279f84ebbe62781798cd3f, type: 3}
 --- !u!4 &758465165
 Transform:
   m_ObjectHideFlags: 0

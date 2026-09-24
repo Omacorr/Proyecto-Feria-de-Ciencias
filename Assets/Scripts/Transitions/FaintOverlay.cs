@@ -72,6 +72,8 @@ public class FaintOverlay : MonoBehaviour
         public bool ShowText;
         public string Title;
         public string Subtitle;
+        /// <summary>Fuente del texto. null = fuente interna de Unity.</summary>
+        public Font Font;
     }
 
     // Esfera en 4999 y texto en 5000: los dos por encima del reticle y del
@@ -252,7 +254,11 @@ public class FaintOverlay : MonoBehaviour
             return;
         }
 
-        _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        // Una fuente importada (.ttf) usa el mismo shader GUI/Text que la interna,
+        // asi que el resto del armado (copia del material, cola, ZTest) no cambia.
+        _font = _s.Font != null && _s.Font.material != null
+            ? _s.Font
+            : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         if (_font == null || _font.material == null)
         {
             Debug.LogWarning("[FaintOverlay] No encontre la fuente interna LegacyRuntime.ttf: el desmayo sigue sin texto.");

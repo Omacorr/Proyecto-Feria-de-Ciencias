@@ -80,6 +80,24 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
 
     public bool LoopOnlyWhenMovingAway => _loopOnlyWhenMovingAway;
 
+    /// <summary>
+    /// Corta el loop para siempre (en esta partida): el punto pasa a ser un
+    /// teletransporte comun a su propia posicion (sin Destination Override ni
+    /// salto). Pensado para cablearlo desde un UnityEvent, por ejemplo el
+    /// On Straightened de la pintura de Parte 4: enderezarla rompe el pasillo
+    /// infinito. Solo cambia el estado en runtime, no la escena guardada.
+    /// </summary>
+    public void DisableLoop()
+    {
+        if (!_seamlessLoop)
+        {
+            return;
+        }
+        _seamlessLoop = false;
+        _destinationOverride = null;
+        Debug.Log($"[TeleportPoint] {gameObject.name}: loop cortado, ahora es un punto comun.");
+    }
+
     private Renderer _renderer;
     private Collider _collider;
 
