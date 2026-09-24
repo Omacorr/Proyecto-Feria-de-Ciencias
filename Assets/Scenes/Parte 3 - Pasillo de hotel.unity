@@ -157,6 +157,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -453,7 +458,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
-    m_Type: 2
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -714,6 +719,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 737625842}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 425078629}
   _teleportSound: {fileID: 8300000, guid: 363ad4f97019af24793be8771eb1cc53, type: 3}
   _onPlayerArrived:
@@ -1237,6 +1247,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -1373,6 +1388,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -1584,6 +1604,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -1735,6 +1760,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -1818,6 +1848,72 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 757778541}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &758465163
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 758465165}
+  - component: {fileID: 758465164}
+  m_Layer: 0
+  m_Name: Desmayo -> Parte 4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &758465164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758465163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a6d01eeef2ba946a0cefb07ba2855e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FaintTransition
+  _nextSceneName: Parte 4 - Pasillo de madera
+  _preDelay: 1.8
+  _flickerLights:
+  - {fileID: 7613015418822179609}
+  _whisperClip: {fileID: 0}
+  _whisperSide: -1
+  _whisperDelay: 0.3
+  _onCollapseStart:
+    m_PersistentCalls:
+      m_Calls: []
+  _color: {r: 0, g: 0, b: 0, a: 1}
+  _fadeOutDuration: 0.12
+  _impactClip: {fileID: 0}
+  _holdSeconds: 2
+  _wakeDuration: 0.8
+  _blinkOnWake: 1
+  _wakeClip: {fileID: 0}
+  _overlayMaterial: {fileID: 2100000, guid: de06af1d2ea04ac41bb717307792f905, type: 2}
+  _showLevelText: 1
+  _levelTitle: PARTE 4
+  _levelSubtitle: CLAUSTROFOBIA
+  _levelFont: {fileID: 12800000, guid: e717b7083d279f84ebbe62781798cd3f, type: 3}
+--- !u!4 &758465165
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758465163}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1046218684}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &766742058
 GameObject:
   m_ObjectHideFlags: 0
@@ -1961,6 +2057,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -2067,6 +2168,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 1617592699}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 425078629}
   _teleportSound: {fileID: 8300000, guid: 363ad4f97019af24793be8771eb1cc53, type: 3}
   _onPlayerArrived:
@@ -2241,6 +2347,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -2362,6 +2473,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -2670,6 +2786,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -2767,6 +2888,40 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 543450652471528521}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1046218683
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1046218684}
+  m_Layer: 0
+  m_Name: Transiciones
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1046218684
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1046218683}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 758465165}
+  - {fileID: 1971665545}
+  - {fileID: 2111794912}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1071883461
 BoxCollider:
@@ -2868,6 +3023,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -3004,6 +3164,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -3218,6 +3383,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -3405,6 +3575,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -3616,6 +3791,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -3767,6 +3947,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -3888,6 +4073,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -4024,6 +4214,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -4177,6 +4372,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -4283,6 +4483,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 1947127198}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 425078629}
   _teleportSound: {fileID: 8300000, guid: 363ad4f97019af24793be8771eb1cc53, type: 3}
   _onPlayerArrived:
@@ -4527,6 +4732,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -4737,6 +4947,72 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1964628009}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1971665543
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1971665545}
+  - component: {fileID: 1971665544}
+  m_Layer: 0
+  m_Name: Abismo (puerta del fondo)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1971665544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1971665543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6961707722e2cc4bb064bc44e2d6087, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AbyssFall
+  _faint: {fileID: 758465164}
+  _cameraTransform: {fileID: 4027177054120031210}
+  _voidShader: {fileID: 4800000, guid: 099da31e9f0f4a51aef29c3a55f1eeb2, type: 3}
+  _teleportManager: {fileID: 6142864993735828718}
+  _width: 3
+  _length: 3
+  _heightAbove: 3.5
+  _depth: 80
+  _hideInside: []
+  _doorwayWidth: 1.1
+  _doorwayHeight: 2.2
+  _plugDoorway: 0
+  _plugOffset: 0.14
+  _entryPoint: {fileID: 2111794911}
+  _doorToWatch: {fileID: 1845740000866946532}
+  _doorOpenAngle: 15
+  _hangTime: 0.35
+  _gravity: 9.8
+  _fallClip: {fileID: 0}
+  _onFallStart:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &1971665545
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1971665543}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -4.3, y: -0.26, z: 24.07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1046218684}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1978818350
 GameObject:
   m_ObjectHideFlags: 0
@@ -5066,6 +5342,100 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2774220344278030320, guid: fe65c988a0f3aea41ba40e934bc25ad9, type: 3}
   m_PrefabInstance: {fileID: 2085635178}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2111794911
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2111794912}
+  - component: {fileID: 2111794914}
+  - component: {fileID: 2111794913}
+  m_Layer: 9
+  m_Name: tp pozo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2111794912
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2111794911}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.45, y: -0.26, z: 24.07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1046218684}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2111794913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2111794911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bef29ca77ad71d49bab4ac4a207b9ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TeleportPoint
+  _teleportManager: {fileID: 6142864993735828718}
+  _inactiveMaterial: {fileID: 0}
+  _gazedAtMaterial: {fileID: 0}
+  _overridePlayerHeight: 0
+  _targetPlayerHeight: 0
+  _destinationOverride: {fileID: 0}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
+  _audioSource: {fileID: 0}
+  _teleportSound: {fileID: 0}
+  _onPlayerArrived:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1971665544}
+        m_TargetAssemblyTypeName: AbyssFall, Assembly-CSharp
+        m_MethodName: StartFall
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!65 &2111794914
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2111794911}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.2, y: 2.1, z: 1}
+  m_Center: {x: 1, y: 1.05, z: 0}
 --- !u!23 &20526876561682
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14542,6 +14912,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  _audioSource: {fileID: 0}
+  _collectSound: {fileID: 0}
 --- !u!65 &4975954918641427935
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -19286,6 +19658,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 1172343456}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 425078629}
   _teleportSound: {fileID: 8300000, guid: 363ad4f97019af24793be8771eb1cc53, type: 3}
   _onPlayerArrived:
@@ -19738,6 +20115,9 @@ MonoBehaviour:
   _interactiveLayerMask:
     serializedVersion: 2
     m_Bits: 640
+  _occluderLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
   _maxGazeDistance: 10
   _gazeSelectDuration: 2
 --- !u!33 &7515424102437364408
@@ -19915,6 +20295,7 @@ MonoBehaviour:
   _flickerSpeed: 8
   _blackoutChancePerSecond: 0.25
   _blackoutMaxDuration: 0.08
+  _burstStepSeconds: 0.05
 --- !u!33 &7640046075831060783
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -20257,6 +20638,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 1964628010}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 425078629}
   _teleportSound: {fileID: 8300000, guid: 363ad4f97019af24793be8771eb1cc53, type: 3}
   _onPlayerArrived:
@@ -22413,6 +22799,11 @@ MonoBehaviour:
   _overridePlayerHeight: 0
   _targetPlayerHeight: 0
   _destinationOverride: {fileID: 1419318457}
+  _seamlessLoop: 0
+  _loopOnlyWhenMovingAway: 1
+  _onLoop:
+    m_PersistentCalls:
+      m_Calls: []
   _audioSource: {fileID: 425078629}
   _teleportSound: {fileID: 8300000, guid: 363ad4f97019af24793be8771eb1cc53, type: 3}
   _onPlayerArrived:
@@ -23104,3 +23495,4 @@ SceneRoots:
   - {fileID: 1398340663}
   - {fileID: 528467627}
   - {fileID: 425078630}
+  - {fileID: 1046218684}
