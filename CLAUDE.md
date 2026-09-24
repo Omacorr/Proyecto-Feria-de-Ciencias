@@ -79,17 +79,14 @@ números `#N` son de "Decisiones abiertas", más abajo.
   (`Collectable → CollectKey`) dentro de `hayama_washitsu_raw_scan` (se entra
   por la puerta-teletransporte `1_3`) y la puerta del fondo
   `hallway_hotel/doors/27_2` con `Requires Key`. **Hecho 2026-09-23:**
-  `AbyssFall` + `tp pozo` + `Desmayo -> Parte 4` detrás de `27_2`. Código
-  listo pero sin instanciar: `Peephole` (mirillas) y `MonsterController`.
-  Falta: poner las mirillas (en qué puertas, #10), la luz roja sobre la llave
-  (receta en "Puzzles nuevos"), el monstruo acechando (#9) y probar en Play.
-- **Etapa 4 — pared que se desmorona hecha y probada en Play; loop y pintura
-  con código listo, sin cablear.** `WallCollapse` + `Desmayo -> Parte 5`
-  funcionan (el bug de la pared invisible se resolvió y el arreglo ya está
-  guardado). `UpsideDownPainting` y `TeleportPoint.Seamless Loop`
-  existen, con propuestas de ubicación (#11, #12). `tp pared ciega` sigue
-  siempre activo; con la pintura tiene que arrancar apagado (ojo con el
-  gotcha #20: destildar el componente no alcanza).
+  `AbyssFall` + `tp pozo` + `Desmayo -> Parte 4` detrás de `27_2`, **probado
+  en Play 2026-09-24**. Por decisión de Omar (2026-09-24) **no hay mirillas
+  ni monstruo** en Parte 3: el nivel queda con sus 3 puertas a habitaciones
+  (la llave en una). `Peephole` y la luz roja quedan sin usar.
+- **Etapa 4 — COMPLETA y probada en Play (2026-09-24).** Pasillo infinito
+  (`tp1 → tp1-2`), pintura al revés (`frame_61`) que al enderezarse corta el
+  loop y activa `tp pared ciega` (arranca apagado), derrumbe y desmayo a
+  Parte 5 con texto. Ver "Parte 4: pasillo infinito y pintura".
 - **Etapa 5 — geometría sí, rig no.** Corrección: no está vacía, tiene
   `backrooms_vr` en `(-46.8, 1.26, -580.2)`, rot X -90, pero sin
   Player/gaze/tp, así que **toda la etapa está bloqueada** hasta que alguien
@@ -155,37 +152,37 @@ números `#N` son de "Decisiones abiertas", más abajo.
    y eligió **Save** en el diálogo de salida. La escena quedó guardada con el
    arreglo de la pared y con esos cambios previos. Si no era lo que quería,
    revertir con git y reaplicar el arreglo (valores en "Transiciones desmayo").
-8. **Etapa 1:** ¿va el reloj parado del guion? El código `067` no es una
-   hora: ¿se cambia a `315` (03:15)? ¿Nota con tiza? ¿Foto tachada?
-9. **Monstruo en la etapa 3:** ¿empieza a acechar (`Stalk`) al agarrar la
-   llave (propuesta: 5 m, 0.9 m/s)? Durante la caída al abismo, ¿mira o
-   desaparece?
-10. **Mirillas (etapa 3):** propuesta "opción A" = la llave se ve primero
-    desde una mirilla, lo que obliga a cerrar la puerta-tp `1_3` (apagar su
-    `TeleportPoint` Y su `BoxCollider`, ver gotcha #20). ¿Qué otras puertas
-    llevan mirilla falsa (ciega)?
-11. **Loop de la etapa 4:** ¿`tp8-9` → `tp9` con `Seamless Loop`
-    (alternativa `tp6` → `tp5-6`)? ¿Se apaga el loop al enderezar la pintura?
-12. **Pintura al revés (etapa 4):** ¿el cuadro de la cabaña (`frame_61`) en
-    la pared x=-27.90? ¿Visible desde el inicio o recién después de N vueltas
-    del loop?
+8. ~~Etapa 1: reloj parado / código 315~~ → **resuelta 2026-09-24:** no es
+   una hora; el código está en la pared (notas 0 6 7) y se ingresa en el
+   candado. Se agregó un indicador sutil en los discos.
+9. ~~Monstruo en la etapa 3~~ → **resuelta 2026-09-24:** por ahora no hay
+   monstruo en Parte 3.
+10. ~~Mirillas (etapa 3)~~ → **resuelta 2026-09-24:** no hay mirillas. Parte 3
+    queda como está: 3 puertas llevan a otra habitación, la llave está en una;
+    las demás están tapadas por objetos y no son interactuables.
+11. ~~Loop de la etapa 4~~ → **resuelta 2026-09-24 (a criterio de Claude):**
+    loop en `tp1 → tp1-2` (hacia la pared ciega), se corta al enderezar la
+    pintura. Ver "Parte 4: pasillo infinito y pintura".
+12. ~~Pintura al revés~~ → **resuelta 2026-09-24:** `frame_61` en x=-27.90,
+    visible desde el inicio.
 13. **Luz cegadora de Parte 4:** hoy satura a blanco total ~1.5 s antes del
     desmayo y pierde el amarillo. ¿Se baja `Glow Max` (12) y
-    `Light Max Intensity` (60)?
+    `Light Max Intensity` (60)? *(2026-09-24: Omar preguntó dónde está esa
+    luz; se le mostró con capturas. Sigue abierta.)*
 14. **Etapa 5:** ¿quién arma el rig de `Parte 5` (y de `Parte Final`)? ¿Qué
-    texto revela cada fragmento de la nota?
-15. **Gaze a través de paredes:** ¿se agregan Colliders a las paredes + un
-    `Occluder Layer Mask` en `GazeController` para que no se puedan elegir
-    `tp` a través de una pared (gotcha #24)?
-16. **`Mobile_Renderer`:** ¿pasar a Forward+ o subir el tope a 8 luces por
-    objeto (gotcha #18)? Decidir después de medir FPS en el A54.
-17. **Fotosensibilidad:** ¿se pone un aviso de epilepsia al inicio?
-    `FlickeringLight.Burst Step Seconds` ¿0.05 (5–10 Hz, actual) o 0.17
-    (más lento, más seguro)?
-18. **Audio:** ¿se juega con auriculares en la feria (el susurro 3D depende
-    de eso)? ¿Quién graba el susurro? ¿Pitido de monitor regular o línea
-    plana? ¿`Doppler Factor = 0`? ¿Se borra el `AudioSource` de `FadeImage` en
-    Parte 3 y se arregla el doble sonido del candado de Parte 1?
+    texto revela cada fragmento de la nota? *(Omar: "resolvámoslo
+    después".)* Decidido: después del final se vuelve al Menú.
+15. ~~Gaze a través de paredes~~ → **resuelta 2026-09-24:** oclusor en
+    Parte 4 (no afecta el rendimiento).
+16. ~~`Mobile_Renderer`~~ → **resuelta 2026-09-24:** "lo que dé mejor
+    rendimiento" → queda en Forward (tope 4 luces por objeto); la diferencia
+    visual en Parte 4 es mínima.
+17. ~~Fotosensibilidad~~ → **resuelta 2026-09-24:** aviso al inicio
+    (`PhotosensitivityWarning`). `Burst Step Seconds` queda en 0.05.
+18. ~~Audio~~ → **resuelta 2026-09-24:** con auriculares; el susurro lo pasa
+    Omar; el doble sonido del candado no se percibe (se deja); el portazo al
+    cargar Parte 3 se deja a propósito; pasos agregados en Parte 4. Pendiente:
+    pitido de monitor (regular o línea plana) y `Doppler Factor`.
 19. **Cosas del compañero (consultarle, no tocar):** `Tutorial → Parte 1` usa
     `SceneTransitionOverlay` (Screen Space Overlay, casi seguro invisible en
     Cardboard): ¿lo cambia por `FaintTransition`/`FaintOverlay`? Avisarle que
@@ -194,12 +191,12 @@ números `#N` son de "Decisiones abiertas", más abajo.
     el A54.
 20. **Texturas embebidas en `.glb`:** probablemente ~1 GB sin comprimir en el
     APK. ¿Se reexportan como `.gltf` con imágenes externas o se bajan a 512?
-21. **Perfil de post-procesado compartido** (`Global Volume Profile`, lo usa
-    también el compañero): ¿se apagan Screen Space Lens Flare y Chromatic
-    Aberration y se baja la calidad del Bloom (ver "QA de build Android")?
-22. **Iluminación de Parte 3** (escena muy trabajada, pedir antes de tocar):
-    ¿Directional negra en `No Shadows`, HDR prendido en la cámara (también
-    Parte 1) y `reflectionIntensity = 0`?
+21. ~~Perfil de post-procesado compartido~~ → **resuelta 2026-09-24:** Lens
+    Flare y Chromatic Aberration apagados, Bloom sin alta calidad y
+    `maxIterations = 5`.
+22. **Iluminación de Parte 3:** Directional negra en `No Shadows` → **hecho
+    2026-09-24**. Siguen abiertos: HDR prendido en la cámara (también Parte 1)
+    y `reflectionIntensity = 0`.
 
 ### Reparto de trabajo entre agentes (`.claude/agents/`)
 
@@ -228,6 +225,96 @@ verificado vía Unity MCP). Lo de cada uno quedó en: "Transiciones desmayo"
   compañero**: no tocarlos.
 - #4 → "caminar de espaldas" = **alcanza con llegar a un tp específico**,
   sin chequear hacia dónde mira.
+
+### Decisiones de Omar (2026-09-24) y qué se hizo con cada una
+
+Respuestas de Omar a la lista de preguntas de `ESTADO_CLAUDE.md` (sección 6):
+
+- **Texto de nivel en el desmayo (#6): SÍ**, con una tipografía acorde. Se bajó
+  **Special Elite** (Google Fonts, Apache 2.0, máquina de escribir gastada) a
+  `Assets/Fonts/Resources/SpecialElite-Regular.ttf` (licencia al lado, en
+  `Assets/Fonts/`). `FaintTransition` tiene un campo nuevo `Level Font`.
+  Textos: Parte 1 → "PARTE 2 / EL CUMPLEAÑOS", Parte 3 → "PARTE 4 /
+  CLAUSTROFOBIA", Parte 4 → "PARTE 5 / LA REVELACIÓN". Probado en Play (Parte
+  4 → 5): se lee bien, oscuro sobre el fundido cálido, con tildes.
+- **Después del final se vuelve al Menú (#5, parcial):** decidido; se
+  implementa cuando existan Parte 5 / Parte Final (hoy sin rig). Idea: el
+  último desmayo usa `FaintTransition.TriggerToScene("Menu Principal")`.
+- **Sin monstruo en Parte 3** (por ahora). `MonsterController` queda listo
+  para Parte 2 (compañero) y Parte 5.
+- **Nivel infinito de Parte 4 (a criterio de Claude) → implementado:** ver
+  "Parte 4: pasillo infinito y pintura" más abajo.
+- **Oclusión de la mirada (a criterio, si no afecta el rendimiento) →
+  implementada en Parte 4:** un solo raycast por frame contra un
+  MeshCollider estático, costo despreciable.
+- **Parte 3: NO hay mirillas.** El diseño real: hay 3 puertas que llevan a
+  otra habitación, en una está la llave; las puertas que no llevan a nada
+  están tapadas por objetos y no son interactuables. `Peephole` queda sin
+  usar (el código no molesta).
+- **Pintura (a criterio):** `frame_61` de `horror_room.glb` (cabaña de noche
+  con luz amarilla en la puerta).
+- **Etapa 1: el puzzle NO es una hora.** Es el código escrito en la pared
+  (las 3 notas `sticky_notes` frente a `tp14` muestran **0 6 7** legible,
+  confirmado con captura) que se ingresa en el candado de números. Pedido:
+  un **indicador sutil** al mirar cada disco → hecho en `CodeDigit` (ver
+  "El candado" más abajo). No se agregó nada en la pared (ya estaba).
+- **Parte 5 (rig, fragmentos):** se resuelve después.
+- **Rendimiento (#12): "lo que dé el mejor rendimiento".** Se deja el
+  celular en **Forward** (nivel Mobile, tope de 4 luces por objeto): se
+  comparó Parte 4 con calidad PC vs Mobile y, al ser una escena muy oscura a
+  propósito, casi no cambia. Además: Bloom del `Global Volume Profile` con
+  `highQualityFiltering = false` y `maxIterations = 5` (antes 6, HQ heredado
+  de `SampleSceneProfile`), **Screen Space Lens Flare y Chromatic Aberration
+  apagados** (caros y molestos en estéreo), y la Directional negra de Parte 3
+  sin sombras (era `Soft`; las de Parte 1 y 4 ya estaban en `None`).
+- **Aviso de epilepsia: SÍ, al inicio** → `PhotosensitivityWarning` (ver
+  "Menú principal y flujo de escenas").
+- **Audio:** se juega con **auriculares** (el susurro 3D va a funcionar). El
+  susurro lo pasa Omar. El doble sonido de la puerta del candado **no se
+  percibe → se deja**. El portazo que suena al cargar Parte 3 (`AudioSource`
+  suelto en `FadeImage`) **se deja a propósito** (a Omar le gusta). Se
+  **agregaron los pasos en Parte 4**.
+- **Compañero:** Omar le avisa lo de la Parte 2 (terminar con un desmayo a
+  Parte 3), su transición del Tutorial y el modelo pesado.
+
+### Parte 4: pasillo infinito y pintura (2026-09-24, probado en Play)
+
+Mapa de `Parte 4` (tp): un **anillo** rectangular (x -69.5..14.7, z
+-155.7..-108; spawn en `tp9`) y, desde su lado oeste (`tp3`), un tramo que
+baja al **tramo en L** de abajo (z ≈ -203.8): hacia el oeste llega a la
+pared ciega (`tp1` → `tp pared ciega`, x ≈ -136), hacia el este a un fondo
+ciego (`tp2`, pared en x = -27.904).
+
+- **Loop ("caminar hacia adelante te devuelve al mismo punto"):** `tp1` tiene
+  `Destination Override = tp1-2` + `Seamless Loop` + `Loop Only When Moving
+  Away`. Yendo hacia la pared ciega, al llegar a `tp1` el jugador vuelve sin
+  fade a `tp1-2` (30.7 m atrás, misma dirección de mirada, lámpara encima en
+  los dos): el pasillo hacia la pared no termina nunca.
+- **Pintura al revés:** `Pintura al reves` en (-27.96, 10.5, -203.7), rot
+  (0,90,0), layer Interactive, `BoxCollider (4.2, 3, 0.4)`,
+  `UpsideDownPainting` (flip Z 180°, authored upright). Hijo `Cuadro
+  (frame_61 de horror_room)` con la malla `Object_21` y el material `Paint`
+  del `.glb` (4 × 2.85 m, centrado en el pivote; el frente de la malla es -Y
+  y arriba +Z, medido en su habitación original). `tp pintura` (copia de
+  `tp2`) en (-34, 7.5, -203.8) para verla de cerca con la linterna.
+- **Al enderezarla (`On Straightened`):** `tp pared ciega.SetActive(true)`
+  (arranca apagado en la escena), `tp1.DisableLoop()` (método nuevo de
+  `TeleportPoint`: saca el loop y el Destination Override → punto común) y
+  `FlickeringLight.Burst(1.5)` en la lámpara de `tp2`. Así "caminar de
+  espaldas" (alejarse de la pintura) lleva por fin a la pared ciega.
+- **Oclusor de mirada:** hijo `Oclusor de mirada (paredes)` de `Object_258`
+  (layer `Environment` = 8, solo `MeshCollider`, sin tocar el render) +
+  `GazeController.Occluder Layer Mask = Environment`. Corta 6 pares de tp
+  que se veían a través de paredes (tp2↔tp3, tp3↔tp9, tp4↔tp5, tp4↔tp9,
+  tp6↔tp7, tp7↔tp8); `tp1-2↔tp3` sigue porque es una diagonal real por la
+  esquina. Los 20 tramos conectados siguen visibles.
+- **Pasos:** `Player/Pasos` (`AudioSource` 2D, loop, `pasos_madera.wav`,
+  volumen 0.6) en `TeleportManager.Footsteps Audio Source`. Import de
+  `pasos_madera.wav` con Preload Audio Data.
+- **Probado en Play:** la pintura arranca dada vuelta; `tp1-2 → tp1` hace el
+  loop; `Straighten()` → aparece `tp pared ciega`, `tp1` deja de hacer loop;
+  `tp1 → tp pared ciega` → derrumbe → desmayo con "PARTE 5 / LA REVELACIÓN"
+  → Parte 5. Sin errores ni warnings.
 
 ### Transiciones "desmayo" — estado al cierre de la sesión 2026-09-23
 
@@ -421,22 +508,21 @@ la escena sigue **sin commitear** (el último commit la tenía en ~1.26 MB; hoy
 
 **Falta:** probar en el A54 los tres tramos (en el Editor ya funcionan los
 tres); clips de audio (susurro,
-golpe seco, respiración, derrumbe, caída: ninguno existe todavía); `tp pared
-ciega` hoy está siempre activo y, cuando exista la pintura, tiene que arrancar
-apagado y prenderse al enderezarla (apagando su Collider o el GameObject, no
-solo el componente: gotcha #20); rig en Parte 2/5/Final para que el desmayo
+golpe seco, respiración, derrumbe, caída: ninguno existe todavía; el
+susurro lo pasa Omar); rig en Parte 2/5/Final para que el desmayo
 tenga a dónde llegar; tramos 2→3 y 5→Final. Largo máximo de los clips que
 viven en la escena vieja (se cortan al descargarla): susurro y `Fall Clip` ≈
 `preDelay + fadeOut + hold` (Parte 1 ~5.6 s, Parte 3 ~3.6 s); `Collapse
 Clip` de Parte 4 ~8.5 s. `Impact Clip` y `Wake Clip` sobreviven porque suenan
 en `FaintOverlay`.
 
-**Orden sugerido (por dependencias, actualizado 2026-09-24):** 1) commitear
-lo de esta sesión (rama + PR) y probar en el A54 los tres desmayos
-(plan en "QA de build Android / A54"), 2) rig de Parte 5
-(bloquea la etapa 5 entera), 3) loop + pintura de la etapa 4 (código listo),
-4) mirillas + luz roja + monstruo de la etapa 3, 5) conseguir clips de audio,
-6) etapa 5 (fragmentos + revelación; depende del modelo del monstruo).
+**Orden sugerido (por dependencias, actualizado 2026-09-24):** 1) Omar
+prueba en el A54 todo lo nuevo (desmayos con texto, aviso de epilepsia,
+indicador del candado, pasillo infinito + pintura de Parte 4; plan en "QA de
+build Android / A54"), 2) rig de Parte 5 (bloquea la etapa 5 entera), 3)
+conseguir clips de audio (susurro de Omar), 4) etapa 5 (fragmentos +
+revelación; depende del modelo del monstruo) y vuelta al Menú desde el final.
+Etapas 3 y 4 ya están completas.
 
 ## Estructura de escenas (`Assets/Scenes/`)
 
@@ -798,6 +884,19 @@ poder repetirse escena por escena.
   se puede arrastrar nada — todo es mirar un botón de preset.
 - **Flujo completo:** `Menu Principal` → (Empezar) → `Tutorial` → (de ahí en
   adelante, las escenas "Parte N" en orden).
+- **`PhotosensitivityWarning`** (`Scripts/Menu/PhotosensitivityWarning.cs`,
+  2026-09-24, pedido de Omar): aviso de epilepsia/fotosensibilidad **al
+  arrancar el juego**. No está en ninguna escena: se crea solo
+  (`RuntimeInitializeOnLoadMethod`) una vez por ejecución, **solo si la
+  primera escena cargada es la de índice 0** (Menu Principal); probando una
+  Parte suelta no aparece. Motivo: la escena del Menú la **genera el
+  compañero por script** (`MenuPrincipalGenerator`), así que cualquier cosa
+  puesta a mano ahí se perdería. VR-safe: panel negro (quad `UI/AlwaysOnTop`,
+  cola 4996) + `TextMesh` (Special Elite desde `Resources`, cola 4997)
+  pegados a la cámara; bloquea la mirada ~8 s + 1.2 s de fundido y después
+  se destruye. Texto: "ADVERTENCIA / fotosensibilidad", el aviso de
+  convulsiones, "sacate el visor y dejá de jugar" y "Se recomienda jugar con
+  auriculares". Probado en Play: se lee bien y la mirada vuelve sola.
 
 ## Efectos visuales
 
@@ -1238,6 +1337,22 @@ proyecto.
   `ReportDigitChanged()`. El eje de rotación (`_rotationAxis`) y los grados
   por paso (`_degreesPerStep`) son ajustables a ojo por Inspector, porque
   dependen de cómo quedó orientado el modelo importado.
+  - **Indicador sutil al mirar (2026-09-24, pedido de Omar):** al empezar a
+    mirar un disco hace un **amague de giro** de 9° en el sentido en que gira
+    (0.45 s, ida y vuelta) y **brilla apenas** con emisión cálida
+    (`Hint Emission (0.30, 0.20, 0.08)`, pulso suave mientras se lo mira, vía
+    `MaterialPropertyBlock` sobre `emissiveFactor` del shader glTF; no toca el
+    material compartido). Se apaga al dejar de mirar. Así se entiende sin
+    carteles que el código se ingresa girando cada disco con la mirada.
+    Campos `Gaze Hint`, `Hint Emission`, `Hint Nudge Degrees/Seconds`. Con la
+    luz de examinar el brillo es muy leve; si hace falta, subir `Hint Emission`.
+  - **El giro ahora se calcula desde la rotación inicial** (`índice ×
+    grados`), no sumando pasos sobre la rotación actual. Arregla un bug
+    viejo: con `-35°` por paso (el valor de la escena), 10 pasos no dan una
+    vuelta completa y el `0` quedaba corrido 10° por vuelta. Y el amague nunca
+    puede desalinear un número.
+  - Cada selección sostenida re-selecciona cada 2 s (comportamiento normal de
+    `GazeController`): mirar un disco fijo lo sigue girando.
 - **`CodeLock`** (`Scripts/Interaction/CodeLock.cs`): tiene el array de
   `CodeDigit` en orden y el código objetivo (`_targetCode`). Cada vez que
   cualquier dígito cambia, arma la palabra completa y la compara. Si
@@ -2650,8 +2765,18 @@ Final); el sample HelloCardboard está destildado. *(Antes decía "solo
 - Puertas con llave (genérico), audio de apertura, posición/rotación de
   apertura vía objeto marcador (`Open Position Target`). Puertas dobles
   abiertas en simultáneo desde `CodeLock`.
-- Candado de combinación completo (solo en `Parte 1`).
-- Menú principal funcional de punta a punta.
+- Candado de combinación completo (solo en `Parte 1`), con indicador sutil
+  al mirar cada disco (2026-09-24).
+- Menú principal funcional de punta a punta, con aviso de fotosensibilidad al
+  arrancar (2026-09-24).
+- **Parte 4 jugable de punta a punta (2026-09-24):** pasillo infinito (loop
+  `tp1 → tp1-2`), pintura al revés que al enderezarse corta el loop y abre
+  `tp pared ciega`, derrumbe y desmayo a Parte 5 con texto; oclusión de la
+  mirada por paredes; pasos.
+- Texto de nivel con tipografía Special Elite en los tres desmayos
+  (2026-09-24).
+- Rendimiento para el A54 (2026-09-24): Bloom liviano, sin Lens Flare ni
+  Chromatic Aberration, sin sombras en la luz negra de Parte 3.
 - `FlickeringLight` en Menú Principal. *(El Bloom del Menú que figuraba acá
   no existe: ver sección de Bloom.)*
 - `Parte 3`: puertas físicas y teletransportes-puerta con audio funcionando
