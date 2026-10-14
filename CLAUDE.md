@@ -820,6 +820,193 @@ confirmar en la escena.
   `Tracking Type`. Se puede sacar del objeto `Main Camera` si ya no hace
   falta, pero el archivo no molesta si queda en el proyecto sin usarse.
 
+## `Parte 2 - Cumpleaños` — mecánica: cinta VHS → TV → "película" → persecución (2026-09-09)
+
+Diseño de Omar: el jugador aparece en un salón (mapa
+`rec_room_-_backstage_of_reality_-_level_fun.glb`), agarra una **cinta VHS**
+(`VHSS.glb`), la pone en un **televisor** (`TV.glb`), se reproduce una **mini
+película** en la pantalla de la tele, al terminar **aparece el monstruo** (que
+Omar dejó en la habitación de atrás, detrás del spawn) y empieza una
+**persecución lenta** (a propósito: moverse tarda) guiada por **flechas en el
+piso** hasta la **puerta de salida** → `Parte 3`. Si el monstruo te alcanza,
+reinicia la escena.
+
+**Scripts (todos en `Assets/Scripts/Interaction/` salvo aclaración):**
+- **`TapeInventory`**: espejo de `KeyInventory` para la cinta. `HasTape` /
+  `CollectTape()`. Se cablea desde `Collectable.OnCollected` del VHS.
+- **`VCRSlot`** (`IGazeInteractable`, va en `TV_Menu`): al mirar la tele, si
+  `TapeInventory.HasTape` inserta la cinta (una sola vez) y dispara
+  `_onTapeInserted`; si no, muestra `_missingTapeSign` unos segundos.
+- **`SecurityFootage`** (va en `TV_Menu`): la "película". NO hay archivo de
+  video — renderiza en vivo un **diorama escondido** (`DioramaGrabacion`, en
+  `Y = -500`: piso, luz, `CamaraGrabacion` desactivada, `MonstruoGrabacion`)
+  a un `RenderTexture` que se muestra en la submalla-pantalla de la tele
+  (`_tvScreen`, hay que asignarla a mano — es el vidrio/pantalla del modelo
+  `TV.glb`), con un overlay tipo CCTV en runtime (ruido, timestamp, "REC",
+  viñeta). `Play()` corre ~16s + cola de estática, el monstruo del diorama se
+  acerca a la cámara, termina con un grito + estática total y dispara
+  `_onMovieEnd`.
+- **`ChaseReveal`** (2026-09-09, en el GO de lógica `CinematicaPersecucion`):
+  el momento "te das vuelta y el monstruo ya viene". Se cablea desde
+  `SecurityFootage._onMovieEnd` **en lugar** de ir directo a
+  `MonsterChaser.StartChase`. Suena un golpe/rugido desde un `AudioSource`
+  que conviene poner **detrás del jugador** (para que gire la cabeza solo),
+  hace un **parpadeo a negro** (`VRFadeController.FadeOutAndIn`), y mientras
+  está negro reubica al monstruo (si se asignó `_monsterRevealPoint`) y llama
+  a `StartChase()`. **No gira la cámara sola por defecto**: en Cardboard el
+  `TrackedPoseDriver` pisa la rotación cada frame, así que forzar el giro
+  pelea con el hardware y marea — queda como opción `_forceCameraTurn` solo
+  para probar parado (apaga el `TrackedPoseDriver`, hace Slerp de yaw, lo
+  vuelve a prender).
+- **`MonsterChaser`** (en `Monstruo_Menu`): arranca oculto + `enabled=false`.
+  `StartChase()` lo muestra y persigue a `_target` (o `Camera.main`) a
+  velocidad **constante y lenta** (`_speed≈0.7`) con `Vector3.MoveTowards`,
+  Y fija (`_keepYFixed`/`_fixedY` — la herramienta lo pone en la Y actual del
+  monstruo). Si `Vector2.Distance` (xz) ≤ `_catchDistance` dispara `_onCaught`
+  una vez. `StopChase()` lo frena (cableado desde `LevelDoor._onOpen`).
+- **`GameOver`**: `RestartLevel()` (cableado desde `MonsterChaser._onCaught`)
+  → `SceneTransitionOverlay.Play` de la misma escena con "TE ATRAPARON".
+- **`EmissivePulse`** (`Scripts/Ambient/`): pulsa el `_EmissionColor` (vía
+  `MaterialPropertyBlock`) de cada flecha para que "respiren". `_phaseOffset`
+  distinto por flecha para que no parpadeen todas juntas.
+- **`LevelDoor`** (en `Puerta`): puerta de fin de nivel. Se le agregó
+  `_onOpen` (`UnityEvent`, se dispara ANTES del fundido) para cortar la
+  persecución. `_nextSceneName = "Parte 3 - Pasillo de hotel"`,
+  `_requiresKey = false`.
+
+**Cadena de eventos (estado final):**
+`Collectable(VHS).OnCollected → TapeInventory.CollectTape` ·
+`VCRSlot._onTapeInserted → SecurityFootage.Play` ·
+`SecurityFootage._onMovieEnd → ChaseReveal.Play` (que internamente llama
+`MonsterChaser.StartChase`) · `MonsterChaser._onCaught → GameOver.RestartLevel`
+· `LevelDoor(Puerta)._onOpen → MonsterChaser.StopChase`.
+
+**Herramienta de armado (`Assets/Editor/Parte2Setup.cs`), DOS menús:**
+- `Tools > Feria de Ciencias > Preparar Parte 2 (Cumpleaños)`: **destructivo**
+  — borra lo que generó antes y recrea mapa + rig (`Player 1.prefab`) + todos
+  los objetos en posiciones placeholder. Solo para arrancar de cero.
+- `Tools > Feria de Ciencias > Parte 2 · Configurar TP + flechas + puerta +
+  cadena (no recrea)`: **NO destructivo** — opera sobre la escena abierta y
+  los objetos que ya ubicó Omar a mano, buscándolos por nombre:
+  - empty **`TP`** (cubos primitivos adentro) → `TeleportPoint` + layer
+    `Teleport` + `_teleportManager` en cada hijo.
+  - **`Flechas`** (hijos `Flecha_N`, modelos `.glb`) → además de
+    `EmissivePulse`, se les agrega `TeleportPoint` + `EnsureCollider`
+    (encierra submallas) + layer `Teleport` + `_teleportManager`. **Trade-off
+    conocido:** al ser `TeleportPoint`, `TeleportManager` las oculta cuando
+    están lejos (igual que cualquier punto) — si se las quiere siempre
+    visibles como guía, hay que cambiarlo.
+  - **`Puerta`** (`.glb`) → `LevelDoor` + `EnsureCollider` + layer
+    `Interactive` + valores de destino + `_onOpen → StopChase`.
+  - crea el GO de lógica **`CinematicaPersecucion`** con `ChaseReveal` y
+    recablea `SecurityFootage._onMovieEnd → ChaseReveal.Play`.
+  - intenta adivinar `SecurityFootage._tvScreen` por nombre de submalla
+    (`screen`/`pantalla`/`glass`/`vidrio`/…); si no encuentra, avisa para
+    asignarla a mano.
+  - **no guarda** — deja la escena dirty para que Omar revise y haga Ctrl+S.
+  - helper `RemoveOtherGazeInteractables(go, keep)` limpia `IGazeInteractable`
+    duplicados (por ejemplo un `Door`/`LevelDoor` viejo en la puerta).
+
+**`Player 1.prefab` NO trae Main Camera** (solo Gaze/VRFadeController/
+TeleportManager — es un rig incompleto que espera que la escena ponga la
+cámara, como en `Parte 1`). `Parte2Setup` lo usaba igual → escena sin cámara
+(`GazeController.Update` tiraba `NullReferenceException`, Play sin imagen).
+Fix: 3er menú **`Parte 2 · Agregar Main Camera al rig`** — saca la `Main
+Camera` completa (con `ReticleCanvas`/`CardboardReticlePointer`/linterna) de
+`Player.prefab` (que sí la trae, como hijo de `Player`), la injerta como hija
+del `Player 1` de la escena en local `(0, 1.6, 0)`, la taggea `MainCamera`,
+`TrackedPoseDriver = Rotation Only`, y cablea
+`GazeController._gazeCamera` / `GazeReticle` / `VRFadeController._fadeImage` /
+`TeleportManager._cameraTransform` + apunta `MonsterChaser._target` y
+`ChaseReveal._playerCamera`/`_cameraToTurn`. También resetea la escala del
+rig a `(1,1,1)` (no-uniforme rompe cámara/colliders hijos).
+
+**Ajustes 2ª ronda (2026-09-09):**
+- **`SecurityFootage`**: el shader glTF usa `_BaseColorMap`/`emissiveTexture`,
+  no `_BaseMap`/`_MainTex` → el `RenderTexture` nunca llegaba a la pantalla.
+  Ahora, en vez de tocar propiedades del shader del modelo, **crea un
+  material `Universal Render Pipeline/Unlit` nuevo** que solo muestra el RT y
+  se lo asigna a `_tvScreen` (Unlit = siempre a full brillo, se lee como
+  pantalla encendida; `_BaseColor` negro/blanco = apagada/encendida). Además
+  **auto-resuelve `_tvScreen`** si está sin asignar: busca un Renderer cuyo
+  nombre —o el del padre— contenga `screen`/`pantalla`/`glass`/… (el modelo
+  `TV.glb` tiene `tv > Screen > defaultMaterial`, el Renderer está en
+  `defaultMaterial` pero el padre se llama `Screen`); si no, agarra el
+  Renderer más "plano y grande".
+- **`VCRSlot`**: al insertar la cinta (una vez), **desactiva sus Collider**
+  para que el reticle deje de rellenar el anillo cada vez que mirás la tele.
+- **`MonsterChaser`**: (1) al `StartChase()` **bloquea `_fixedY` en la Y que
+  tenga el monstruo en ese momento** (la que le puso `ChaseReveal`), así no
+  se hunde en el piso. (2) **`_followTrail`** (default on): en vez de ir en
+  línea recta al jugador —que lo hace **atravesar paredes**, porque el mapa
+  es un `.glb` **sin colliders**— sigue las "migas" que el jugador va
+  dejando cada `_trailSpacing` (1.2 m). Como el jugador solo se mueve por
+  puntos válidos, el monstruo también. A menos de `_directChaseRange` (3 m)
+  va derecho (tramo final). No usa NavMesh (evita tener que bakear).
+- **`ChaseReveal`**: si `_monsterRevealPoint` está vacío, ahora **calcula
+  solo** una posición **un poco detrás del jugador** (`_spawnBehindDistance`
+  = 3 m), **parado** (`y = cámara.y - _eyeHeight + _monsterYOffset`),
+  mirándolo — antes el monstruo aparecía donde hubiera quedado `Monstruo_Menu`
+  a mano (hundido en el piso). `_monsterYOffset` para ajuste fino según dónde
+  tenga el pivote el modelo.
+
+**Ajustes 3ª ronda (2026-09-09) — "que aparezca parado en la habitación de
+atrás, espere 1s y camine, sin hundirse":**
+- **`MonsterChaser.StartChase()`** ahora hace **snap-feet-to-ground**
+  (`_snapFeetToGround`, default on): mide el punto más bajo de sus Renderers
+  y sube el modelo para que la Y que le pasó `ChaseReveal` (= piso) quede a
+  la altura de los **pies**, no del pivote. Corrige modelos con pivote al
+  centro (que se veían "arrastrándose"). Funciona para pivote al centro, a
+  los pies o arriba del modelo.
+- **`_holdBeforeWalk`** (default 1 s): al aparecer, el monstruo se queda
+  **parado girando a mirarte** ese tiempo; recién después camina. En
+  `Update()` la fase se decide con `Time.time >= _walkStartTime`; durante el
+  hold solo rota (no traslada).
+- **Animación / look:** si el modelo tiene `Animator`, se le setean los
+  params `Speed` (float) y `Walking` (bool) mientras camina (con chequeo de
+  que existan). Además, meneo **procedural** (`_bobWhileWalking`, sin×abs
+  sobre el primer hijo del modelo) para que un modelo **estático** no parezca
+  que flota deslizando. `Moustruo1.glb` probablemente no trae animación — el
+  bob es el plan B.
+- **`ChaseReveal._monsterRevealPoint`**: el 2º menú de `Parte2Setup` ahora
+  **crea un empty `MonsterRevealPoint`** (detrás del spawn por defecto) y lo
+  asigna. **Hay que moverlo a mano** a la habitación de atrás, sobre el
+  piso, con la flecha Z apuntando hacia donde viene el jugador. Si está
+  asignado, `ChaseReveal` snapea el monstruo ahí (giro horizontal solamente);
+  si no, usa el fallback "detrás del jugador".
+
+**Ajustes 4ª ronda (2026-09-09) — el modelo `Moustruo1.glb` está mal
+orientado y NO tiene animación:**
+- El bicho aparecía "acostado / dado vuelta" tanto en la grabación como en
+  la sala porque **la malla está authored mal orientada**. Se agregó una
+  corrección de orientación por Inspector:
+  `MonsterChaser._visualRoot` + `_visualLocalEuler` (se aplica al nodo del
+  modelo en `Awake`; `(0,0,0)` = no toca nada) y
+  `SecurityFootage._monsterLocalEuler` (idem para el monstruo del diorama;
+  se compone con el `LookRotation` del acercamiento como
+  `LookRotation(...) * _monsterFix`). El `_snapFeetToGround` corre DESPUÉS de
+  esta corrección, así que con el euler bien puesto queda parado Y con los
+  pies en el piso.
+- **Animación real de caminar (piernas moviéndose): NO se puede** con este
+  `.glb` — es malla estática, no tiene esqueleto ni clips. El "meneo
+  procedural" (`_bobWhileWalking`) es solo un plan B para que no parezca que
+  flota deslizando. **La solución es reemplazar el modelo por uno rigged/
+  animado** (Omar vio uno en Sketchfab). `MonsterChaser` ya está preparado:
+  toma `Animator` (params `Speed` float / `Walking` bool si el controller
+  los tiene) **o** `Animation` legacy (`_walkClipName`, lo típico que genera
+  glTFast de un `.glb` animado) y reproduce el walk mientras `walking`, lo
+  frena en el 1s de espera. Cuando Omar pase el nombre del nuevo `.glb`
+  animado → swap en `Monstruo_Menu` + diorama y enganchar el clip.
+
+**Pendiente en `Parte 2`:** sonidos (insert de cinta, golpe/rugido del
+reveal, grito, estática, ambiente), confirmar `_tvScreen` (revisar el log de
+`SecurityFootage` por si el auto-resolve agarró el Renderer equivocado),
+opcionalmente un `_doorPivot` (bisagra) en `Puerta`, y probar el recorrido de
+flechas/persecución en Play/Build real (sobre todo el `_monsterYOffset` y que
+el rastro no deje al monstruo trabado en una esquina). El monstruo del
+diorama y el de la sala son el **mismo modelo** (`Moustruo1.glb`) instanciado
+dos veces.
+
 ### Efectos visuales de `Parte 1 - El Despertar` (aplicado 2026-09-08 vía Unity MCP)
 
 A pedido de Omar, se le agregó a `Parte 1` la misma receta de efectos
@@ -1258,16 +1445,17 @@ con `Luces Tetricas`).
 | `Menu Principal.unity` | 243 KB | **Completa.** Paneles, `MainMenuController`, `ConfigMenu`/`GameSettings`, secuencia de entrada con puerta, `FlickeringLight`, Bloom. |
 | `Tutorial.unity` | 75 KB | **Esqueleto, no un nivel real todavía.** Tiene un `Cartel`, 2 `Cube`, 8 `Teletransportadores` y un `Key inventory` — sin candado ni otro puzzle. Usa `Player.prefab` (rig propio, ver sección de rig fragmentado). |
 | `Parte 1 - El Despertar.unity` | 219 KB (+efectos visuales 2026-09-08) | **Completa** (candado, puertas, teletransporte) y ahora con la misma receta de efectos visuales que `Parte 3`/`Parte 4` (fog, Bloom, luces parpadeantes) — ver sección "Efectos visuales de Parte 1" más abajo. Usa `Player 1.prefab`. |
-| `Parte 2 - Cumpleaños.unity` | 12 KB | **Vacía.** Solo `Directional Light` + `Main Camera` default de Unity, nada más. |
+| `Parte 2 - Cumpleaños.unity` | ~70 KB (en progreso 2026-09-09) | **En armado.** Mapa `rec_room_backstage`, rig `Player 1`, mecánica cinta VHS → TV → `SecurityFootage` → `ChaseReveal` → `MonsterChaser` → `GameOver`, flechas con `EmissivePulse`, `Puerta` (`LevelDoor` → Parte 3). Omar ubicó todo a mano; el cableado lo hace el 2º menú de `Parte2Setup.cs` (no destructivo). Falta: sonidos, confirmar `_tvScreen`, probar en Play. Ver sección "Parte 2 - Cumpleaños" más arriba. Habilitada en Build Settings. |
 | `Parte 3 - Pasillo de hotel.unity` | 669 KB | **La más trabajada activamente.** 4 `Door` + 6 `TeleportPoint` tipo puerta (fade) con audio ya corregido (ver gotcha de arriba), geometría de `hallway_hotel`, `custom_brown_axminster_carpet_hotel_room`, `hayama_washitsu_raw_scan` y `room_bellis_deluxe`. Rig de cámara propio (no prefab). |
 | `Parte 4 - Pasillo de madera.unity` | 693 KB (+ambiente, rig, TP y fixes de luz 2026-09-09) | **Ambiente tétrico (ahora recalibrado más oscuro), rig de jugador, 9 `TeleportPoint` con orbe emisivo puestos; falta `Door` y probarlo en Play real.** `Player` + `Main Camera` separada, gaze funcionando. Se encontró y corrigió un bug de reflejos del skybox (ver sección dedicada) que hacía ver "iluminados" varios objetos sin luz real cerca — fix aplicado solo acá, pendiente revisar en las demás escenas. Sin ninguna `Door` todavía. Ver secciones "Ambiente tétrico", "Rig de jugador", "TeleportPoint de Parte 4", "Reflejos del skybox" y "Tamaño de los TeleportPoint y modelo visual" más abajo. |
 | `Parte 5 - Backrooms.unity` | 12 KB | **Vacía**, igual que Parte 2. |
 | `Parte Final.unity` | 12 KB | **Vacía**, igual que Parte 2. |
 
-Build Settings (`ProjectSettings/EditorBuildSettings.asset`) a esta fecha:
-**solo `Parte 3` está tildada (`enabled: 1`)** — todas las demás (incluida
-`Menu Principal` y `Tutorial`) están agregadas a la lista pero destildadas.
-Un build real del juego hoy no incluiría el menú ni el resto de las escenas.
+Build Settings (`ProjectSettings/EditorBuildSettings.asset`) a esta fecha
+(2026-09-09): **tildadas `Parte 1`, `Parte 2`, `Parte 3` y `Parte 4`**
+(`enabled: 1`). `Menu Principal`, `Tutorial` y el sample `HelloCardboard`
+están en la lista pero destildadas — un build hoy arrancaría en `Parte 1`,
+sin pasar por el menú.
 
 **Funcionando / implementado:**
 - Sistema de gaze (raycast, reticle centrado, shader always-on-top para

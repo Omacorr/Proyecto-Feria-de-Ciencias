@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Puerta que termina un nivel: al mirarla y sostener la mirada (y tener la
@@ -44,6 +45,10 @@ public class LevelDoor : MonoBehaviour, IGazeInteractable
     [Header("Sonido (opcional)")]
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _openSound;
+
+    [Header("Evento")]
+    [Tooltip("Se dispara al abrir la puerta, ANTES del fundido. Util para cortar la persecucion (MonsterChaser.StopChase), parar musica, etc.")]
+    [SerializeField] private UnityEvent _onOpen;
 
     private bool _busy;
     private Coroutine _signRoutine;
@@ -95,6 +100,8 @@ public class LevelDoor : MonoBehaviour, IGazeInteractable
 
     private IEnumerator OpenThenGo()
     {
+        _onOpen?.Invoke();
+
         if (_audioSource != null && _openSound != null)
         {
             _audioSource.PlayOneShot(_openSound);
