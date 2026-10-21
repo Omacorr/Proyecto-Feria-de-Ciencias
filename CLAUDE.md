@@ -579,6 +579,77 @@ Cambios aplicados y guardados (sin commitear):
   manejo del Editor por Unity MCP queda en la sesión principal para que
   nunca haya dos agentes tocando Unity a la vez.
 
+### Integración de la Parte 2 del compañero y decisiones de Omar (2026-10-21)
+
+El compañero subió la Parte 2 en `origin/parte-2-cumpleanos` (puzzle: cinta
+VHS → tele → grabación CCTV → persecución → puerta; ver su sección
+"`Parte 2 - Cumpleaños` — mecánica" más abajo). Se hizo un **merge real** en
+`historia-transiciones-y-mecanicas` (commit `62af859`, antes se commiteó todo
+lo nuestro en 6 commits por tema) y se subió al PR #20. Revisión con 3
+subagentes (código, escena, rendimiento) + prueba en Play. Omar aprobó
+todas estas decisiones (las propuso Claude):
+
+1. **Orden Parte 1 → Parte 2 → Parte 3** restaurado (se sacó el salto
+   temporal; `Transiciones/Desmayo -> Parte 2` otra vez).
+2. **Salidas VR-safe:** `LevelDoor` ganó `_faint` (FaintTransition
+   opcional; si es null usa `SceneTransitionOverlay` como siempre, así el
+   Tutorial no cambia). En Parte 2: `Transiciones/Desmayo -> Parte 3`
+   ("PARTE 3 / LA PERSECUCIÓN", golpe seco + respiración).
+3. **Si el monstruo te alcanza → desmayo a la Parte 3** (como el guion), no
+   reinicio: `MonsterChaser._onCaught → FaintTransition.Trigger` (se sacó
+   `GameOver.RestartLevel`; `GameOver.cs` queda sin usar). La puerta sigue
+   siendo la salida "buena". Es el único cambio al diseño del compañero.
+4. **Persecución justa:** `ChaseReveal._spawnBehindDistance = 6`;
+   `MonsterChaser` no atrapa durante la espera inicial y corta sus sonidos
+   al atrapar/frenar. `ChaseReveal` espera a que termine cualquier fundido.
+5. **Rendimiento Parte 2:** Directional sin sombras (y en negro), cámara
+   `far 50`; `CamaraGrabacion` con `allowXRRendering = false`, sin sombras,
+   sin HDR, `far 30`. **Mapa combinado** con la herramienta nueva
+   `Assets/Editor/StaticMeshCombiner.cs` (menú `Tools/Feria de Ciencias/
+   Combinar mallas estáticas (selección)` + `Revertir combinado`): 5.232
+   renderers → 623 mallas en `__Combinadas` (por material y celda de 20 m),
+   los originales quedan con el renderer apagado (overrides del prefab: la
+   escena pasó de 184 KB a 2,7 MB) y las mallas son assets en
+   `Assets/Modelos 3D/Combinadas/` (~62 MB). 22 renderers con
+   scripts/colliders quedaron sueltos. **Si se edita el mapa, revertir y
+   volver a combinar.**
+6. **Estética Parte 1 en Parte 2:** ambiente Flat negro, reflejo 0, HDR,
+   dithering, Post Processing + `Global Volume` compartido, linterna 3.5
+   `ForcePixel` con parpadeo leve, 7 lámparas cálidas en `Luces de la
+   fiesta` (una "rota", la 9).
+7. **Sonido de Parte 2** (generado por código: `Assets/Editor/
+   Parte2SoundGenerator.cs`, menú **Herramientas > Generar sonidos (Parte
+   2)** → `Assets/Audios/Parte2/`): ambiente del salón, "Feliz cumpleaños"
+   en cajita musical desde la tele que **se distorsiona** al terminar la
+   grabación (`SecurityFootage._onMovieEnd` → Stop/Play), estática e
+   inserción de la cinta, rugido detrás del jugador al darse vuelta, pasos y
+   respiración del monstruo, crujido de la puerta.
+8. Globos del guion: **no** (queda el puzzle de la cinta).
+9. **Monstruo único:** `Moustruo1` (del compañero) también en Parte 5, como
+   hijo `Visual/Modelo (Moustruo1)` del objeto `Monstruo` (rot local
+   (270,0,0), altura 2.5 m); las primitivas de la silueta quedaron
+   inactivas, se mantienen la máscara color hueso y la luz interior.
+   Probado: se saca la máscara y sigue el final.
+10. Cámara de Parte 2 separada del jugador (`PlayerFollowsCamera`) y
+    `Mat_ReticleAlwaysOnTop` en la mira y el fundido.
+11. **Doppler Factor = 0** (`ProjectSettings/AudioManager.asset`).
+12. **Texturas a `.gltf` + ASTC 6x6 (máx. 1024)** en `the_hospital_4_of_4`
+    (Parte 1), `rec_room…`, `Moustruo1`, `TV`, `VHSS`: ~383 MB → ~43 MB.
+    Mismo método que `backrooms_vr` (GUID conservado, imágenes
+    `<modelo>_tex_NN` al lado del `.gltf`; normal maps como NormalMap y
+    occlusion/metallicRoughness en lineal). Verificado: 0 mallas o
+    materiales faltantes en Partes 1, 2 y 5.
+13. Git: merge real, Build Settings commiteado con todas las escenas
+    tildadas salvo `Parte Final` y `HelloCardboard`.
+
+**Código del compañero tocado (aprobado):** `LevelDoor` (`_faint`),
+`MonsterChaser`, `ChaseReveal`, `SecurityFootage` (`_screenMaterial` =
+`Assets/Materials/Mat_PantallaTV.mat`, guard si falta el shader, array de
+ruido cacheado, cámara fuera de XR), `EmissivePulse` (también
+`emissiveFactor` del shader glTF). **Avisarle al compañero** de los puntos
+2–5 y de que el Tutorial tiene el mismo problema de transición (#19) y que
+`keys.glb` pesa 80 MB.
+
 ### Transiciones "desmayo" — estado al cierre de la sesión 2026-09-23
 
 Código en `Assets/Scripts/Transitions/` (compila sin errores ni warnings):
