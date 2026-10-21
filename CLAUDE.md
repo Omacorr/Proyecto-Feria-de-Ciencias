@@ -579,6 +579,40 @@ Cambios aplicados y guardados (sin commitear):
   manejo del Editor por Unity MCP queda en la sesión principal para que
   nunca haya dos agentes tocando Unity a la vez.
 
+### El compañero dejó el proyecto (2026-10-21)
+
+Omar avisó que **el compañero no va a hacer nada más**. Desde ahora todo el
+proyecto es de Omar: quedan **sin efecto** las reglas "no tocar `Tutorial`,
+`Parte 2` ni `Menu Principal`" (decisión #2, #19) y "consultarle al
+compañero". `Menu Principal` se puede editar a mano; si alguna vez se vuelve
+a correr `MenuPrincipalGenerator`, pisa esos cambios (gotcha #23), así que
+conviene no usarlo más o pasarle los cambios al generador.
+
+**Hecho el mismo día (Omar aprobó):**
+- Los menús de `MenuPrincipalGenerator`, `TutorialSetup` y
+  `TutorialNarrationSetup` quedaron **desactivados** (`[MenuItem]` dentro de
+  `#if GENERADORES_VIEJOS`): ya no se pueden correr por error.
+- **Tutorial:** el `LevelDoor` (`FrontSide_55`, nodo de `house_interior`) usa
+  `Transiciones/Desmayo -> Parte 1` ("PARTE 1 / EL DESPERTAR") → la
+  transición ya se ve en Cardboard (#19 resuelta). Receta Parte 1: ambiente
+  Flat negro, reflejo 0, Directional negra sin sombras, HDR, dithering, far
+  60, `Global Volume` compartido, linterna 3.5 `ForcePixel` con parpadeo,
+  3 lámparas cálidas (`Luces del tutorial`: spawn, puerta y llave, esta
+  "rota"), `Mat_ReticleAlwaysOnTop` en la mira, `_maxGazeDistance` 20,
+  cartel "Falta una llave" asignado (arranca oculto) y crujido al abrir.
+  Probado en Play: llave → puerta → desmayo → Parte 1.
+- **Menú (versión suave):** reflejo 0, niebla 0.015, ambiente (0.05, 0.05,
+  0.07), HDR, dithering, mira con `Mat_ReticleAlwaysOnTop`, `Luz
+  Parpadeante` sin sombras y con menos apagones, relleno 0.25, linterna 3.5;
+  los 18 textos en blanco hueso con contorno negro
+  (`Assets/Materials/Mat_TextoMenu_Contorno.mat`, compartido). Se lee bien.
+- **Texturas:** `horror_room` (Menú y pintura de Parte 4),
+  `house_interior` y `keys` (Tutorial) a `.gltf` + ASTC: ~270 MB → ~30 MB.
+  `horror_room_tex_35.jpg` se usa como color y como normal a la vez: quedó
+  importada como color.
+- Audios largos (`AmbienteMenuPrincipal`, `TutorialAmbiente`,
+  `sonido_ambiental`) en **Streaming** + Force To Mono.
+
 ### Integración de la Parte 2 del compañero y decisiones de Omar (2026-10-21)
 
 El compañero subió la Parte 2 en `origin/parte-2-cumpleanos` (puzzle: cinta
