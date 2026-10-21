@@ -26,7 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Parte 5 - Backrooms.unity
     guid: 1b2e8c84613c6c544b2341b2d89874d8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Parte Final.unity
     guid: 7911d2c6ecd7d534db5b3a89947c7322
   - enabled: 0
