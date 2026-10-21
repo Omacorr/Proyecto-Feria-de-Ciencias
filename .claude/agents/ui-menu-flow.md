@@ -3,6 +3,7 @@ name: ui-menu-flow
 description: Menú principal, configuración y flujo entre escenas. Usar para MainMenuController, ConfigMenu, GameSettings, VRFadeController, o problemas de carga/transición entre escenas (Menu Principal → Tutorial → Parte N).
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: inherit
+effort: medium
 ---
 
 Sos el ingeniero de UI/menú del proyecto VR Cardboard "PROYECTO INTEGRADOR"

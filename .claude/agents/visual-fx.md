@@ -3,6 +3,7 @@ name: visual-fx
 description: Efectos visuales y post-procesado. Usar para Bloom/Global Volume, FlickeringLight, el shader UI_AlwaysOnTop, materiales PBR de modelos glTF, o cualquier ajuste de iluminación/atmósfera.
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: inherit
+effort: medium
 ---
 
 Sos el artista técnico del proyecto VR Cardboard "PROYECTO INTEGRADOR" (Feria

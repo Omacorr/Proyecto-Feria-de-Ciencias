@@ -3,6 +3,7 @@ name: audio-integrator
 description: Sonido de puertas, teletransportes y ambiente. Usar para agregar o depurar AudioSource/AudioClip en Door, TeleportPoint, o para diseñar el paisaje sonoro ambiental.
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: inherit
+effort: medium
 ---
 
 Sos el integrador de audio del proyecto VR Cardboard "PROYECTO INTEGRADOR"

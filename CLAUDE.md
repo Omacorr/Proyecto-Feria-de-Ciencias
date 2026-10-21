@@ -83,34 +83,40 @@ números `#N` son de "Decisiones abiertas", más abajo.
   en Play 2026-09-24**. Por decisión de Omar (2026-09-24) **no hay mirillas
   ni monstruo** en Parte 3: el nivel queda con sus 3 puertas a habitaciones
   (la llave en una). `Peephole` y la luz roja quedan sin usar.
-- **Etapa 4 — COMPLETA y probada en Play (2026-09-24).** Pasillo infinito
-  (`tp1 → tp1-2`), pintura al revés (`frame_61`) que al enderezarse corta el
-  loop y activa `tp pared ciega` (arranca apagado), derrumbe y desmayo a
-  Parte 5 con texto. Ver "Parte 4: pasillo infinito y pintura".
-- **Etapa 5 — geometría sí, rig no.** Corrección: no está vacía, tiene
-  `backrooms_vr` en `(-46.8, 1.26, -580.2)`, rot X -90, pero sin
-  Player/gaze/tp, así que **toda la etapa está bloqueada** hasta que alguien
-  arme el rig (#14). `backrooms_vr.glb` es unlit con luz horneada (gotcha
-  #19): el parpadeo fluorescente va con `FluorescentFlicker`, no con `Light`.
-  Código listo: `FragmentCounter` + `FragmentDropOff`; los 3 fragmentos
-  pueden ser las 3 notas de `Assets/Models/sticky_notes.glb`
-  (`pPlane3/4/5`). Revelación: `MonsterController.Reveal`/`RemoveMask`;
-  parpadeo rápido final: `ScreenBlink.RapidBlinks`.
-- **`Parte Final`:** tampoco está vacía (`kidman_room`, 116 texturas, ~272 MB
-  estimados sin comprimir), sin rig. Qué la dispara sigue abierto (#5).
-- **Transversal — monstruo:** el **código** ya existe (`MonsterController`,
-  hoy con una cápsula de placeholder); el **modelo** no (#3). Presupuesto de
-  polígonos/texturas para el A54 en "QA de build Android / A54".
+- **Etapa 4 — COMPLETA y probada en Play (2026-09-24, pulida 2026-09-25).**
+  Pasillo infinito (`tp1 → tp1-2`), pintura al revés (`frame_61`) que al
+  enderezarse corta el loop y activa `tp pared ciega` (arranca apagado),
+  derrumbe y desmayo a Parte 5 con texto. Desde el 2026-09-25: sustos en
+  cada vuelta del loop, golpes desde la pintura como pista, derrumbe con
+  sonido y luz amarilla, estética de la Parte 1. Ver "Parte 4: pasillo
+  infinito y pintura" y "Sesión 2026-09-25".
+- **Etapa 5 — COMPLETA y probada en Play (2026-09-25).** Rig, 20 tps,
+  ambiente "amarillo sucio", 3 fragmentos, entrega en el centro, silueta
+  provisoria del monstruo y final que vuelve al Menú. Ver "Parte 5:
+  Backrooms" más abajo.
+- **`Parte Final`:** queda **sin usar**. El final pasa entero en `Parte 5`
+  y el último desmayo va directo a `Menu Principal` (decisión de Omar del
+  2026-09-25: "silueta provisoria… vuelta al Menú"). `kidman_room` sigue en
+  la escena; se puede sacar de Build Settings o reusar más adelante.
+- **Transversal — monstruo:** el **código** existe (`MonsterController`) y
+  en Parte 5 hay una **silueta provisoria** hecha con primitivas (figura
+  negra de ~2.4 m con máscara color hueso). El **modelo** real sigue
+  faltando (#3). Presupuesto para el A54 en "QA de build Android / A54".
 - **Transversal — transición "desmayo": hecha** (`FaintOverlay` +
-  `FaintTransition`) y cableada en 1→2, 3→4 y 4→5. Tutorial→Parte 1 sigue
+  `FaintTransition`) y cableada en 1→2, 3→4, 4→5 y 5→Menú (a blanco, con
+  "FIN / RECUERDOS ROTOS"). Tutorial→Parte 1 sigue
   con `LevelDoor` + `SceneTransitionOverlay` del compañero, y qa-performance
   confirmó leyendo el código de URP 17 que **un Canvas Screen Space Overlay no
   se dibuja en los ojos con XR activo** → casi seguro no se ve en Cardboard
-  (#19). 2→3 (compañero) y 5→Final: sin nada todavía.
-- **Transversal — audio narrativo: sigue casi inexistente.** No se importó
-  ningún clip nuevo. audio-integrator dejó la lista de ~30 clips faltantes con
-  su destino exacto (script + campo), el script `AudioFader` y tres bugs de
-  audio en escenas (ver "Audio: AudioFader y bugs encontrados").
+  (#19). 2→3 (compañero): sin nada todavía.
+- **Transversal — audio narrativo (2026-09-25): ya hay sonidos.** Se
+  generaron por código (sin descargar nada) en `Assets/Audios/Efectos/` y
+  `Assets/Audios/Susurros/` los latidos, golpe seco, viento de caída,
+  derrumbe, luz que absorbe, zumbido fluorescente, monitor de hospital,
+  crujidos y golpes en madera, más 5 susurros y una respiración. Están
+  cableados en las Partes 1, 3, 4 y 5 (ver "Sesión 2026-09-25"). Siguen
+  faltando la música de cumpleaños (Parte 2, compañero) y el susurro grabado
+  de Omar.
 - **`SceneNarration`** (`Assets/Scripts/Ambient/`, del compañero, usado en
   `Tutorial`): reproduce una locución 2D una vez al arrancar la escena, con
   subtítulo TMP opcional. Reusable para los latidos del inicio de `Parte 1`
@@ -132,10 +138,9 @@ números `#N` son de "Decisiones abiertas", más abajo.
    sentido contrario al movimiento (para eso hay que poder elegir el punto sin
    mirarlo, por ejemplo un punto que se activa con un disparador por
    posición y no por mirada).
-5. **`Parte Final`:** ¿es la escena del final de la etapa 5 (revelación +
-   pitido de hospital), o se borra y todo pasa en `Parte 5`? *(Ampliada
-   2026-09-23)*: ¿qué dispara el paso Parte 5 → Final (entregar los
-   fragmentos, la revelación del monstruo)? ¿Se vuelve al Menú al terminar?
+5. ~~**`Parte Final`**~~ → **resuelta 2026-09-25:** el final pasa entero en
+   `Parte 5` (entrega → revelación → pitido de hospital) y vuelve al Menú.
+   `Parte Final` queda sin usar.
 6. **Texto de transición:** ¿el desmayo muestra texto de nivel ("PARTE 2 —
    CUMPLEAÑOS") como hace hoy `SceneTransitionOverlay`, o es un corte a
    negro seco sin texto como describe el guion? *(2026-09-23: el toggle ya
@@ -165,13 +170,16 @@ números `#N` son de "Decisiones abiertas", más abajo.
     pintura. Ver "Parte 4: pasillo infinito y pintura".
 12. ~~Pintura al revés~~ → **resuelta 2026-09-24:** `frame_61` en x=-27.90,
     visible desde el inicio.
-13. **Luz cegadora de Parte 4:** hoy satura a blanco total ~1.5 s antes del
-    desmayo y pierde el amarillo. ¿Se baja `Glow Max` (12) y
-    `Light Max Intensity` (60)? *(2026-09-24: Omar preguntó dónde está esa
-    luz; se le mostró con capturas. Sigue abierta.)*
-14. **Etapa 5:** ¿quién arma el rig de `Parte 5` (y de `Parte Final`)? ¿Qué
-    texto revela cada fragmento de la nota? *(Omar: "resolvámoslo
-    después".)* Decidido: después del final se vuelve al Menú.
+13. ~~Luz cegadora de Parte 4~~ → **resuelta 2026-09-25 (Omar aprobó
+    bajarla):** `Glow Max 12 → 2`, `Light Max Intensity 60 → 12`, luz
+    `(1, 0.78, 0.32)` y color del desmayo `(1, 0.8, 0.35)` (antes
+    `(1, 0.93, 0.7)`, casi blanco). Probado en Play: el fundido queda
+    amarillo cálido con el texto legible.
+14. ~~Etapa 5: rig~~ → **hecho 2026-09-25** (ver "Parte 5: Backrooms").
+    **Sigue abierto:** los textos de los fragmentos son **provisorios**
+    (los escribió Claude): "...no te acordás, pero yo sí...", "...esa noche,
+    en tu cumpleaños...", "...despertá. Te estamos esperando.". Omar puede
+    cambiarlos en `Contador de fragmentos > Fragment Texts`.
 15. ~~Gaze a través de paredes~~ → **resuelta 2026-09-24:** oclusor en
     Parte 4 (no afecta el rendimiento).
 16. ~~`Mobile_Renderer`~~ → **resuelta 2026-09-24:** "lo que dé mejor
@@ -181,22 +189,26 @@ números `#N` son de "Decisiones abiertas", más abajo.
     (`PhotosensitivityWarning`). `Burst Step Seconds` queda en 0.05.
 18. ~~Audio~~ → **resuelta 2026-09-24:** con auriculares; el susurro lo pasa
     Omar; el doble sonido del candado no se percibe (se deja); el portazo al
-    cargar Parte 3 se deja a propósito; pasos agregados en Parte 4. Pendiente:
-    pitido de monitor (regular o línea plana) y `Doppler Factor`.
+    cargar Parte 3 se deja a propósito; pasos agregados en Parte 4.
+    *(2026-09-25, confirmado por Omar el 2026-09-30)* Pitido de monitor: **regular** (`monitor_bip`,
+    "está vivo, despertando en el hospital"); `monitor_linea_plana` existe
+    por si Omar prefiere el otro final. Sigue pendiente `Doppler Factor`.
 19. **Cosas del compañero (consultarle, no tocar):** `Tutorial → Parte 1` usa
     `SceneTransitionOverlay` (Screen Space Overlay, casi seguro invisible en
     Cardboard): ¿lo cambia por `FaintTransition`/`FaintOverlay`? Avisarle que
     `Parte 2` necesita rig, un `FaintTransition` final hacia
     `Parte 3 - Pasillo de hotel`, y que `rec_room…` es demasiado pesado para
     el A54.
-20. **Texturas embebidas en `.glb`:** probablemente ~1 GB sin comprimir en el
-    APK. ¿Se reexportan como `.gltf` con imágenes externas o se bajan a 512?
+20. **Texturas embebidas en `.glb`:** ~750 MB–1 GB sin comprimir en memoria
+    (medido 2026-09-25). **Aprobado por Omar 2026-09-30:** `backrooms_vr` ya
+    está en `.gltf` + ASTC (ver "Feedback de Omar en el A54"). Falta
+    `the_hospital_4_of_4` y ver si la calidad alcanza.
 21. ~~Perfil de post-procesado compartido~~ → **resuelta 2026-09-24:** Lens
     Flare y Chromatic Aberration apagados, Bloom sin alta calidad y
     `maxIterations = 5`.
-22. **Iluminación de Parte 3:** Directional negra en `No Shadows` → **hecho
-    2026-09-24**. Siguen abiertos: HDR prendido en la cámara (también Parte 1)
-    y `reflectionIntensity = 0`.
+22. ~~Iluminación de Parte 3~~ → **resuelta:** Directional negra en
+    `No Shadows` (2026-09-24); HDR prendido en la cámara de Parte 1 y
+    Parte 3 y `reflectionIntensity = 0` en Parte 3 (2026-09-25).
 
 ### Reparto de trabajo entre agentes (`.claude/agents/`)
 
@@ -316,6 +328,257 @@ ciego (`tp2`, pared en x = -27.904).
   `tp1 → tp pared ciega` → derrumbe → desmayo con "PARTE 5 / LA REVELACIÓN"
   → Parte 5. Sin errores ni warnings.
 
+### Sesión 2026-09-25: estética de la Parte 1 en todo el juego, sonidos y Parte 5
+
+Pedido de Omar: "aplicá la estética del nivel 1 al resto de niveles,
+desarrollá los backrooms y terminá el pasillo infinito" (sin commitear, solo
+guardar). Todo probado en Play.
+
+**Receta "estética Parte 1"** (la que a Omar le gustó): sin niebla gris,
+`reflectionIntensity = 0`, fondo de cámara negro, HDR prendido, pocas luces
+cálidas y tenues con `FlickeringLight`, linterna ~3.5, y sustos de sonido
+de ambiente.
+
+**Código nuevo (sin instanciar en escenas del compañero):**
+- `ExamineScareSounds` (ampliado): `Start On Play` (arranca solo, para
+  sustos de ambiente), sonidos lejanos (`Distant Clips`, 3D a 6–12 m,
+  ~34 % de las veces) y métodos públicos `PlayWhisperNow`,
+  `PlayFootstepsNow`, `PlayDistantNow`.
+- `Assets/Scripts/Puzzles/CountedEvent.cs`: cuenta llamadas a `Count()` y
+  dispara `On Reached` al llegar a `Threshold` (y cada `Repeat Every`).
+- `Assets/Scripts/Transitions/TimedSequence.cs`: lista de pasos con demora
+  armable desde el Inspector (coreografías del guion sin scripts nuevos).
+- `Assets/Scripts/Ambient/WakeUpFromFloor.cs`: la cámara arranca a ras del
+  piso y se levanta (bloquea la mirada mientras tanto).
+- `Assets/Scripts/Ambient/FloatingBob.cs`: flota y gira despacio (los
+  fragmentos).
+- `TeleportManager`: si `Camera Transform` está vacío usa `Camera.main` (los
+  dos prefabs de Player tienen serializado el nombre viejo del campo).
+- `Assets/Editor/WhisperGenerator.cs`: menú nuevo **Herramientas > Generar
+  efectos de sonido** → `Assets/Audios/Efectos/` (`latidos_despertar`,
+  `golpe_seco`, `caida_viento`, `derrumbe_madera`, `luz_absorcion`,
+  `zumbido_fluorescente` (loop), `monitor_bip`, `monitor_linea_plana`,
+  `crujido_madera_01..03`, `golpes_madera`). Síntesis por filtros, semillas
+  fijas (regenerar da lo mismo).
+- Fuente TMP `Assets/Fonts/SpecialElite SDF.asset` (dinámica) + material
+  `SpecialElite SDF Overlay.mat` (shader `TextMeshPro/Mobile/Distance Field
+  Overlay`, siempre encima): para textos en VR hijos de la cámara.
+
+**Parte 1:** `Latidos (despertar)` (suena al arrancar y se apaga a los ~7 s);
+el desmayo con `golpe_seco` + `respiracion_01`; HDR prendido.
+
+**Parte 3:** sin niebla (era gris 0.037), reflejo 0, fondo negro, HDR,
+linterna 3.5; `Luces del pasillo` (3 lámparas cálidas tenues con parpadeo);
+desmayo con golpe + respiración; caída con `caida_viento`; `Sustos
+(ambiente)` (pasos, susurros, golpes en puertas cada 20–35 s).
+
+**Parte 4:** sin niebla, fondo negro (era azul), reflejo 0, HDR; `Sustos
+(ambiente)`; **cada vuelta del loop** (`tp1.On Loop`) → susurro + parpadeo de
+`Spot Light tp1-2` + `CountedEvent.Count`; **cada 2 vueltas** → `Golpes tras
+la pintura (pista)` (golpes 3D desde el lado de la pintura) + parpadeo de su
+lámpara, para guiar al jugador hacia el cuadro; derrumbe con
+`derrumbe_madera` y luz amarilla (#13); desmayo amarillo con `luz_absorcion`.
+
+### Parte 5: Backrooms (2026-09-25, probada en Play)
+
+Estilo elegido por Omar: **"amarillo sucio y opresivo"** y final con
+**silueta provisoria**. Objetos en la escena:
+
+- **Mapa jugable:** cuarto chico del inicio (-46.5, -580) → pasillo largo
+  (z ≈ -575, x -53..-30) → franja (x ≈ -28) → sala central (x -26..-10) →
+  sala B (x -9..8). **La sala del este (x 8..22) está sellada en el
+  modelo** (pared continua en x = 7.85, medido con raycasts): queda fuera del
+  recorrido. Piso en y = 1.145, techo ~4.
+- **Rig:** `Player.prefab` desempaquetado, `Main Camera` separada en
+  (-46.5, 2.75, -579.6), `Rotation Only`, `PlayerFollowsCamera`, pasos
+  (`pasos_concreto`, pitch 0.9), caminata 3.5 m/s, mirada 22 m, oclusión por
+  paredes (`Oclusor de mirada (paredes)`, MeshCollider en layer Environment
+  bajo `Object_14/16/23/25`). Linterna apagada (no afecta al modelo unlit).
+  En Play no aparece el salto de altura raro de la Parte 4.
+- **`Teletransportadores`:** 20 orbes (`tp00`..`tp18` + `tp centro`) a 1 m
+  del piso, material nuevo `Orb_Glow_Backrooms.mat` (celeste, para que
+  contraste con el amarillo). Conectividad verificada con raycasts.
+- **`Ambiente Backrooms`:** `Global Volume (Backrooms)` con perfil propio
+  `Assets/Settings/Backrooms Volume Profile.asset` (exposición -0.45,
+  filtro amarillo, saturación -14, viñeta 0.4, grano Medium3 0.28, Bloom
+  liviano) — **no toca el perfil compartido**; `Volume apagon` (perfil
+  `Backrooms Apagon Profile`, exposición -1.6) que maneja el parpadeo; niebla
+  amarillenta ExponentialSquared 0.04; ambiente plano `(0.30, 0.28, 0.19)`;
+  zumbido en loop; `Fluorescentes (general)` (lámparas + apagón de toda la
+  imagen + zumbido) y un `FluorescentFlicker` por sala (pasillo, central, B,
+  C, muebles) que las oscurece **de a tramos** (cada uno a su ritmo).
+- **`Despertar (tirado en el piso)`:** `WakeUpFromFloor` (1.35 m más abajo,
+  se levanta a los 2.5 s).
+- **`Sustos (ambiente)`:** pasos, susurros y golpes lejanos cada 25–42 s.
+- **`Puzzle - Fragmentos de la nota`:** 3 fragmentos (las notas celestes de
+  `sticky_notes.glb`, material emisivo propio) flotando: fin oeste del
+  pasillo, fondo sur de la franja y frente a la puerta de la sala B.
+  `Collectable → FragmentCounter.AddFragment`; cada uno muestra un texto en
+  VR (`Texto fragmentos (VR)`, hijo de la cámara) y hace tartamudear las
+  luces. Entrega: mirar el `Pedestal (centro)` (hijo de `Entrega de la
+  nota`, `FragmentDropOff` con `Deliver On Gaze`) o llegar a `tp centro`.
+  Si faltan: "Faltan N pedazos de la nota".
+- **Final** (`Transiciones`): al entregar → aparece la nota completa sobre
+  el pedestal y `Secuencia - Aparicion del monstruo`: apagón (todas las luces
+  `BurstThenOff`, se apagan los tps, se cortan los sustos) → a los 3.5 s
+  vuelve la luz (solo general, central y muebles) y la silueta está en
+  `Marcador aparicion del monstruo` (rincón noroeste de la sala central,
+  (-24.5, -567.5), con línea de vista al centro), respirando →
+  susurro → si no la mirás en 8 s se acerca igual. Al mirarla de frente
+  (`On First Seen`) → `Reveal`: camina hacia vos hasta 2.2 m → golpe +
+  parpadeo → a los 2.2 s se le cae la máscara y se ve una luz cálida en la
+  cabeza ("era tu mente") → `Secuencia - Final`: monitor de hospital,
+  parpadeo rápido (`Parpadeo (final)`, termina con los ojos cerrados) y
+  `Desmayo -> Menu (final)` (blanco, "FIN / RECUERDOS ROTOS", fundido 2.5 s).
+- **Probado en Play:** despertar, tp por mirada, fragmento por mirada con
+  texto, aviso de "faltan", entrega, apagón, aparición, acercamiento,
+  máscara, parpadeo y monitor. El salto al Menú **no se pudo probar** porque
+  `Menu Principal` está destildado en Build Settings (ver abajo).
+- **Build Settings (ojo):** el 2026-09-25 a las 15:45 quedó tildada **solo
+  `Parte 5`** (antes, desde el 24/09, solo `Parte 1`, para las pruebas de
+  Omar). Para el juego completo hay que volver a tildar todas; si no,
+  `FaintTransition` loguea el error y no dispara.
+
+### Ronda de subagentes 2026-09-25 (noche) — revisión y pulido, sin commitear
+
+Pedido de Omar: "seguí trabajando, pero desplegá subagentes". Seis agentes
+en paralelo (código, rendimiento, audio, integridad de escenas, cierre del
+juego, propuesta visual); los cambios de escena los aplicó Claude por Unity
+MCP. Todo compila y la Parte 5 se probó en Play de punta a punta
+(despertar → entrega → monstruo → máscara → final).
+
+**Código (bugs reales arreglados):**
+- `MonsterController.Reveal`: el acercamiento podía quedar a 2.20003 m por
+  precisión de float y **el final no llegaba nunca** → tolerancia de 1 cm.
+  Además `Reveal()` ya no se reinicia si ya estaba revelado (se repetía el
+  golpe si el jugador lo miraba después del respaldo de 8 s).
+- `GazeController`: bloqueo con dueño `AddBlocker(obj)` / `RemoveBlocker(obj)`
+  / `IsBlocked` (estático, independiente de `enabled`). `WakeUpFromFloor`
+  lo usa y libera la mirada recién cuando la cámara quedó de pie (antes
+  otro script podía reactivarla con el jugador acostado y el resto del nivel
+  se jugaba a altura de piso).
+- `TimedSequence`: un paso que tira excepción ya no corta los siguientes;
+  `Stop()`/`OnDisable` cortan bien; `IsRunning`. `CountedEvent`: threshold
+  mínimo 1. `ExamineScareSounds`: `OnDisable` corta las corrutinas y los
+  sonidos lejanos se pueden cortar con `StopScares`.
+- `TeleportManager`: `On Player Arrived`/`On Loop` corren dentro de
+  `SafeNotify` (una excepción ahí dejaba `IsTeleporting` trabado).
+- **Respaldo del desmayo:** `FaintTransition.Hold If Scene Missing` (prendido
+  por defecto) + `FaintOverlay.Settings.StayCovered`: si la escena destino
+  no está en Build Settings, en vez de trabar al jugador (ojos cerrados,
+  cayendo, encandilado) funde al color y queda la pantalla con el texto.
+  Probado: el final de Parte 5 queda en "FIN / RECUERDOS ROTOS".
+- `MainMenuController`: la secuencia de "Empezar" movía a `Player` pero no
+  a la cámara (que en el Menú está separada) → ahora la cámara acompaña.
+- Nuevo `Assets/Scripts/Ambient/VolumePulse.cs` (latido del `weight` de un
+  Volume; propuesta de visual-fx, **todavía sin usar** en escenas).
+
+**Audio:** 10 clips generados pasaron a 22050 Hz (los de banda baja) y los
+`monitor_*` a Compressed In Memory (`WhisperGenerator` lo respeta al
+regenerar). Parte 5: el zumbido tapaba todo → `Zumbido fluorescente` 0.5 →
+**0.3**, `Sustos (ambiente)` pasos a 2–3.5 m y lejanos a 5–9 m,
+`Respiracion` del monstruo min distance 4 y volumen 1, `Player/Pasos` 0.8,
+`Monitor de hospital` sin loop (el clip de 8 s no es múltiplo del bip).
+Pendientes (clips que no son de Claude): `pasos_concreto` (estéreo, ~3.8 MB
+en RAM → Force To Mono + Compressed) y `sonido_ambiental` (~11 MB →
+Streaming). `Doppler Factor` sigue en 1 (#18): hoy no suena porque todas
+las fuentes 3D tienen doppler 0, pero una fuente nueva con doppler 1
+chirriaría en los saltos del loop.
+
+**Visual (receta Parte 1 afinada):**
+- Parte 1, 3, 4: ambiente `Flat` negro (antes Skybox con intensidad 0:
+  sin lighting data generado, en el APK podía volver el gris azulado).
+- Parte 1, 3, 4, 5: `dithering` en la cámara (el A54 es OLED: sin eso los
+  degradés oscuros hacen escalones).
+- Linternas y `Spot Light (Candado)` en `ForcePixel` (entran primero en el
+  tope de 4 luces por objeto del celular).
+- **Parpadeo con jerarquía** (antes todas parpadeaban igual = ruido): la
+  mayoría estables (`blackout 0.04–0.05/s`), una o dos "rotas" por escena
+  (`Spot Light (1)` en P1, `Lámpara 2` en P3, `Spot Light tp1-2` y
+  `Spot Light 5` en P4: `blackout 0.5–0.6/s`, hasta 0.25 s). Linternas
+  casi estables. Todo por debajo de 3 destellos/s.
+- Parte 4: las 17 luces pasaron de blanco a cálido `(1, 0.72, 0.45)`.
+- Parte 1: `MZ4_Lamp_OFF_m_0` (intensidad 50, en el origen del mundo, fuera
+  del cuarto) apagada.
+- **Parte 3: `Luz roja (llave)`** (guion: "luz roja y una llave en el
+  suelo"): Spot rojo 1.2 m sobre `key_with_tag`, con `FlickeringLight`
+  suave; al recolectar la llave → `BurstThenOff(1.2)`. Ojo: Parte 3 queda
+  con 5 luces adicionales; la del rango de la habitación puede desplazar a
+  una lámpara del pasillo en el celular (las ForcePixel van primero).
+- Propuestas de visual-fx **no aplicadas** (quedan para Omar): grading de
+  terror por escena con un segundo Volume propio, latido visual con
+  `VolumePulse`, sangre (`blood_decals_psx.glb`, necesita materiales Lit
+  propios), silueta de tiza junto al spawn de P1, cinta policial en las
+  puertas falsas de P3, reloj parado de `horror_room` en P1, lámparas que
+  se van muriendo con las vueltas del loop de P4. Detalle en el informe
+  del agente (scratchpad de la sesión, no versionado).
+
+**Rendimiento (qa-performance, confirmado con los Build Reports del 25/09
+en `Editor.log`):** las texturas embebidas de los `.glb` son el 80–90 % de
+cada build: P1 ~142 MB, P3 ~66, P4 ~26, P5 ~140 (sin comprimir; ~754 MB
+con Menú/Tutorial/P2, ~988 con Final). El peor desmayo es P1 → P2 (~260 MB
+de texturas a la vez). glTFast 6.20 no tiene opción de tamaño/compresión en
+el importer; lo que sirve es **pasar el `.glb` a `.gltf` con las imágenes
+afuera conservando el GUID** (renombrar el `.meta`) y comprimirlas en ASTC
+6x6: `backrooms_vr` 143 → ~18 MB, `the_hospital_4_of_4` −110 MB. Riesgo
+medio-bajo (verificar que el diff de la escena quede vacío y nada magenta;
+se revierte con git). Parte 5 por frame está bien (~60 draw calls por ojo,
+~72k triángulos; los 20 Animators de los orbes no tienen controller).
+`keys.glb` (80 MB, Tutorial) y `rec_room` son del compañero.
+
+### Feedback de Omar en el A54 (2026-09-30): Parte 1 y 3
+
+Omar probó en el celular las Partes 1 y 3 (la batería no dio para más).
+Cambios aplicados y guardados (sin commitear):
+
+- **Parte 1, puerta `door1`:** el paso `tp3 → tp4` rozaba el marco
+  (SphereCast r=0.2 contra MeshColliders temporales pegaba en `MZ4_15_m_0`
+  a z≈49.37). `tp4` pasó de z 48.74 a **49.95**, alineado con el centro del
+  vano: el recorrido queda libre a 0.5, 1.2 y 1.7 m de altura.
+- **Parte 1, candado:** `Assets/Models/PadLock_sinbrillo.mat` tenía
+  `roughness 0.2` + `metallic 1` (brillaba mucho con la linterna) →
+  **0.72 / 0.3**.
+- **Textos de pista en VR (nuevo `Assets/Scripts/Interaction/VRHintText.cs`):**
+  `Show(string)` con fundido, tiempo no escalado, y no se reinicia si el
+  mismo texto ya está visible (GazeController re-dispara cada 2 s). Va en
+  `Main Camera/Hint (VR)` (TextMeshPro 3D con `SpecialElite SDF Overlay`,
+  a (0, -0.32, 1.6)). `Door` ganó `_hint`, `_missingKeyMessage` ("Está
+  cerrada. Necesito una llave.") y `_onMissingKey`; `ExamineTrigger` ganó
+  `_hint`, `_noClueMessage` ("No sé la combinación. Tiene que estar anotada
+  en algún lado.") y `_onClueMissing`. Cableado: Parte 1 → `BaseLP`;
+  Parte 3 → las 2 `Door` con `Requires Key` (`27_2` y `27_2 (1)`).
+- **Parte 3 más oscura:** `Lámpara 1/2/3` `_baseIntensity` 1 → **0.55**,
+  linterna 3.5 → **2.6**.
+- **Parte 3, cartel EXIT rosado:** los materiales
+  `Assets/Modelos 3D/hallway_hotel/Materials/exitSign_light/plastic.mat`
+  venían con color base magenta (0.906, 0, 0.821) de la importación →
+  luz roja emisiva `(1.4, 0.08, 0.04)` y plástico gris oscuro.
+- **Parte 3, cinta policial** de la puerta detrás del spawn
+  (`CrimeTapeMedium_CrimeTape_Distressed_shader_0`, en (-5.46, 0.97, -45.92))
+  **desactivada** (no borrada; se vuelve a prender tildándola).
+- **Texturas de Parte 5 (#20, Omar aprobó):** `backrooms_vr.glb` →
+  `backrooms_vr.gltf` + `.bin` + 27 PNG sueltos en `Assets/Modelos 3D/`
+  (bytes idénticos, sin recodificar), **conservando el GUID** (se renombró
+  el `.meta`). glTFast arma los identificadores de sub-assets por nombre de
+  material/malla/nodo, no por extensión, así que la escena no cambió (0
+  mallas/materiales/colliders faltantes, captura igual que antes). Los PNG
+  tienen override Android **ASTC 6x6, máximo 1024**, trilinear: ~140 MB →
+  ~16 MB. Respaldo del `.glb` original y de la escena en el scratchpad de
+  la sesión. Si baja mucho la calidad, subir el máximo o cambiar a ASTC
+  4x4. Queda pendiente repetirlo con `the_hospital_4_of_4` (Parte 1,
+  −110 MB).
+- **Parte 1 saltea la Parte 2 (TEMPORAL):** como Parte 2 (compañero) no
+  tiene rig y el jugador aparece abajo sin nada, el desmayo de Parte 1 ahora
+  va a `Parte 3 - Pasillo de hotel` con el texto "PARTE 3 / LA
+  PERSECUCIÓN". El objeto se renombró `Transiciones/Desmayo -> Parte 3
+  (temporal, saltea Parte 2)`. **Cuando el compañero termine Parte 2,
+  volver a poner** `Next Scene Name = Parte 2 - Cumpleaños`, título
+  "PARTE 2" / "EL CUMPLEAÑOS" y el nombre original.
+- **Subagentes:** a pedido de Omar se despliegan siempre, con Sonnet en
+  esfuerzo medio (`effort: medium` en todos los `.claude/agents/*.md`); el
+  manejo del Editor por Unity MCP queda en la sesión principal para que
+  nunca haya dos agentes tocando Unity a la vez.
+
 ### Transiciones "desmayo" — estado al cierre de la sesión 2026-09-23
 
 Código en `Assets/Scripts/Transitions/` (compila sin errores ni warnings):
@@ -379,8 +642,9 @@ Código en `Assets/Scripts/Transitions/` (compila sin errores ni warnings):
   `TurnOn()`. Ver decisión #17 (fotosensibilidad).
 - **Build Settings** (verificado leyendo `EditorBuildSettings.asset`): 0
   `Menu Principal`, 1 `Tutorial`, 2 `Parte 1`, 3 `Parte 2`, 4 `Parte 3`, 5
-  `Parte 4`, 6 `Parte 5`, 7 `Parte Final`, todas tildadas; HelloCardboard
-  destildado. `MainMenuController` ahora valida `_gameSceneName` contra Build
+  `Parte 4`, 6 `Parte 5`, 7 `Parte Final`; HelloCardboard destildado.
+  *(Al 2026-09-25 solo está tildada `Parte 5`, por pruebas de Omar: ver
+  "Estado actual".)* `MainMenuController` ahora valida `_gameSceneName` contra Build
   Settings antes de arrancar la secuencia.
 - **Calidad:** resuelto, Android usa el nivel **Mobile** (ver "QA de build
   Android / A54").
@@ -394,8 +658,8 @@ Código en `Assets/Scripts/Transitions/` (compila sin errores ni warnings):
 | Parte 1 → Parte 2 | `CodeLock.On Unlocked` → `Desmayo -> Parte 2` | Probado en Play (2026-09-24), sin errores. |
 | Parte 2 → Parte 3 | (compañero) | Nada todavía. |
 | Parte 3 → Parte 4 | `27_2` abierta → `tp pozo` → `AbyssFall` → `Desmayo -> Parte 4` | Probado en Play (2026-09-24), sin errores. |
-| Parte 4 → Parte 5 | `tp pared ciega` → `WallCollapse` → `Desmayo -> Parte 5` | Probado en Play; arreglo de la pared guardado (21:14, ver abajo). |
-| Parte 5 → Final | — | Nada (#5). |
+| Parte 4 → Parte 5 | `tp pared ciega` → `WallCollapse` → `Desmayo -> Parte 5` | Probado en Play (2026-09-25: llega a Parte 5 con el rig nuevo). |
+| Parte 5 → Menú | entrega → monstruo → `Secuencia - Final` → `Desmayo -> Menu (final)` | Probado en Play hasta el disparo; el salto necesita el Menú tildado en Build Settings. |
 
 **Prueba en Play de Parte 1 → 2 y Parte 3 → 4 (2026-09-24, vía Unity MCP, por
 el camino real del código):**
@@ -459,7 +723,7 @@ despertar vacíos: no existen todavía.
 **Parte 4 (en disco desde antes; verificado leyendo el YAML):**
 `Transiciones/Desmayo -> Parte 5` (`FaintTransition`, GUID
 `87a6d01e…` = `FaintTransition.cs.meta`): destino `Parte 5 - Backrooms`,
-color `(1, 0.93, 0.7)`, `preDelay 4.5`, `fadeOut 1.5`, 18 `FlickeringLight`
+color `(1, 0.8, 0.35)` (era `(1, 0.93, 0.7)` hasta #13), `preDelay 4.5`, `fadeOut 1.5`, 18 `FlickeringLight`
 (las 17 de `Luces Tetricas` + la linterna). `Transiciones/Pared Ciega
 (derrumbe)` (`WallCollapse`, GUID `b3cd3831…` = `WallCollapse.cs.meta`), rot
 Y=90 (la flecha Z mira hacia el pasillo, +X). `tp pared ciega` (layer
@@ -516,13 +780,12 @@ viven en la escena vieja (se cortan al descargarla): susurro y `Fall Clip` ≈
 Clip` de Parte 4 ~8.5 s. `Impact Clip` y `Wake Clip` sobreviven porque suenan
 en `FaintOverlay`.
 
-**Orden sugerido (por dependencias, actualizado 2026-09-24):** 1) Omar
-prueba en el A54 todo lo nuevo (desmayos con texto, aviso de epilepsia,
-indicador del candado, pasillo infinito + pintura de Parte 4; plan en "QA de
-build Android / A54"), 2) rig de Parte 5 (bloquea la etapa 5 entera), 3)
-conseguir clips de audio (susurro de Omar), 4) etapa 5 (fragmentos +
-revelación; depende del modelo del monstruo) y vuelta al Menú desde el final.
-Etapas 3 y 4 ya están completas.
+**Orden sugerido (actualizado 2026-09-25):** 1) volver a tildar todas las
+escenas en Build Settings, 2) Omar prueba en el A54 el juego completo (plan
+en "QA de build Android / A54"), 3) commitear lo del 2026-09-25 (hoy está
+todo guardado pero sin commit, a pedido de Omar), 4) modelo real del monstruo
+(#3) y susurro grabado de Omar, 5) lo del compañero (Parte 2 y su salida a
+Parte 3). Las etapas 1, 3, 4 y 5 están completas.
 
 ## Estructura de escenas (`Assets/Scenes/`)
 
@@ -539,11 +802,9 @@ sola a las demás** — hay que repetirlo a mano en cada una si aplica.
   de combinación. Fue la escena más desarrollada al principio del proyecto.
 - **`Parte 2 - Cumpleaños.unity`**, **`Parte 4 - Pasillo de madera.unity`**,
   **`Parte 5 - Backrooms.unity`**, **`Parte Final.unity`**: siguientes partes
-  de la historia. **Corrección 2026-09-23:** Parte 2 (`rec_room…`), Parte 5
-  (`backrooms_vr`) y Final (`kidman_room`) **tienen geometría pero no rig**
-  (sin `TrackedPoseDriver`/`GazeController`/`tp`), así que hoy, si se llega a
-  ellas por un desmayo, la cabeza no rota y no hay salida. Parte 4 es la más
-  avanzada de la historia (ver sus secciones).
+  de la historia. Parte 2 (`rec_room…`, del compañero) y Final
+  (`kidman_room`, sin usar) **tienen geometría pero no rig**. Parte 5 tiene
+  rig desde el 2026-09-25 (ver "Parte 5: Backrooms").
 - **Escenas generadas por script (del compañero, 2026-09-08/09):** en
   `Assets/Editor/` hay tres herramientas de menú `Tools/Feria de Ciencias/…`.
   **`MenuPrincipalGenerator`** ("Generar escena 'Menu Principal'") arma
@@ -915,10 +1176,10 @@ poder repetirse escena por escena.
     Principal` NO tiene Bloom** (sin `Global Volume` y con Post Processing
     apagado en la cámara), contra lo que decía este documento; probablemente
     se perdió al regenerar la escena con `MenuPrincipalGenerator` (gotcha
-    #23). `Tutorial`, `Parte 2`, `Parte 5` y `Parte Final` tampoco tienen
-    post-procesado. Además `Parte 1` y `Parte 3` tienen **HDR apagado en la
-    cámara** (`m_HDR: 0`), así que su Bloom se ve distinto al de `Parte 4`
-    (ver sección de `allowHDR`).
+    #23). `Tutorial`, `Parte 2` y `Parte Final` tampoco tienen
+    post-procesado. *(Actualizado 2026-09-25: `Parte 5` tiene sus propios
+    Volumes (`Backrooms Volume/Apagon Profile`) y las cámaras de Parte 1, 3,
+    4 y 5 tienen HDR prendido; antes Parte 1 y 3 tenían `m_HDR: 0`.)*
   - El perfil compartido también trae **Screen Space Lens Flare (intensidad
     1) y Chromatic Aberration (0.091)**, caros y molestos en estéreo; ver
     "QA de build Android / A54" y decisión #21.
@@ -957,8 +1218,8 @@ poder repetirse escena por escena.
   una `Light` no lo afecta, así que el script hace parpadear el **color de
   los materiales** (vía `MaterialPropertyBlock`, sin clonar materiales) y,
   opcionalmente, una `Light`, un `Volume` y el volumen del zumbido.
-  **Receta de ambiente propuesta para Parte 5** (no aplicada, la escena no
-  tiene rig todavía): skybox `None`, ambiente color `(0.45, 0.42, 0.30)`,
+  **Receta de ambiente propuesta originalmente para Parte 5** (ya aplicada
+  el 2026-09-25 con otros valores, ver "Parte 5: Backrooms"): skybox `None`, ambiente color `(0.45, 0.42, 0.30)`,
   `reflectionIntensity 0`, fog ExponentialSquared color `(0.40, 0.37, 0.24)`
   densidad `0.05`, cámara con Post Processing + HDR y `far 45`.
 - **Luz roja de la mirilla (receta de visual-fx para la etapa 3, no
@@ -1532,6 +1793,193 @@ la niebla de Parte 1.**
   grabado, se suma a `Whisper Clips` (o reemplaza a los generados).
 - `pasos_concreto.wav`: Preload Audio Data activado.
 
+## `Parte 2 - Cumpleaños` — mecánica: cinta VHS → TV → "película" → persecución (2026-09-09)
+
+Diseño de Omar: el jugador aparece en un salón (mapa
+`rec_room_-_backstage_of_reality_-_level_fun.glb`), agarra una **cinta VHS**
+(`VHSS.glb`), la pone en un **televisor** (`TV.glb`), se reproduce una **mini
+película** en la pantalla de la tele, al terminar **aparece el monstruo** (que
+Omar dejó en la habitación de atrás, detrás del spawn) y empieza una
+**persecución lenta** (a propósito: moverse tarda) guiada por **flechas en el
+piso** hasta la **puerta de salida** → `Parte 3`. Si el monstruo te alcanza,
+reinicia la escena.
+
+**Scripts (todos en `Assets/Scripts/Interaction/` salvo aclaración):**
+- **`TapeInventory`**: espejo de `KeyInventory` para la cinta. `HasTape` /
+  `CollectTape()`. Se cablea desde `Collectable.OnCollected` del VHS.
+- **`VCRSlot`** (`IGazeInteractable`, va en `TV_Menu`): al mirar la tele, si
+  `TapeInventory.HasTape` inserta la cinta (una sola vez) y dispara
+  `_onTapeInserted`; si no, muestra `_missingTapeSign` unos segundos.
+- **`SecurityFootage`** (va en `TV_Menu`): la "película". NO hay archivo de
+  video — renderiza en vivo un **diorama escondido** (`DioramaGrabacion`, en
+  `Y = -500`: piso, luz, `CamaraGrabacion` desactivada, `MonstruoGrabacion`)
+  a un `RenderTexture` que se muestra en la submalla-pantalla de la tele
+  (`_tvScreen`, hay que asignarla a mano — es el vidrio/pantalla del modelo
+  `TV.glb`), con un overlay tipo CCTV en runtime (ruido, timestamp, "REC",
+  viñeta). `Play()` corre ~16s + cola de estática, el monstruo del diorama se
+  acerca a la cámara, termina con un grito + estática total y dispara
+  `_onMovieEnd`.
+- **`ChaseReveal`** (2026-09-09, en el GO de lógica `CinematicaPersecucion`):
+  el momento "te das vuelta y el monstruo ya viene". Se cablea desde
+  `SecurityFootage._onMovieEnd` **en lugar** de ir directo a
+  `MonsterChaser.StartChase`. Suena un golpe/rugido desde un `AudioSource`
+  que conviene poner **detrás del jugador** (para que gire la cabeza solo),
+  hace un **parpadeo a negro** (`VRFadeController.FadeOutAndIn`), y mientras
+  está negro reubica al monstruo (si se asignó `_monsterRevealPoint`) y llama
+  a `StartChase()`. **No gira la cámara sola por defecto**: en Cardboard el
+  `TrackedPoseDriver` pisa la rotación cada frame, así que forzar el giro
+  pelea con el hardware y marea — queda como opción `_forceCameraTurn` solo
+  para probar parado (apaga el `TrackedPoseDriver`, hace Slerp de yaw, lo
+  vuelve a prender).
+- **`MonsterChaser`** (en `Monstruo_Menu`): arranca oculto + `enabled=false`.
+  `StartChase()` lo muestra y persigue a `_target` (o `Camera.main`) a
+  velocidad **constante y lenta** (`_speed≈0.7`) con `Vector3.MoveTowards`,
+  Y fija (`_keepYFixed`/`_fixedY` — la herramienta lo pone en la Y actual del
+  monstruo). Si `Vector2.Distance` (xz) ≤ `_catchDistance` dispara `_onCaught`
+  una vez. `StopChase()` lo frena (cableado desde `LevelDoor._onOpen`).
+- **`GameOver`**: `RestartLevel()` (cableado desde `MonsterChaser._onCaught`)
+  → `SceneTransitionOverlay.Play` de la misma escena con "TE ATRAPARON".
+- **`EmissivePulse`** (`Scripts/Ambient/`): pulsa el `_EmissionColor` (vía
+  `MaterialPropertyBlock`) de cada flecha para que "respiren". `_phaseOffset`
+  distinto por flecha para que no parpadeen todas juntas.
+- **`LevelDoor`** (en `Puerta`): puerta de fin de nivel. Se le agregó
+  `_onOpen` (`UnityEvent`, se dispara ANTES del fundido) para cortar la
+  persecución. `_nextSceneName = "Parte 3 - Pasillo de hotel"`,
+  `_requiresKey = false`.
+
+**Cadena de eventos (estado final):**
+`Collectable(VHS).OnCollected → TapeInventory.CollectTape` ·
+`VCRSlot._onTapeInserted → SecurityFootage.Play` ·
+`SecurityFootage._onMovieEnd → ChaseReveal.Play` (que internamente llama
+`MonsterChaser.StartChase`) · `MonsterChaser._onCaught → GameOver.RestartLevel`
+· `LevelDoor(Puerta)._onOpen → MonsterChaser.StopChase`.
+
+**Herramienta de armado (`Assets/Editor/Parte2Setup.cs`), DOS menús:**
+- `Tools > Feria de Ciencias > Preparar Parte 2 (Cumpleaños)`: **destructivo**
+  — borra lo que generó antes y recrea mapa + rig (`Player 1.prefab`) + todos
+  los objetos en posiciones placeholder. Solo para arrancar de cero.
+- `Tools > Feria de Ciencias > Parte 2 · Configurar TP + flechas + puerta +
+  cadena (no recrea)`: **NO destructivo** — opera sobre la escena abierta y
+  los objetos que ya ubicó Omar a mano, buscándolos por nombre:
+  - empty **`TP`** (cubos primitivos adentro) → `TeleportPoint` + layer
+    `Teleport` + `_teleportManager` en cada hijo.
+  - **`Flechas`** (hijos `Flecha_N`, modelos `.glb`) → además de
+    `EmissivePulse`, se les agrega `TeleportPoint` + `EnsureCollider`
+    (encierra submallas) + layer `Teleport` + `_teleportManager`. **Trade-off
+    conocido:** al ser `TeleportPoint`, `TeleportManager` las oculta cuando
+    están lejos (igual que cualquier punto) — si se las quiere siempre
+    visibles como guía, hay que cambiarlo.
+  - **`Puerta`** (`.glb`) → `LevelDoor` + `EnsureCollider` + layer
+    `Interactive` + valores de destino + `_onOpen → StopChase`.
+  - crea el GO de lógica **`CinematicaPersecucion`** con `ChaseReveal` y
+    recablea `SecurityFootage._onMovieEnd → ChaseReveal.Play`.
+  - intenta adivinar `SecurityFootage._tvScreen` por nombre de submalla
+    (`screen`/`pantalla`/`glass`/`vidrio`/…); si no encuentra, avisa para
+    asignarla a mano.
+  - **no guarda** — deja la escena dirty para que Omar revise y haga Ctrl+S.
+  - helper `RemoveOtherGazeInteractables(go, keep)` limpia `IGazeInteractable`
+    duplicados (por ejemplo un `Door`/`LevelDoor` viejo en la puerta).
+
+**`Player 1.prefab` NO trae Main Camera** (solo Gaze/VRFadeController/
+TeleportManager — es un rig incompleto que espera que la escena ponga la
+cámara, como en `Parte 1`). `Parte2Setup` lo usaba igual → escena sin cámara
+(`GazeController.Update` tiraba `NullReferenceException`, Play sin imagen).
+Fix: 3er menú **`Parte 2 · Agregar Main Camera al rig`** — saca la `Main
+Camera` completa (con `ReticleCanvas`/`CardboardReticlePointer`/linterna) de
+`Player.prefab` (que sí la trae, como hijo de `Player`), la injerta como hija
+del `Player 1` de la escena en local `(0, 1.6, 0)`, la taggea `MainCamera`,
+`TrackedPoseDriver = Rotation Only`, y cablea
+`GazeController._gazeCamera` / `GazeReticle` / `VRFadeController._fadeImage` /
+`TeleportManager._cameraTransform` + apunta `MonsterChaser._target` y
+`ChaseReveal._playerCamera`/`_cameraToTurn`. También resetea la escala del
+rig a `(1,1,1)` (no-uniforme rompe cámara/colliders hijos).
+
+**Ajustes 2ª ronda (2026-09-09):**
+- **`SecurityFootage`**: el shader glTF usa `_BaseColorMap`/`emissiveTexture`,
+  no `_BaseMap`/`_MainTex` → el `RenderTexture` nunca llegaba a la pantalla.
+  Ahora, en vez de tocar propiedades del shader del modelo, **crea un
+  material `Universal Render Pipeline/Unlit` nuevo** que solo muestra el RT y
+  se lo asigna a `_tvScreen` (Unlit = siempre a full brillo, se lee como
+  pantalla encendida; `_BaseColor` negro/blanco = apagada/encendida). Además
+  **auto-resuelve `_tvScreen`** si está sin asignar: busca un Renderer cuyo
+  nombre —o el del padre— contenga `screen`/`pantalla`/`glass`/… (el modelo
+  `TV.glb` tiene `tv > Screen > defaultMaterial`, el Renderer está en
+  `defaultMaterial` pero el padre se llama `Screen`); si no, agarra el
+  Renderer más "plano y grande".
+- **`VCRSlot`**: al insertar la cinta (una vez), **desactiva sus Collider**
+  para que el reticle deje de rellenar el anillo cada vez que mirás la tele.
+- **`MonsterChaser`**: (1) al `StartChase()` **bloquea `_fixedY` en la Y que
+  tenga el monstruo en ese momento** (la que le puso `ChaseReveal`), así no
+  se hunde en el piso. (2) **`_followTrail`** (default on): en vez de ir en
+  línea recta al jugador —que lo hace **atravesar paredes**, porque el mapa
+  es un `.glb` **sin colliders**— sigue las "migas" que el jugador va
+  dejando cada `_trailSpacing` (1.2 m). Como el jugador solo se mueve por
+  puntos válidos, el monstruo también. A menos de `_directChaseRange` (3 m)
+  va derecho (tramo final). No usa NavMesh (evita tener que bakear).
+- **`ChaseReveal`**: si `_monsterRevealPoint` está vacío, ahora **calcula
+  solo** una posición **un poco detrás del jugador** (`_spawnBehindDistance`
+  = 3 m), **parado** (`y = cámara.y - _eyeHeight + _monsterYOffset`),
+  mirándolo — antes el monstruo aparecía donde hubiera quedado `Monstruo_Menu`
+  a mano (hundido en el piso). `_monsterYOffset` para ajuste fino según dónde
+  tenga el pivote el modelo.
+
+**Ajustes 3ª ronda (2026-09-09) — "que aparezca parado en la habitación de
+atrás, espere 1s y camine, sin hundirse":**
+- **`MonsterChaser.StartChase()`** ahora hace **snap-feet-to-ground**
+  (`_snapFeetToGround`, default on): mide el punto más bajo de sus Renderers
+  y sube el modelo para que la Y que le pasó `ChaseReveal` (= piso) quede a
+  la altura de los **pies**, no del pivote. Corrige modelos con pivote al
+  centro (que se veían "arrastrándose"). Funciona para pivote al centro, a
+  los pies o arriba del modelo.
+- **`_holdBeforeWalk`** (default 1 s): al aparecer, el monstruo se queda
+  **parado girando a mirarte** ese tiempo; recién después camina. En
+  `Update()` la fase se decide con `Time.time >= _walkStartTime`; durante el
+  hold solo rota (no traslada).
+- **Animación / look:** si el modelo tiene `Animator`, se le setean los
+  params `Speed` (float) y `Walking` (bool) mientras camina (con chequeo de
+  que existan). Además, meneo **procedural** (`_bobWhileWalking`, sin×abs
+  sobre el primer hijo del modelo) para que un modelo **estático** no parezca
+  que flota deslizando. `Moustruo1.glb` probablemente no trae animación — el
+  bob es el plan B.
+- **`ChaseReveal._monsterRevealPoint`**: el 2º menú de `Parte2Setup` ahora
+  **crea un empty `MonsterRevealPoint`** (detrás del spawn por defecto) y lo
+  asigna. **Hay que moverlo a mano** a la habitación de atrás, sobre el
+  piso, con la flecha Z apuntando hacia donde viene el jugador. Si está
+  asignado, `ChaseReveal` snapea el monstruo ahí (giro horizontal solamente);
+  si no, usa el fallback "detrás del jugador".
+
+**Ajustes 4ª ronda (2026-09-09) — el modelo `Moustruo1.glb` está mal
+orientado y NO tiene animación:**
+- El bicho aparecía "acostado / dado vuelta" tanto en la grabación como en
+  la sala porque **la malla está authored mal orientada**. Se agregó una
+  corrección de orientación por Inspector:
+  `MonsterChaser._visualRoot` + `_visualLocalEuler` (se aplica al nodo del
+  modelo en `Awake`; `(0,0,0)` = no toca nada) y
+  `SecurityFootage._monsterLocalEuler` (idem para el monstruo del diorama;
+  se compone con el `LookRotation` del acercamiento como
+  `LookRotation(...) * _monsterFix`). El `_snapFeetToGround` corre DESPUÉS de
+  esta corrección, así que con el euler bien puesto queda parado Y con los
+  pies en el piso.
+- **Animación real de caminar (piernas moviéndose): NO se puede** con este
+  `.glb` — es malla estática, no tiene esqueleto ni clips. El "meneo
+  procedural" (`_bobWhileWalking`) es solo un plan B para que no parezca que
+  flota deslizando. **La solución es reemplazar el modelo por uno rigged/
+  animado** (Omar vio uno en Sketchfab). `MonsterChaser` ya está preparado:
+  toma `Animator` (params `Speed` float / `Walking` bool si el controller
+  los tiene) **o** `Animation` legacy (`_walkClipName`, lo típico que genera
+  glTFast de un `.glb` animado) y reproduce el walk mientras `walking`, lo
+  frena en el 1s de espera. Cuando Omar pase el nombre del nuevo `.glb`
+  animado → swap en `Monstruo_Menu` + diorama y enganchar el clip.
+
+**Pendiente en `Parte 2`:** sonidos (insert de cinta, golpe/rugido del
+reveal, grito, estática, ambiente), confirmar `_tvScreen` (revisar el log de
+`SecurityFootage` por si el auto-resolve agarró el Renderer equivocado),
+opcionalmente un `_doorPivot` (bisagra) en `Puerta`, y probar el recorrido de
+flechas/persecución en Play/Build real (sobre todo el `_monsterYOffset` y que
+el rastro no deje al monstruo trabado en una esquina). El monstruo del
+diorama y el de la sala son el **mismo modelo** (`Moustruo1.glb`) instanciado
+dos veces.
+
 ### Efectos visuales de `Parte 1 - El Despertar` (aplicado 2026-09-08 vía Unity MCP)
 
 > **Actualización 2026-09-24:** la niebla de Parte 1 se sacó y las luces se
@@ -1689,8 +2137,8 @@ Todo en `Assets/Scripts/Puzzles/`. Ninguno está puesto en una escena todavía.
   - `Parte 3`: `Main Camera/ReticleCanvas/FadeImage` tiene un `AudioSource`
     con `puerta_madera.wav` y **Play On Awake** → suena un portazo al cargar
     la escena.
-  - `Parte 4`: no hay ningún `AudioSource`; `TeleportManager.Footsteps Audio
-    Source` está vacío → la caminata es muda.
+  - ~~`Parte 4`: no hay ningún `AudioSource`; la caminata es muda~~ →
+    resuelto 2026-09-24 (`Player/Pasos`).
   - `Parte 3`: el componente `Door` de `27_2 (1)` está deshabilitado (y el
     objeto inactivo); no molesta, pero no confundirlo con la puerta del
     fondo real, que es `27_2`.
@@ -2528,10 +2976,9 @@ en el Editor**, porque el celular no renderiza igual.
   Chromatic Aberration.
 - **R5 — Parte 3:** la Directional negra proyecta sombras
   (`m_Shadows.m_Type: 2`): gasto sin ningún efecto visible. Ponerla en
-  `No Shadows` (pedir antes de tocar Parte 3, #22).
-- **HDR:** funciona en el celular (`Mobile_RPAsset` lo soporta). `Parte 1` y
-  `Parte 3` tienen HDR apagado en la cámara (`m_HDR: 0`), así que su Bloom se
-  ve distinto al de `Parte 4`.
+  `No Shadows` (pedir antes de tocar Parte 3, #22). *(Resuelto 2026-09-24.)*
+- **HDR:** funciona en el celular (`Mobile_RPAsset` lo soporta). *(Desde el
+  2026-09-25 las cámaras de Parte 1, 3, 4 y 5 lo tienen prendido.)*
 
 ### Bloqueantes
 
@@ -2769,6 +3216,20 @@ quitarse la máscara).
     `ScreenBlink`, `Peephole`, `AbyssFall`, `WallCollapse`) tiene que tener
     **asignado el campo del shader/material en el Inspector**, no confiar en
     el fallback. Si algo se ve magenta en el celular, es lo primero a revisar.
+26. **Texto en VR pegado a la cámara (2026-09-25):** usar un `TextMeshPro`
+    (3D, no UGUI) hijo de la `Main Camera` con el material
+    `Assets/Fonts/SpecialElite SDF Overlay.mat` (shader TMP *Overlay*, ZTest
+    Always), así no lo tapa la geometría cercana. Ejemplo: `Texto
+    fragmentos (VR)` y `Texto entrega (VR)` en Parte 5 (a 1.6 m, 0.32 m por
+    debajo del centro, `fontSize 1`).
+27. **`backrooms_vr.glb` tiene una malla por sala** (paredes `Wall_1..4`,
+    pisos `Moquette_1..4`, techos `Ceiling_1..4`) pero las lámparas son una
+    sola malla para todo el mapa. Por eso "se apagan de a tramos" se hace con
+    un `FluorescentFlicker` por sala sobre paredes/piso/techo, y las
+    lámparas van en uno general. Y la sala del este (x 8..22) está sellada.
+28. **Para esperar en tiempo real entre llamadas de Unity MCP** (animaciones
+    en Play), usar `Start-Sleep` en PowerShell: el `sleep` de Bash en primer
+    plano está bloqueado.
 
 ## Cómo se trabaja en este proyecto (para una IA sin acceso directo al Editor)
 
@@ -2793,147 +3254,67 @@ quitarse la máscara).
 
 ## Estado actual (a esta fecha) y pendientes conocidos
 
-### Estado real por escena (actualizado 2026-09-23 leyendo los `.unity`, no por descripción)
+### Estado real por escena (actualizado 2026-09-25)
 
-| Escena | Tamaño | Estado |
-|---|---|---|
-| `Menu Principal.unity` | 236 KB | **Funcional.** Paneles, `MainMenuController` (ahora valida la escena destino contra Build Settings), `ConfigMenu`/`GameSettings`, secuencia de entrada con puerta, `FlickeringLight`. **Sin Bloom** (sin `Global Volume`, Post Processing apagado; corregido 2026-09-23). Generada por script (`MenuPrincipalGenerator`, gotcha #23). |
-| `Tutorial.unity` | 105 KB | **Del compañero.** Según su commit `00c9a0b` y `TutorialSetup`: llave (`keys` → `KeyInventory`), puerta de salida `LevelDoor` hacia `Parte 1` (texto "PARTE 1"), pantalla de carga, ambiente en loop y locución (`SceneNarration`). Su transición usa Screen Space Overlay (probablemente invisible en Cardboard, #19). Usa `Player.prefab` desempaquetado. |
-| `Parte 1 - El Despertar.unity` | 224 KB | **Completa** (candado `067`, puertas, teletransporte, fog + Bloom + luces parpadeantes) **y con el desmayo a Parte 2 cableado** (2026-09-23, probado en Play 2026-09-24). HDR apagado en la cámara. `CameraDebugLogger` sigue activo en `Main Camera`. Usa `Player 1.prefab`. |
-| `Parte 2 - Cumpleaños.unity` | 13 KB | **Del compañero.** Tiene `rec_room…` (demasiado pesado para el A54) pero **sin rig**. Corrección: no estaba vacía. |
-| `Parte 3 - Pasillo de hotel.unity` | 675 KB | **Con el abismo cableado** (2026-09-23, probado en Play 2026-09-24): `27_2` (con llave) → `tp pozo` → `AbyssFall` → `Desmayo -> Parte 4`. 4 `Door` + 6 `TeleportPoint` tipo puerta (fade) con audio, llave `key_with_tag` en `hayama_washitsu_raw_scan`. Pendientes de iluminación a pedir (#22) y el portazo al cargar (`AudioSource` de `FadeImage`). Rig propio (no prefab). |
-| `Parte 4 - Pasillo de madera.unity` | 1.5 MB | **La más avanzada de la historia.** Ambiente tétrico, rig, 18 `TeleportPoint` con orbe (17 + `tp pared ciega`), linterna con `FlashlightSway`, 21+2 paredes con normales corregidas, y **la pared que se desmorona + desmayo a Parte 5 probados en Play** (arreglo guardado a las 21:14). Falta: loop, pintura, audio (no hay ningún `AudioSource`), y probar en el A54 (ojo: solo 4 luces por objeto en Mobile, gotcha #18). Sin commitear. |
-| `Parte 5 - Backrooms.unity` | 13 KB | `backrooms_vr` puesto, **sin rig** → bloquea toda la etapa 5. Corrección: no estaba vacía. |
-| `Parte Final.unity` | 13 KB | `kidman_room` puesto (116 texturas, la escena más pesada en memoria), **sin rig**. Corrección: no estaba vacía. |
+| Escena | Estado |
+|---|---|
+| `Menu Principal.unity` | **Funcional.** Paneles, `MainMenuController` (valida la escena destino contra Build Settings), `ConfigMenu`/`GameSettings`, secuencia de entrada con puerta, `FlickeringLight`, aviso de fotosensibilidad al arrancar. **Sin Bloom.** Generada por script (`MenuPrincipalGenerator`, gotcha #23): no tocar a mano. |
+| `Tutorial.unity` | **Del compañero.** Llave, `LevelDoor` hacia `Parte 1`, pantalla de carga, ambiente y locución (`SceneNarration`). Su transición usa Screen Space Overlay (probablemente invisible en Cardboard, #19). |
+| `Parte 1 - El Despertar.unity` | **Completa.** Candado `067` con indicador en los discos, sin niebla y más oscura, latidos al despertar, sustos (pasos y susurros) mientras se ingresa el código, HDR, desmayo a Parte 2 con golpe + respiración y texto. `CameraDebugLogger` sigue activo (sacarlo después de la prueba en el A54). |
+| `Parte 2 - Cumpleaños.unity` | **Del compañero.** `rec_room…` (demasiado pesado para el A54), **sin rig** y sin salida a Parte 3. |
+| `Parte 3 - Pasillo de hotel.unity` | **Completa.** Llave → puerta `27_2` → pozo → caída con viento → desmayo a Parte 4. Estética de la Parte 1 (sin niebla, reflejo 0, HDR, 3 lámparas cálidas), sustos de ambiente. Rig propio (no prefab). |
+| `Parte 4 - Pasillo de madera.unity` | **Completa.** Pasillo infinito, pintura al revés con pista sonora cada 2 vueltas, sustos en el loop, derrumbe con sonido y luz amarilla, desmayo amarillo a Parte 5. Ojo en el A54: solo 4 luces por objeto en Mobile (gotcha #18). |
+| `Parte 5 - Backrooms.unity` | **Completa** (2026-09-25). Rig, 20 tps, amarillo sucio, 3 fragmentos, entrega, silueta provisoria y final → Menú. Ver "Parte 5: Backrooms". |
+| `Parte Final.unity` | **Sin usar** (#5): el final pasa en Parte 5. Tiene `kidman_room` (la escena más pesada en memoria); conviene destildarla en Build Settings. |
 
-Build Settings (`ProjectSettings/EditorBuildSettings.asset`), verificado
-2026-09-23: **las 8 escenas de la historia están tildadas y en orden** (0
-Menú, 1 Tutorial, 2 Parte 1, 3 Parte 2, 4 Parte 3, 5 Parte 4, 6 Parte 5, 7
-Final); el sample HelloCardboard está destildado. *(Antes decía "solo
-`Parte 3` tildada": quedó viejo.)*
+**Build Settings:** el orden sigue siendo 0 Menú, 1 Tutorial, 2 Parte 1, 3
+Parte 2, 4 Parte 3, 5 Parte 4, 6 Parte 5, 7 Final, pero **hoy (2026-09-25)
+solo está tildada `Parte 5`**, por las pruebas de Omar en el celular. Antes
+de compilar el juego completo hay que volver a tildar todas (la `Parte Final`
+se puede dejar destildada). Con escenas destildadas, `FaintTransition` loguea
+un error y no dispara.
 
 **Funcionando / implementado:**
-- Sistema de gaze (raycast, reticle centrado, shader always-on-top para
-  reticle y fade contra geometría cercana).
-- Teletransporte (caminata + fade, fade forzado en puntos con Destination
-  Override), con Main Camera separada de Player. Audio opcional en
-  TeleportPoint (selección) y vía On Player Arrived (llegada).
-- Puertas con llave (genérico), audio de apertura, posición/rotación de
-  apertura vía objeto marcador (`Open Position Target`). Puertas dobles
-  abiertas en simultáneo desde `CodeLock`.
-- Candado de combinación completo (solo en `Parte 1`), con indicador sutil
-  al mirar cada disco (2026-09-24).
-- Menú principal funcional de punta a punta, con aviso de fotosensibilidad al
-  arrancar (2026-09-24).
-- **Parte 4 jugable de punta a punta (2026-09-24):** pasillo infinito (loop
-  `tp1 → tp1-2`), pintura al revés que al enderezarse corta el loop y abre
-  `tp pared ciega`, derrumbe y desmayo a Parte 5 con texto; oclusión de la
-  mirada por paredes; pasos.
-- Texto de nivel con tipografía Special Elite en los tres desmayos
-  (2026-09-24).
-- Rendimiento para el A54 (2026-09-24): Bloom liviano, sin Lens Flare ni
-  Chromatic Aberration, sin sombras en la luz negra de Parte 3.
-- `FlickeringLight` en Menú Principal. *(El Bloom del Menú que figuraba acá
-  no existe: ver sección de Bloom.)*
-- `Parte 3`: puertas físicas y teletransportes-puerta con audio funcionando
-  (arreglado 2026-09-08).
-- Unity MCP configurado y **usado a fondo** desde 2026-09-08 (lectura de
-  escena viva, `Unity_RunCommand`, pruebas en Play). La nota vieja de
-  "pendiente confirmar la conexión" quedó obsoleta.
-- **Transición "desmayo"** (`FaintOverlay` + `FaintTransition`, VR-safe,
-  llamable desde `UnityEvent`), cableada en Parte 1 → 2, Parte 3 → 4 y
-  Parte 4 → 5 (2026-09-23). **Las tres probadas en Play de punta a punta**
-  (4 → 5 el 2026-09-23; 1 → 2 y 3 → 4 el 2026-09-24), sin errores. Falta el A54.
-- **Final de la etapa 4** (`WallCollapse`): bug de la pared invisible
-  resuelto y guardado (2026-09-23).
-- **Final de la etapa 3** (`AbyssFall` detrás de la puerta con llave `27_2`),
-  cableado 2026-09-23.
-- Build Settings completo y en orden (2026-09-23).
-- **Código listo, sin instanciar (2026-09-23):** `MonsterController`,
-  `Peephole`, `UpsideDownPainting`, `FragmentCounter`/`FragmentDropOff`,
-  `ScreenBlink`, `FluorescentFlicker`, `AudioFader`, loop sin fade
-  (`TeleportPoint.Seamless Loop`), `TeleportManager.LockMovement`,
-  `GazeController.Occluder Layer Mask`. Todo compila sin errores ni
-  warnings.
+- Mirada (raycast, reticle centrado, shader always-on-top, oclusión por
+  paredes en Parte 4 y 5) y teletransporte (caminata + fade, loop sin fade).
+- Puertas con llave, puertas dobles desde `CodeLock`, candado completo.
+- Menú con aviso de fotosensibilidad.
+- Desmayos cableados y probados en Play: 1 → 2, 3 → 4, 4 → 5 y 5 → Menú
+  (este último hasta el disparo, por Build Settings).
+- Etapas 1, 3, 4 y 5 completas según el guion, con los ajustes de Omar.
+- Sonidos generados por código (efectos, susurros, respiración) cableados en
+  las Partes 1, 3, 4 y 5.
+- Rendimiento para el A54: Bloom liviano, sin Lens Flare ni Chromatic
+  Aberration, Forward en el celular, perfil propio y barato en Parte 5.
+- Unity MCP usado a fondo (lectura de escena viva, `Unity_RunCommand`,
+  pruebas en Play con capturas).
 
-**Pendiente / a implementar (por orden de lo más bloqueante):**
-- **Commitear lo de la sesión 2026-09-23** (en una rama + PR, nunca directo
-  a `main`): hoy están sin commitear `Parte 1`, `Parte 3`, `Parte 4`,
-  `Build Settings`, `CLAUDE.md` y todo el código nuevo (`Transitions/`,
-  `Monster/`, `Puzzles/`, `Audio/`, `ScreenBlink`, `FluorescentFlicker`,
-  shaders). (#7 ya resuelta: Parte 4 se guardó al cerrar Unity.)
-- **Probar en el A54 los tres desmayos** siguiendo el plan de "QA de build
-  Android / A54" (Build A y Build B). Es lo que más información da ahora:
-  confirma o descarta el tope de 4 luces (#16), la transición del Tutorial
-  (#19) y el peso de las texturas (#20).
-- **`Parte 2`, `Parte 5` y `Parte Final` tienen geometría pero NO rig**
-  (corregido 2026-09-23: no estaban vacías). Sin rig, un desmayo hacia ellas
-  deja al jugador con la cabeza quieta y sin salida. Parte 2 es del
-  compañero (#19); Parte 5 y Final, decidir quién (#14).
-- **Etapa 4:** cablear el loop (#11) y la pintura (#12), dejar `tp pared
-  ciega` apagado hasta enderezarla (Collider o GameObject, gotcha #20),
-  poner audio (no hay ningún `AudioSource` en la escena; pasos mudos).
-- **Etapa 3:** mirillas (`Peephole`, #10), luz roja sobre la llave (receta
-  en "Efectos visuales"), monstruo acechando (#9), y probar el abismo en
-  Play.
-- **Etapa 1:** reloj/nota/foto (#8) y clip de latidos al arrancar.
-- **Monstruo:** conseguir el modelo (#3) dentro del presupuesto de "QA de
-  build Android / A54".
-- **Audio:** conseguir los ~30 clips faltantes (ver "Audio: AudioFader y
-  bugs encontrados") y resolver los bugs de escena (#18).
-- **Rendimiento:** texturas embebidas (#20), perfil de post-procesado
-  compartido (#21), `Mobile_Renderer` (#16), Directional con sombras en
-  Parte 3 (#22), MSAA 2x a probar.
-- **`Parte 4` — calibración de brillo:** los valores de referencia están en
-  las secciones de 2026-09-09; en el celular, además, solo 4 de las 18 luces
-  tocan las paredes (gotcha #18), así que cualquier ajuste fino conviene
-  hacerlo con el Editor en nivel Mobile o directo en el A54.
-- **`Parte 3` tiene el mismo `reflectionIntensity=1` riesgoso que tenía
-  `Parte 4`** (auditado 2026-09-09, ver sección dedicada) — probablemente el
-  mismo bug de reflejos del skybox, simplemente no reportado todavía. No se
-  tocó porque es la escena más activamente trabajada y merece un pedido
-  explícito antes de tocar su iluminación. `Parte 1` (`reflectionIntensity
-  0.1`, ya atenuado) y `Menu Principal` (ambiente no apagado) están en bajo
-  riesgo, no necesitan acción.
-- **`Tutorial` es del compañero** (decisión #2): tiene llave, `LevelDoor`
-  hacia Parte 1 y locución; lo único a coordinar con él es la transición
-  (#19).
-- Unificar el rig de jugador (ver sección dedicada más arriba) — hoy hay 5
-  configuraciones independientes (`Player.prefab`, `Player 1.prefab`, rig
-  suelto en `Parte 3`, rig suelto en `Menu Principal`, rig suelto en
-  `Parte 4`) que pueden divergir silenciosamente, como ya pasó con
-  `Tracking Type`.
-- **Corregir el campo `_playerTransform` → `_cameraTransform` desactualizado
-  en `Player.prefab` y `Player 1.prefab`** (descubierto 2026-09-08 al armar
-  el rig de `Parte 4`) — el default serializado en los dos assets todavía
-  tiene el nombre viejo del campo de `TeleportManager`, así que cualquier
-  instancia nueva de cualquiera de los dos prefabs necesita que alguien
-  re-arrastre `Main Camera` a mano en `Camera Transform`, o va a tirar el
-  warning de "Falta asignar Camera Transform" al primer teletransporte. No
-  se tocó el asset en esta sesión para no arriesgar la instancia ya
-  funcionando de `Parte 1` sin poder probarla en el Editor en el momento.
-- Iluminación final del modo examinar del candado (Omar planea rehacerla).
-- Confirmar que el texto/textura de `sticky_notes` realmente muestre "067"
-  legible.
-- `Requires Key` en las puertas que correspondan — confirmar que sigue en
-  `true` donde hace falta.
-- Materiales de `_inactiveMaterial`/`_gazedAtMaterial` en varios objetos
-  (candado, dígitos, botón de volver, puertas de `Parte 3`) — quedaron
-  opcionales, puede que falten para tener feedback visual de mirada.
-- Colliders + Layer en el resto de la geometría de `Parte 3` y otras escenas
-  que use gaze — no está cubierto todo, solo lo que se fue reportando.
-- Puzzles de las etapas 3/4/5: el código ya existe (2026-09-23, ver "Puzzles
-  nuevos"); falta instanciarlos en escena (ver ítems de etapa más arriba).
-  Etapa 2 (globos con `SequenceManager`) es del compañero.
-- Pase de rendimiento para Android/A54: la auditoría estática ya está hecha
-  (ver "QA de build Android / A54"); falta medir FPS en el celular real.
-- Sacar `CameraDebugLogger` de la `Main Camera` de `Parte 1` **después** de
-  la prueba en el A54 (hasta entonces sirve). `GazeDebugTarget` ya no está en
-  ninguna escena.
-- Posibles ajustes menores de `Parte 1`: sacar la luz `MZ4_Lamp_OFF_m_0`
-  (intensity 50, fuera del cuarto jugable) si se confirma que sobra, y
-  prender HDR en la cámara (#22).
-- Confirmar si `GameManager` (loop de estado viejo) sigue en uso real en
-  alguna escena, o si quedó reemplazado por el flujo nuevo de
-  `MainMenuController` + escenas separadas — no queda claro cuál es la
-  fuente de verdad actual.
+**Pendiente (por orden de lo más bloqueante):**
+- **Commitear lo del 2026-09-24/25** en la rama `historia-transiciones-y-
+  mecanicas` (PR #20), cuando Omar lo pida. **No commitear
+  `EditorBuildSettings.asset`** mientras tenga escenas destildadas.
+- **Probar en el A54 el juego completo** (plan en "QA de build Android /
+  A54"): confirma el tope de 4 luces (#16), la transición del Tutorial
+  (#19), el peso de las texturas (#20) y el rendimiento de Parte 5 (grano +
+  viñeta + niebla).
+- **Compañero:** `Parte 2` necesita rig y un `FaintTransition` final hacia
+  `Parte 3 - Pasillo de hotel`; `rec_room…` es demasiado pesado; su
+  transición del Tutorial probablemente no se ve en Cardboard (#19).
+- **Monstruo:** modelo real (#3) dentro del presupuesto del A54. La silueta
+  provisoria de Parte 5 se reemplaza colgando el modelo como hijo de
+  `Monstruo (silueta provisoria)` y asignando `Visual Root`/`Mask Object`.
+- **Textos de los fragmentos** (provisorios, #14) y **susurro grabado** de
+  Omar (se suma a `Whisper Clips` o al `Whisper Clip` de los desmayos).
+- **Rendimiento:** texturas embebidas en `.glb` (#20, ~1 GB sin comprimir en
+  el APK), MSAA 2x a probar.
+- Unificar el rig de jugador (hoy hay 6 configuraciones sueltas: los dos
+  prefabs, y los rigs de Parte 3, Parte 4, Parte 5 y el Menú) y corregir el
+  nombre viejo del campo (`_playerTransform`) en `Player.prefab` y
+  `Player 1.prefab`. Mientras tanto `TeleportManager` usa `Camera.main` si
+  el campo está vacío.
+- Menores: sacar `CameraDebugLogger` de Parte 1 después de la prueba; la luz
+  `MZ4_Lamp_OFF_m_0` de Parte 1 (fuera del cuarto) si sobra; `Doppler
+  Factor = 0`; confirmar si `GameManager` (loop de estado viejo) sigue en uso.
+- Sin usar pero listos: `Peephole` (no hay mirillas por decisión de Omar),
+  `SequenceManager` (para los globos del compañero), `AudioFader.Distort`
+  (música de cumpleaños).

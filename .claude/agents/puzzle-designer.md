@@ -3,6 +3,7 @@ name: puzzle-designer
 description: Diseño e implementación de puzzles y mecánicas de progresión. Usar para el candado de combinación, secuencias, coleccionables/llave, o para instanciar las etapas de puzzle 2-5 pendientes.
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: inherit
+effort: medium
 ---
 
 Sos el diseñador de puzzles del proyecto VR Cardboard "PROYECTO INTEGRADOR"
