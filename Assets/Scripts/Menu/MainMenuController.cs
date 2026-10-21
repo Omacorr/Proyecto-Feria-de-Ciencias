@@ -159,7 +159,11 @@ public class MainMenuController : MonoBehaviour
         float walk = _walkThroughPoint != null ? camToDoor + _extraWalkPastDoor : _walkDistance;
         Vector3 rigStart = _cameraRig.position;
         Vector3 rigEnd = rigStart + dir * walk;
-        yield return MovePosition(_cameraRig, rigStart, rigEnd, _walkDuration);
+        // En la escena del Menu la Main Camera esta SEPARADA de Player (en la
+        // raiz), asi que mover solo el rig no movia la vista: la camara se
+        // mueve junto con el rig, con el mismo desplazamiento.
+        Transform camFollower = (camT != _cameraRig && !camT.IsChildOf(_cameraRig)) ? camT : null;
+        yield return MovePosition(_cameraRig, rigStart, rigEnd, _walkDuration, camFollower);
 
         // 3. Fundido a negro (se queda en negro), "cargando" unos segundos, y
         //    recien ahi aparecer en el Tutorial.
@@ -226,17 +230,25 @@ public class MainMenuController : MonoBehaviour
         t.position = pivot + rf * (startPos - pivot);
     }
 
-    private static IEnumerator MovePosition(Transform t, Vector3 from, Vector3 to, float duration)
+    /// <summary>
+    /// Mueve 't' de 'from' a 'to'. Si hay 'follower' (un objeto que no es hijo
+    /// de 't', por ejemplo la camara separada del rig), le aplica el mismo
+    /// desplazamiento.
+    /// </summary>
+    private static IEnumerator MovePosition(Transform t, Vector3 from, Vector3 to, float duration, Transform follower = null)
     {
+        Vector3 followerStart = follower != null ? follower.position : Vector3.zero;
         float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
             t.position = Vector3.Lerp(from, to, k);
+            if (follower != null) follower.position = followerStart + (t.position - from);
             yield return null;
         }
         t.position = to;
+        if (follower != null) follower.position = followerStart + (to - from);
     }
 
     private void ShowOnly(GameObject panel)

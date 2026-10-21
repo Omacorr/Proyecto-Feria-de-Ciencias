@@ -24,8 +24,12 @@ using UnityEngine.Events;
 /// aunque este objeto se apague justo despues (por ejemplo, un SetActive(false)
 /// en el mismo evento) o aunque ya este apagado.
 ///
-/// Si la escena destino no esta agregada y tildada en Build Settings, Trigger()
-/// NO hace nada (loguea un error): mejor que dejar al jugador en negro para siempre.
+/// Si la escena destino no esta agregada y tildada en Build Settings, loguea un
+/// error y (con Hold If Scene Missing, prendido por defecto) hace el desmayo
+/// igual pero la pantalla QUEDA tapada con el texto, como pantalla de fin: en
+/// la mayoria de los casos (final de Parte 5 con los ojos cerrados, caida de
+/// Parte 3, derrumbe de Parte 4) el jugador ya estaria trabado a medias. Con el
+/// toggle apagado, Trigger() no hace nada (comportamiento anterior).
 /// </summary>
 public class FaintTransition : MonoBehaviour
 {
@@ -79,6 +83,10 @@ public class FaintTransition : MonoBehaviour
     [Tooltip("Tipografia del texto (Assets/Fonts/SpecialElite-Regular). Vacio = fuente interna de Unity. Al estar referenciada aca, entra sola al build.")]
     [SerializeField] private Font _levelFont;
 
+    [Header("Respaldo")]
+    [Tooltip("Si la escena destino NO esta tildada en Build Settings (por ejemplo, un build de prueba con una sola escena). Prendido = el desmayo se hace igual y la pantalla QUEDA tapada con el texto (pantalla de fin), en vez de dejar al jugador trabado a medias (ojos cerrados, cayendo, encandilado). Apagado = comportamiento anterior: no se dispara nada, solo se loguea el error. Cuando la escena si esta, no cambia nada.")]
+    [SerializeField] private bool _holdIfSceneMissing = true;
+
     private bool _triggered;
 
     public string NextSceneName => _nextSceneName;
@@ -92,7 +100,7 @@ public class FaintTransition : MonoBehaviour
         // resolver el puzzle.
         if (!CanLoad(_nextSceneName))
         {
-            Debug.LogWarning("[FaintTransition] " + name + ": la escena '" + _nextSceneName + "' no esta agregada/tildada en File > Build Settings (o el nombre no coincide exacto). El desmayo no va a poder dispararse.");
+            Debug.LogWarning("[FaintTransition] " + name + ": la escena '" + _nextSceneName + "' no esta agregada/tildada en File > Build Settings (o el nombre no coincide exacto). " + (_holdIfSceneMissing ? "Al dispararse, la pantalla va a quedar tapada (respaldo) en vez de cargar." : "El desmayo no va a poder dispararse."));
         }
         if (_overlayMaterial == null)
         {
@@ -128,13 +136,21 @@ public class FaintTransition : MonoBehaviour
             Debug.Log("[FaintTransition] " + name + ": ya hay un desmayo en curso, se ignora.");
             return;
         }
-        if (!CanLoad(sceneName))
+        bool canLoad = CanLoad(sceneName);
+        if (!canLoad && !_holdIfSceneMissing)
         {
             Debug.LogError("[FaintTransition] " + name + ": no se dispara el desmayo, la escena '" + sceneName + "' no esta agregada/tildada en File > Build Settings (o el nombre no coincide exacto).");
             return;
         }
         _triggered = true;
-        Debug.Log("[FaintTransition] " + name + ": desmayo -> '" + sceneName + "'.");
+        if (canLoad)
+        {
+            Debug.Log("[FaintTransition] " + name + ": desmayo -> '" + sceneName + "'.");
+        }
+        else
+        {
+            Debug.LogError("[FaintTransition] " + name + ": la escena '" + sceneName + "' no esta agregada/tildada en File > Build Settings (o el nombre no coincide exacto). Respaldo: desmayo sin cargar escena, la pantalla queda tapada con el texto.");
+        }
 
         // Nada mas se puede mirar/seleccionar durante el colapso.
         foreach (GazeController gaze in FindObjectsByType<GazeController>(FindObjectsSortMode.None))
@@ -181,6 +197,7 @@ public class FaintTransition : MonoBehaviour
             Title = _levelTitle,
             Subtitle = _levelSubtitle,
             Font = _levelFont,
+            StayCovered = !canLoad,
         });
     }
 

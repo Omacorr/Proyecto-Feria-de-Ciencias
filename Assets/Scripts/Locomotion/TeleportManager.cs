@@ -112,6 +112,17 @@ public class TeleportManager : MonoBehaviour
             return;
         }
 
+        if (_cameraTransform == null && Camera.main != null)
+        {
+            // Player.prefab y Player 1.prefab todavia serializan el nombre
+            // viejo del campo (_playerTransform) y no pueden referenciar la
+            // Main Camera separada, asi que cualquier instancia NUEVA de esos
+            // prefabs arranca con este campo vacio. En vez de dejar el
+            // teletransporte roto, se usa la camara principal de la escena.
+            _cameraTransform = Camera.main.transform;
+            Debug.Log("[TeleportManager] Camera Transform vacio: uso Camera.main (" + _cameraTransform.name + "). Asignarlo en el Inspector para no depender de esto.");
+        }
+
         if (_cameraTransform == null)
         {
             Debug.LogWarning("[TeleportManager] Falta asignar Camera Transform en el Inspector (tiene que ser Main Camera, no Player).");
@@ -257,7 +268,26 @@ public class TeleportManager : MonoBehaviour
 
         sourcePoint.SetVisible(false);
         _currentOccupiedPoint = sourcePoint;
-        sourcePoint.NotifyArrived();
+        SafeNotify(sourcePoint.NotifyArrived, sourcePoint);
+    }
+
+    /// <summary>
+    /// Dispara un evento del punto sin que una excepcion de algo cableado ahi
+    /// (On Player Arrived / On Loop) mate la corrutina de la caminata: si
+    /// pasaba, IsTeleporting quedaba en true para siempre y el jugador no
+    /// podia volver a moverse (en Parte 5 toda la cadena del final corre
+    /// dentro de la llegada a "tp centro").
+    /// </summary>
+    private static void SafeNotify(System.Action notify, TeleportPoint point)
+    {
+        try
+        {
+            notify();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogException(e, point);
+        }
     }
 
     private static bool ShouldLoop(TeleportPoint sourcePoint, Vector3 startPos)
@@ -321,10 +351,10 @@ public class TeleportManager : MonoBehaviour
             gaze.ResetGaze();
         }
 
-        sourcePoint.NotifyLooped();
+        SafeNotify(sourcePoint.NotifyLooped, sourcePoint);
         if (_currentOccupiedPoint != null)
         {
-            _currentOccupiedPoint.NotifyArrived();
+            SafeNotify(_currentOccupiedPoint.NotifyArrived, _currentOccupiedPoint);
         }
     }
 }

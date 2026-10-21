@@ -172,6 +172,7 @@ public class MonsterController : MonoBehaviour
 
     private readonly List<TrailPoint> _trail = new List<TrailPoint>();
     private const int MaxTrailPoints = 600;
+    private const float RevealApproachTolerance = 0.01f;
     private Renderer[] _renderers;
     private readonly Dictionary<string, AnimatorControllerParameterType> _animParams = new Dictionary<string, AnimatorControllerParameterType>();
     private bool _animParamsCached;
@@ -385,6 +386,15 @@ public class MonsterController : MonoBehaviour
     /// </summary>
     public void Reveal()
     {
+        // Idempotente: en Parte 5 lo llaman dos caminos (On First Seen y el
+        // paso "Respaldo" de la secuencia). Sin esto, mirarlo DESPUES del
+        // respaldo reiniciaba la revelacion: golpe + parpadeo repetidos y la
+        // pausa de la mascara otra vez desde cero.
+        if (State == MonsterState.Revealed)
+        {
+            EnsureShown();
+            return;
+        }
         StopRoutines();
         EnsureShown();
         State = MonsterState.Revealed;
@@ -529,7 +539,12 @@ public class MonsterController : MonoBehaviour
         }
 
         Vector3 playerFlat = Flat(player.position);
-        if (FlatDistance(transform.position, playerFlat) > _revealApproachDistance)
+        // Tolerancia de 1 cm: MoveTowards frena EXACTAMENTE en la distancia
+        // pedida y, con coordenadas grandes (z = -570 en Parte 5), el redondeo
+        // de float puede dejarlo a 2.20003 m para siempre (el paso siguiente
+        // es mas chico que la precision): el final quedaba trabado sin
+        // sacarse la mascara.
+        if (FlatDistance(transform.position, playerFlat) > _revealApproachDistance + RevealApproachTolerance)
         {
             if (NavAgentActive)
             {

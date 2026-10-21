@@ -33,6 +33,58 @@ public class GazeController : MonoBehaviour
     private IGazeInteractable _currentInteractable;
     private float _gazeTimer;
 
+    // Bloqueos "con dueño" (ver AddBlocker). Independientes de 'enabled', que
+    // lo siguen usando FaintTransition/FaintOverlay/AbyssFall/Peephole: la
+    // mirada solo funciona si el componente esta prendido Y no hay ningun
+    // bloqueo. Asi dos sistemas que bloquean a la vez no se pisan (uno no puede
+    // "devolver" la mirada mientras el otro todavia la necesita apagada).
+    private static readonly System.Collections.Generic.HashSet<Object> s_blockers = new System.Collections.Generic.HashSet<Object>();
+
+    // Por si el Editor tiene "Enter Play Mode Options" sin domain reload.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        s_blockers.Clear();
+    }
+
+    /// <summary>true si algun dueño tiene bloqueada la mirada (AddBlocker).</summary>
+    public static bool IsBlocked
+    {
+        get
+        {
+            if (s_blockers.Count == 0)
+            {
+                return false;
+            }
+            // Un dueño destruido sin llamar RemoveBlocker no puede dejar la
+            // mirada bloqueada para siempre.
+            s_blockers.RemoveWhere(o => o == null);
+            return s_blockers.Count > 0;
+        }
+    }
+
+    /// <summary>
+    /// Bloquea la mirada de TODOS los GazeController a nombre de 'owner' hasta
+    /// que ese mismo dueño llame RemoveBlocker (o se destruya). Llamarlo dos
+    /// veces con el mismo dueño cuenta como uno. Lo usa WakeUpFromFloor.
+    /// </summary>
+    public static void AddBlocker(Object owner)
+    {
+        if (owner != null)
+        {
+            s_blockers.Add(owner);
+        }
+    }
+
+    /// <summary>Saca el bloqueo de 'owner'. Si no habia, no hace nada.</summary>
+    public static void RemoveBlocker(Object owner)
+    {
+        if (owner != null)
+        {
+            s_blockers.Remove(owner);
+        }
+    }
+
     private void Awake()
     {
         if (_gazeCamera == null)
@@ -83,6 +135,16 @@ public class GazeController : MonoBehaviour
 
     private void Update()
     {
+        if (IsBlocked)
+        {
+            // Igual que al apagarse: sin objeto mirado ni aro a medio llenar.
+            if (CurrentGazedObject != null || GazeProgress > 0f)
+            {
+                ResetGaze();
+            }
+            return;
+        }
+
         if (_gazeCamera == null)
         {
             // Camera.main puede no existir todavia en Awake (o haber cambiado

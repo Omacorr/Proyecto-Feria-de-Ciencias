@@ -43,6 +43,17 @@ public class ExamineScareSounds : MonoBehaviour
     [Tooltip("Distancia al oido (metros).")]
     [SerializeField] private float _whisperEarDistance = 0.35f;
 
+    [Header("Sonidos lejanos (opcional)")]
+    [Tooltip("Crujidos, golpes, etc. que suenan en 3D en una direccion al azar alrededor del jugador (no pegados al oido).")]
+    [SerializeField] private AudioClip[] _distantClips;
+    [SerializeField] private float _distantVolume = 0.8f;
+    [Tooltip("Distancia al jugador de los sonidos lejanos (metros, min/max).")]
+    [SerializeField] private Vector2 _distantDistance = new Vector2(6f, 12f);
+
+    [Header("Arranque")]
+    [Tooltip("Tildado: los sustos arrancan solos al cargar la escena (ambiente mientras se recorre el nivel). Destildado: solo con StartScares() desde un evento (como el candado de Parte 1).")]
+    [SerializeField] private bool _startOnPlay;
+
     [Header("Ritmo")]
     [Tooltip("Espera antes del primer sonido (segundos, min/max).")]
     [SerializeField] private Vector2 _firstDelay = new Vector2(3f, 5f);
@@ -54,9 +65,13 @@ public class ExamineScareSounds : MonoBehaviour
 
     private AudioSource _steps;
     private AudioSource _whisper;
+    private AudioSource _distant;
     private Coroutine _loop;
     private Coroutine _stepsMove;
     private int _lastWhisper = -1;
+    // Sube con cada sonido nuevo; FadeOut lo usa para no cortar un sonido
+    // pedido despues de StopScares.
+    private int _soundToken;
     private float _whisperSide = 1f;
     private int _sameKindStreak;
     private bool _lastWasWhisper;
@@ -67,6 +82,69 @@ public class ExamineScareSounds : MonoBehaviour
     {
         _steps = CreateSource("Pasos (susto)", 1f, 25f, AudioRolloffMode.Logarithmic);
         _whisper = CreateSource("Susurro (susto)", 0.1f, 3f, AudioRolloffMode.Linear);
+        _distant = CreateSource("Lejano (susto)", 2f, 30f, AudioRolloffMode.Logarithmic);
+    }
+
+    private void Start()
+    {
+        if (_startOnPlay)
+        {
+            StartScares();
+        }
+    }
+
+    /// <summary>Un susurro al oido ya (para cablear a un evento puntual, por ejemplo el loop de Parte 4).</summary>
+    public void PlayWhisperNow()
+    {
+        if (EnsureListener() && _whisperClips != null && _whisperClips.Length > 0)
+        {
+            PlayWhisper();
+        }
+    }
+
+    /// <summary>Pasos a espaldas del jugador ya.</summary>
+    public void PlayFootstepsNow()
+    {
+        if (EnsureListener() && _footstepsClip != null)
+        {
+            PlayFootsteps();
+        }
+    }
+
+    /// <summary>Un sonido lejano (crujido, golpe) ya.</summary>
+    public void PlayDistantNow()
+    {
+        if (EnsureListener() && _distantClips != null && _distantClips.Length > 0)
+        {
+            PlayDistant();
+        }
+    }
+
+    private bool EnsureListener()
+    {
+        if (_listener == null && Camera.main != null)
+        {
+            _listener = Camera.main.transform;
+        }
+        return _listener != null && isActiveAndEnabled;
+    }
+
+    private float PlayDistant()
+    {
+        _soundToken++;
+        AudioClip clip = _distantClips[Random.Range(0, _distantClips.Length)];
+        Vector3 dir = Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.up) * Vector3.forward;
+        Vector3 pos = _listener.position + dir * Random.Range(_distantDistance.x, _distantDistance.y);
+        pos.y = _listener.position.y + Random.Range(-1f, 0.5f);
+        _distant.transform.SetParent(transform, true);
+        _distant.transform.position = pos;
+        _distant.pitch = Random.Range(0.85f, 1.1f);
+        _distant.volume = _distantVolume;
+        // Play() (no PlayOneShot): asi StopScares lo corta con el fundido igual
+        // que a los pasos y susurros (el apagon de Parte 5 llama StopScares).
+        _distant.clip = clip;
+        _distant.Play();
+        return clip.length / Mathf.Max(0.1f, _distant.pitch);
     }
 
     private AudioSource CreateSource(string name, float minDistance, float maxDistance, AudioRolloffMode rolloff)
@@ -123,18 +201,28 @@ public class ExamineScareSounds : MonoBehaviour
         {
             StartCoroutine(FadeOut(_steps, 0.3f));
             StartCoroutine(FadeOut(_whisper, 0.3f));
+            StartCoroutine(FadeOut(_distant, 0.3f));
         }
         else
         {
             _steps.Stop();
             _whisper.Stop();
+            _distant.Stop();
         }
     }
 
     private void OnDisable()
     {
+        // Unity corta las corrutinas si se apaga el GameObject, pero NO si solo
+        // se destilda el componente: sin esto quedaba un loop "huerfano" y
+        // StartScares() arrancaba un segundo loop en paralelo.
+        StopAllCoroutines();
         _loop = null;
         _stepsMove = null;
+        if (_steps != null)
+        {
+            _steps.Stop();
+        }
     }
 
     private IEnumerator Loop()
@@ -144,7 +232,8 @@ public class ExamineScareSounds : MonoBehaviour
         {
             bool canWhisper = _whisperClips != null && _whisperClips.Length > 0;
             bool canSteps = _footstepsClip != null;
-            if (!canWhisper && !canSteps)
+            bool canDistant = _distantClips != null && _distantClips.Length > 0;
+            if (!canWhisper && !canSteps && !canDistant)
             {
                 _loop = null;
                 yield break;
@@ -159,13 +248,16 @@ public class ExamineScareSounds : MonoBehaviour
             _sameKindStreak = whisper == _lastWasWhisper ? _sameKindStreak + 1 : 1;
             _lastWasWhisper = whisper;
 
-            float duration = whisper ? PlayWhisper() : PlayFootsteps();
+            // Si hay sonidos lejanos, uno de cada tres turnos (aprox.) es uno de esos.
+            bool distant = canDistant && ((!canWhisper && !canSteps) || Random.value < 0.34f);
+            float duration = distant ? PlayDistant() : (whisper ? PlayWhisper() : PlayFootsteps());
             yield return new WaitForSeconds(duration + Random.Range(_gap.x, _gap.y));
         }
     }
 
     private float PlayWhisper()
     {
+        _soundToken++;
         int i = Random.Range(0, _whisperClips.Length);
         if (_whisperClips.Length > 1 && i == _lastWhisper)
         {
@@ -187,6 +279,7 @@ public class ExamineScareSounds : MonoBehaviour
 
     private float PlayFootsteps()
     {
+        _soundToken++;
         float duration = Random.Range(_footstepsSeconds.x, _footstepsSeconds.y);
         float maxStart = Mathf.Max(0f, _footstepsClip.length - duration * _footstepsPitch - 0.1f);
 
@@ -234,20 +327,30 @@ public class ExamineScareSounds : MonoBehaviour
         _stepsMove = null;
     }
 
-    private static IEnumerator FadeOut(AudioSource source, float seconds)
+    private IEnumerator FadeOut(AudioSource source, float seconds)
     {
         if (source == null || !source.isPlaying)
         {
             yield break;
         }
+        // Si mientras tanto se pidio un sonido nuevo (PlayWhisperNow, etc.), el
+        // fundido se abandona: antes lo bajaba a 0 y lo cortaba.
+        int token = _soundToken;
         float start = source.volume;
         float t = 0f;
         while (t < seconds && source.isPlaying)
         {
+            if (token != _soundToken)
+            {
+                yield break;
+            }
             t += Time.deltaTime;
             source.volume = Mathf.Lerp(start, 0f, t / seconds);
             yield return null;
         }
-        source.Stop();
+        if (token == _soundToken)
+        {
+            source.Stop();
+        }
     }
 }

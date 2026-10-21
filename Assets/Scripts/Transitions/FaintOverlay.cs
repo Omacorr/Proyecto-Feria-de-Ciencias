@@ -42,6 +42,10 @@ using UnityEngine.SceneManagement;
 /// ZTest Always y viene en los recursos internos, siempre esta en el build),
 /// pegado adelante de la camara solo mientras la pantalla esta tapada.
 ///
+/// Respaldo (Settings.StayCovered): si la escena destino no esta en Build
+/// Settings, FaintTransition lo pide igual pero sin cargar nada: funde, muestra
+/// el texto y la pantalla queda tapada (pantalla de "fin" en vez de trabarse).
+///
 /// No se pone en ninguna escena a mano: lo crea FaintTransition.
 /// </summary>
 public class FaintOverlay : MonoBehaviour
@@ -74,6 +78,17 @@ public class FaintOverlay : MonoBehaviour
         public string Subtitle;
         /// <summary>Fuente del texto. null = fuente interna de Unity.</summary>
         public Font Font;
+
+        /// <summary>
+        /// Respaldo: NO cargar ninguna escena. Funde al color, muestra el texto
+        /// (si hay) y se queda asi, con la mirada bloqueada. Lo usa
+        /// FaintTransition cuando la escena destino no esta en Build Settings
+        /// (por ejemplo, un build de prueba sin el Menu): mejor una pantalla de
+        /// "fin" que dejar al jugador trabado a medias (ojos cerrados, cayendo,
+        /// encandilado). Si otra cosa cambia de escena, el overlay se va solo.
+        /// false = comportamiento de siempre (carga SceneName).
+        /// </summary>
+        public bool StayCovered;
     }
 
     // Esfera en 4999 y texto en 5000: los dos por encima del reticle y del
@@ -473,6 +488,13 @@ public class FaintOverlay : MonoBehaviour
         PlayClip(_s.ImpactClip);
         yield return Fade(0f, 1f, Mathf.Max(0.01f, _s.FadeOutDuration));
 
+        // Respaldo sin escena destino: quedarse tapado con el texto (ver StayCovered).
+        if (_s.StayCovered)
+        {
+            yield return HoldCovered();
+            yield break;
+        }
+
         // 2. Cargar la escena siguiente en segundo plano, con la pantalla tapada.
         AsyncOperation op = null;
         try
@@ -554,6 +576,28 @@ public class FaintOverlay : MonoBehaviour
             waited += Time.unscaledDeltaTime;
             yield return null;
         }
+        Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Pantalla tapada "para siempre": muestra el texto y espera. La mirada
+    /// sigue bloqueada (la bloqueo FaintTransition al disparar) e IsRunning
+    /// sigue en true, asi ningun otro desmayo se superpone. Si algo externo
+    /// cambia la escena activa, se libera y se destruye para no tapar la nueva.
+    /// </summary>
+    private IEnumerator HoldCovered()
+    {
+        if (_text != null)
+        {
+            yield return FadeText(0f, 1f, TextFadeSeconds);
+        }
+        Debug.Log("[FaintOverlay] Sin escena destino: la pantalla queda tapada (respaldo).");
+        Scene start = SceneManager.GetActiveScene();
+        while (SceneManager.GetActiveScene() == start)
+        {
+            yield return null;
+        }
+        Release();
         Destroy(gameObject);
     }
 
