@@ -2447,7 +2447,7 @@ GameObject:
   - component: {fileID: 830618237}
   - component: {fileID: 830618238}
   m_Layer: 0
-  m_Name: Desmayo -> Parte 3 (temporal, saltea Parte 2)
+  m_Name: Desmayo -> Parte 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2480,7 +2480,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87a6d01eeef2ba946a0cefb07ba2855e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FaintTransition
-  _nextSceneName: Parte 3 - Pasillo de hotel
+  _nextSceneName: "Parte 2 - Cumplea\xF1os"
   _preDelay: 3.5
   _flickerLights:
   - {fileID: 1642131645}
@@ -2502,8 +2502,8 @@ MonoBehaviour:
   _wakeClip: {fileID: 8300000, guid: b992a05212fb5be4281df906b6cc4d6b, type: 3}
   _overlayMaterial: {fileID: 2100000, guid: de06af1d2ea04ac41bb717307792f905, type: 2}
   _showLevelText: 1
-  _levelTitle: PARTE 3
-  _levelSubtitle: "LA PERSECUCI\xD3N"
+  _levelTitle: PARTE 2
+  _levelSubtitle: "EL CUMPLEA\xD1OS"
   _levelFont: {fileID: 12800000, guid: e717b7083d279f84ebbe62781798cd3f, type: 3}
   _holdIfSceneMissing: 1
 --- !u!1 &879110636
