@@ -93,6 +93,7 @@ public class MonsterChaser : MonoBehaviour
     private float _walkStartTime;
     private readonly List<Vector3> _trail = new List<Vector3>();
     private float _bobBaseLocalY;
+    private Coroutine _loopFade;
 
     private void Awake()
     {
@@ -153,7 +154,10 @@ public class MonsterChaser : MonoBehaviour
     {
         _chasing = false;
         enabled = false;
+        if (_loopFade != null) { StopCoroutine(_loopFade); _loopFade = null; }
         if (_chaseLoop != null) _chaseLoop.Stop();
+        if (_appearAudioSource != null) _appearAudioSource.Stop();
+        StopWalkAnimation();
         Debug.Log("[MonsterChaser] Persecucion cortada (llegaste a la salida).");
     }
 
@@ -240,13 +244,50 @@ public class MonsterChaser : MonoBehaviour
             _visualRoot.localPosition = new Vector3(lp.x, _bobBaseLocalY + bob, lp.z);
         }
 
-        if (distToPlayer <= _catchDistance)
+        // No se chequea la captura durante la espera inicial (parado).
+        if (walking && distToPlayer <= _catchDistance)
         {
             _caught = true;
             _chasing = false;
+            // Deja de moverse (Update ya no corre) y funde el loop de persecucion.
+            StopWalkAnimation();
+            if (_chaseLoop != null && _chaseLoop.isPlaying)
+            {
+                _loopFade = StartCoroutine(FadeOutLoop(0.5f));
+            }
             Debug.Log("[MonsterChaser] Te alcanzo.");
             _onCaught?.Invoke();
         }
+    }
+
+    /// <summary>Baja el volumen del loop de persecucion y lo corta (tiempo real).</summary>
+    private System.Collections.IEnumerator FadeOutLoop(float seconds)
+    {
+        AudioSource src = _chaseLoop;
+        float v0 = src.volume;
+        float e = 0f;
+        while (e < seconds && src != null)
+        {
+            e += Time.unscaledDeltaTime;
+            src.volume = Mathf.Lerp(v0, 0f, e / seconds);
+            yield return null;
+        }
+        if (src != null)
+        {
+            src.Stop();
+            src.volume = v0; // restaurar por si se reusa
+        }
+        _loopFade = null;
+    }
+
+    private void StopWalkAnimation()
+    {
+        if (_animator != null)
+        {
+            if (HasParam(_animSpeedParam)) _animator.SetFloat(_animSpeedParam, 0f);
+            if (HasParam(_animWalkParam)) _animator.SetBool(_animWalkParam, false);
+        }
+        if (_legacyAnimation != null && _legacyAnimation.isPlaying) _legacyAnimation.Stop();
     }
 
     private float LowestRendererY()

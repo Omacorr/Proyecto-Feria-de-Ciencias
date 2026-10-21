@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 /// <summary>
@@ -33,6 +34,9 @@ public class SecurityFootage : MonoBehaviour
 
     [Tooltip("Renderer de la pantalla de la tele. El script le asigna el RenderTexture y le prende la emision.")]
     [SerializeField] private Renderer _tvScreen;
+
+    [Tooltip("Opcional: material Unlit para la pantalla. Si se asigna se usa una COPIA (no se modifica el asset) en vez de crear uno con Shader.Find. Recomendado: asignarlo para que el shader entre al APK.")]
+    [SerializeField] private Material _screenMaterial;
 
     [SerializeField] private int _textureWidth = 640;
     [SerializeField] private int _textureHeight = 480;
@@ -81,6 +85,7 @@ public class SecurityFootage : MonoBehaviour
     private RawImage _staticImg;
     private Image _vignette;
     private Texture2D _noiseTex;
+    private Color32[] _noisePixels; // cache: no alocar por frame
 
     private Vector3 _camBasePos;
     private Vector3 _monsterBasePos;
@@ -99,6 +104,14 @@ public class SecurityFootage : MonoBehaviour
         {
             _footageCamera.targetTexture = _rt;
             _footageCamera.enabled = false;
+            // Camara de grabacion: no debe renderizar en los ojos (XR), ni sombras, ni HDR.
+            _footageCamera.allowHDR = false;
+            UniversalAdditionalCameraData ucd = _footageCamera.GetUniversalAdditionalCameraData();
+            if (ucd != null)
+            {
+                ucd.allowXRRendering = false;
+                ucd.renderShadows = false;
+            }
             _camBasePos = _footageCamera.transform.localPosition;
         }
         if (_monster != null)
@@ -127,14 +140,32 @@ public class SecurityFootage : MonoBehaviour
             // _BaseColorMap / emissiveTexture, no _BaseMap), le pongo un
             // material Unlit nuevo que solo muestra el RenderTexture. Unlit =
             // siempre a full brillo, se lee como una pantalla encendida.
-            Shader sh = Shader.Find("Universal Render Pipeline/Unlit");
-            if (sh == null) sh = Shader.Find("Unlit/Texture");
-            if (sh == null) sh = Shader.Find("Sprites/Default");
-            _screenMat = new Material(sh) { name = "SecurityFootage_ScreenMat" };
-            if (_screenMat.HasProperty(BaseMapId)) _screenMat.SetTexture(BaseMapId, _rt);
-            if (_screenMat.HasProperty(MainTexId)) _screenMat.SetTexture(MainTexId, _rt);
-            _tvScreen.material = _screenMat;
-            SetScreenBlack(true); // apagada hasta Play()
+            if (_screenMaterial != null)
+            {
+                _screenMat = new Material(_screenMaterial) { name = "SecurityFootage_ScreenMat" };
+            }
+            else
+            {
+                Shader sh = Shader.Find("Universal Render Pipeline/Unlit");
+                if (sh == null) sh = Shader.Find("Unlit/Texture");
+                if (sh == null) sh = Shader.Find("Sprites/Default");
+                if (sh != null)
+                {
+                    _screenMat = new Material(sh) { name = "SecurityFootage_ScreenMat" };
+                }
+                else
+                {
+                    Debug.LogError("[SecurityFootage] No se encontro ningun shader Unlit (Shader.Find devolvio null; en el APK pasa si el shader no esta en el build). Asigna 'Screen Material' en el Inspector. La pantalla no se va a ver.");
+                }
+            }
+
+            if (_screenMat != null)
+            {
+                if (_screenMat.HasProperty(BaseMapId)) _screenMat.SetTexture(BaseMapId, _rt);
+                if (_screenMat.HasProperty(MainTexId)) _screenMat.SetTexture(MainTexId, _rt);
+                _tvScreen.material = _screenMat;
+                SetScreenBlack(true); // apagada hasta Play()
+            }
         }
 
         BuildOverlay();
@@ -176,6 +207,8 @@ public class SecurityFootage : MonoBehaviour
     private void OnDestroy()
     {
         if (_rt != null) _rt.Release();
+        if (_screenMat != null) Destroy(_screenMat);
+        if (_noiseTex != null) Destroy(_noiseTex);
     }
 
     public void Play()
@@ -370,7 +403,11 @@ public class SecurityFootage : MonoBehaviour
     private void RefreshNoise()
     {
         if (_noiseTex == null) return;
-        Color32[] px = new Color32[_noiseTex.width * _noiseTex.height];
+        if (_noisePixels == null || _noisePixels.Length != _noiseTex.width * _noiseTex.height)
+        {
+            _noisePixels = new Color32[_noiseTex.width * _noiseTex.height];
+        }
+        Color32[] px = _noisePixels;
         for (int i = 0; i < px.Length; i++)
         {
             byte v = (byte)Random.Range(0, 255);

@@ -40,7 +40,7 @@ public class ChaseReveal : MonoBehaviour
     [SerializeField] private Transform _monsterRevealPoint;
 
     [Tooltip("Si no hay _monsterRevealPoint: a cuantos metros detras del jugador aparece el monstruo.")]
-    [SerializeField] private float _spawnBehindDistance = 3f;
+    [SerializeField] private float _spawnBehindDistance = 6f;
 
     [Tooltip("Si no hay _monsterRevealPoint: altura de ojos del jugador (para calcular el piso = camara.y - esto).")]
     [SerializeField] private float _eyeHeight = 1.6f;
@@ -93,6 +93,18 @@ public class ChaseReveal : MonoBehaviour
         if (_stingerSource != null && _stingerClip != null)
         {
             _stingerSource.PlayOneShot(_stingerClip);
+        }
+
+        // Si hay un fundido en curso (p.ej. otra transicion), esperar a que termine
+        // (con tope de 4 s para no trabarse).
+        if (_fade != null)
+        {
+            float waited = 0f;
+            while (_fade.IsFading && waited < 4f)
+            {
+                waited += Time.unscaledDeltaTime;
+                yield return null;
+            }
         }
 
         if (_blink && _fade != null)
