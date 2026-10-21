@@ -14,17 +14,17 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 1
+  m_Fog: 0
   m_FogColor: {r: 0.03, g: 0.03, b: 0.035, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.012
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.0014738272, g: 0.012303286, b: 0.03396219, a: 1}
+  m_AmbientSkyColor: {r: 0, g: 0, b: 0, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 0
-  m_AmbientMode: 0
+  m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
@@ -373,9 +373,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &91125736
@@ -388,7 +388,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 30
@@ -609,9 +609,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &103608357
@@ -624,7 +624,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -990,7 +990,43 @@ MonoBehaviour:
   _loopOnlyWhenMovingAway: 1
   _onLoop:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 484928977}
+        m_TargetAssemblyTypeName: ExamineScareSounds, Assembly-CSharp
+        m_MethodName: PlayWhisperNow
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1413327620}
+        m_TargetAssemblyTypeName: FlickeringLight, Assembly-CSharp
+        m_MethodName: Burst
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0.8
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 746076600}
+        m_TargetAssemblyTypeName: CountedEvent, Assembly-CSharp
+        m_MethodName: Count
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _audioSource: {fileID: 0}
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
@@ -1650,10 +1686,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.5
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
-  _blackoutMaxDuration: 0.08
+  _blackoutChancePerSecond: 0.6
+  _blackoutMaxDuration: 0.25
   _burstStepSeconds: 0.05
 --- !u!108 &272985174
 Light:
@@ -1665,7 +1701,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -1840,18 +1876,19 @@ MonoBehaviour:
   _onCollapseStart:
     m_PersistentCalls:
       m_Calls: []
-  _color: {r: 1, g: 0.93, b: 0.7, a: 1}
+  _color: {r: 1, g: 0.8, b: 0.35, a: 1}
   _fadeOutDuration: 1.5
-  _impactClip: {fileID: 0}
+  _impactClip: {fileID: 8300000, guid: 3bae69bcb2db0d8459108b506a5c420f, type: 3}
   _holdSeconds: 2.5
   _wakeDuration: 1.2
   _blinkOnWake: 1
-  _wakeClip: {fileID: 0}
+  _wakeClip: {fileID: 8300000, guid: b992a05212fb5be4281df906b6cc4d6b, type: 3}
   _overlayMaterial: {fileID: 2100000, guid: de06af1d2ea04ac41bb717307792f905, type: 2}
   _showLevelText: 1
   _levelTitle: PARTE 5
   _levelSubtitle: "LA REVELACI\xD3N"
   _levelFont: {fileID: 12800000, guid: e717b7083d279f84ebbe62781798cd3f, type: 3}
+  _holdIfSceneMissing: 1
 --- !u!4 &345322743
 Transform:
   m_ObjectHideFlags: 0
@@ -2513,9 +2550,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &463195205
@@ -2528,7 +2565,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -2583,6 +2620,74 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &484928976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 484928978}
+  - component: {fileID: 484928977}
+  m_Layer: 0
+  m_Name: Sustos (ambiente)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &484928977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484928976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f68ea61d3a7242345ac7ae3fc4ebeb35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExamineScareSounds
+  _listener: {fileID: 5995292811635599941}
+  _footstepsClip: {fileID: 8300000, guid: 929dc52dfa22a2d46bb47f28e5cea9d3, type: 3}
+  _footstepsVolume: 0.85
+  _footstepsSeconds: {x: 2.5, y: 4}
+  _footstepsDistance: {x: 4, y: 7}
+  _footstepsApproach: 1.8
+  _footstepsPitch: 0.85
+  _whisperClips:
+  - {fileID: 8300000, guid: 7b07a597e2393f34c8a85136c40ee008, type: 3}
+  - {fileID: 8300000, guid: 2795696d74dd68b46b3b412f39b34e7b, type: 3}
+  - {fileID: 8300000, guid: 296c50c84a6d78e458bbe17e7b9868ca, type: 3}
+  - {fileID: 8300000, guid: b992a05212fb5be4281df906b6cc4d6b, type: 3}
+  _whisperVolume: 0.9
+  _whisperEarDistance: 0.35
+  _distantClips:
+  - {fileID: 8300000, guid: d32cc3517bd32174cbd98ac29ff74210, type: 3}
+  - {fileID: 8300000, guid: e7043656bc601674589fec15d9f1150d, type: 3}
+  - {fileID: 8300000, guid: 37347bc267efffb4ca6b999b934ff896, type: 3}
+  _distantVolume: 0.8
+  _distantDistance: {x: 8, y: 18}
+  _startOnPlay: 1
+  _firstDelay: {x: 12, y: 20}
+  _gap: {x: 22, y: 38}
+  _whisperChance: 0.3
+--- !u!4 &484928978
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484928976}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &485375980
 GameObject:
   m_ObjectHideFlags: 0
@@ -2901,9 +3006,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &601043825
@@ -2916,7 +3021,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 30
@@ -3780,6 +3885,177 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &746076599
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 746076602}
+  - component: {fileID: 746076601}
+  - component: {fileID: 746076600}
+  m_Layer: 0
+  m_Name: Golpes tras la pintura (pista)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &746076600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746076599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c18e6c986de06634b91b2734f36f1499, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CountedEvent
+  _threshold: 2
+  _repeatEvery: 2
+  _onReached:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 746076601}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2087878502}
+        m_TargetAssemblyTypeName: FlickeringLight, Assembly-CSharp
+        m_MethodName: Burst
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 1.5
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!82 &746076601
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746076599}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 8231173ce68f2e748aba312159b10569, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 10
+  MaxDistance: 40
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &746076602
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 746076599}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -27.66, y: 10.5, z: -203.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &749538979
 Mesh:
   m_ObjectHideFlags: 0
@@ -4185,9 +4461,9 @@ MonoBehaviour:
   _panelInset: 0.05
   _uvPerMeter: {x: 0.07447, y: -0.11033}
   _uvOffset: {x: 0.51984, y: 1.15433}
-  _lightColor: {r: 1, g: 0.85, b: 0.45, a: 1}
-  _glowMax: 12
-  _lightMaxIntensity: 60
+  _lightColor: {r: 1, g: 0.78, b: 0.32, a: 1}
+  _glowMax: 2
+  _lightMaxIntensity: 12
   _lightMaxRange: 25
   _lightOffset: 0.5
   _crackTime: 1.5
@@ -4195,7 +4471,7 @@ MonoBehaviour:
   _lightRampTime: 2.5
   _pullDistance: 2.5
   _shakeAmount: 0.03
-  _collapseClip: {fileID: 0}
+  _collapseClip: {fileID: 8300000, guid: 4298b6b2b8b00124ba28ab13b007152d, type: 3}
   _checkPlacementInEditor: 1
 --- !u!1 &850500371
 GameObject:
@@ -4638,9 +4914,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &964517746
@@ -4653,7 +4929,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -5108,9 +5384,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1045048408
@@ -5123,7 +5399,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 30
@@ -5854,9 +6130,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1253171978
@@ -5869,7 +6145,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 30
@@ -6911,9 +7187,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1389811819
@@ -6926,7 +7202,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -7057,10 +7333,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.5
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
-  _blackoutMaxDuration: 0.08
+  _blackoutChancePerSecond: 0.6
+  _blackoutMaxDuration: 0.25
   _burstStepSeconds: 0.05
 --- !u!108 &1413327621
 Light:
@@ -7072,7 +7348,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 30
@@ -7235,9 +7511,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1442399203
@@ -7250,7 +7526,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -7772,9 +8048,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1509084254
@@ -7787,7 +8063,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 30
@@ -9236,9 +9512,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1766461156
@@ -9251,7 +9527,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -9682,9 +9958,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1781124733
@@ -9697,7 +9973,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 30
@@ -9860,9 +10136,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1826621308
@@ -9875,7 +10151,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -10216,9 +10492,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &1891887466
@@ -10231,7 +10507,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 30
@@ -11836,9 +12112,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 1.5
-  _flickerAmount: 0.35
+  _flickerAmount: 0.15
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.04
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!108 &2087878503
@@ -11851,7 +12127,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 0.90188676, g: 0.90188676, b: 0.90188676, a: 1}
+  m_Color: {r: 1, g: 0.72, b: 0.45, a: 1}
   m_Intensity: 1.5
   m_Range: 20
   m_SpotAngle: 74.40826
@@ -12677,7 +12953,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0.019607844}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -22219,7 +22495,7 @@ MonoBehaviour:
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
-  m_Dithering: 0
+  m_Dithering: 1
   m_ClearDepth: 1
   m_AllowXRRendering: 1
   m_AllowHDROutput: 1
@@ -27163,7 +27439,7 @@ Light:
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -29218,9 +29494,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlickeringLight
   _baseIntensity: 40
-  _flickerAmount: 0.35
+  _flickerAmount: 0.06
   _flickerSpeed: 8
-  _blackoutChancePerSecond: 0.25
+  _blackoutChancePerSecond: 0.03
   _blackoutMaxDuration: 0.08
   _burstStepSeconds: 0.05
 --- !u!114 &6563634393484590817
@@ -36020,3 +36296,5 @@ SceneRoots:
   - {fileID: 1360745874}
   - {fileID: 1545687697}
   - {fileID: 850500374}
+  - {fileID: 484928978}
+  - {fileID: 746076602}
