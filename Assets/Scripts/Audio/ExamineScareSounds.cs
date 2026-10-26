@@ -63,6 +63,9 @@ public class ExamineScareSounds : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float _whisperChance = 0.5f;
 
+    [Tooltip("Máximo de sustos por StartScares (0 = sin límite). Con 1 suena una sola vez mientras se examina.")]
+    [SerializeField] private int _maxSounds = 0;
+
     private AudioSource _steps;
     private AudioSource _whisper;
     private AudioSource _distant;
@@ -75,6 +78,8 @@ public class ExamineScareSounds : MonoBehaviour
     private float _whisperSide = 1f;
     private int _sameKindStreak;
     private bool _lastWasWhisper;
+    // Sonidos reproducidos por el loop desde el ultimo StartScares (los PlayXNow no cuentan).
+    private int _soundsPlayed;
 
     public bool IsRunning => _loop != null;
 
@@ -181,6 +186,7 @@ public class ExamineScareSounds : MonoBehaviour
             return;
         }
         _sameKindStreak = 0;
+        _soundsPlayed = 0;
         _loop = StartCoroutine(Loop());
     }
 
@@ -251,6 +257,14 @@ public class ExamineScareSounds : MonoBehaviour
             // Si hay sonidos lejanos, uno de cada tres turnos (aprox.) es uno de esos.
             bool distant = canDistant && ((!canWhisper && !canSteps) || Random.value < 0.34f);
             float duration = distant ? PlayDistant() : (whisper ? PlayWhisper() : PlayFootsteps());
+            _soundsPlayed++;
+            if (_maxSounds > 0 && _soundsPlayed >= _maxSounds)
+            {
+                // Llegó al tope: espera a que termine el sonido y no programa más.
+                yield return new WaitForSeconds(duration);
+                _loop = null;
+                yield break;
+            }
             yield return new WaitForSeconds(duration + Random.Range(_gap.x, _gap.y));
         }
     }

@@ -77,10 +77,60 @@ public class AbyssFall : MonoBehaviour
     [Tooltip("Se dispara apenas empieza la caida (antes del Hang Time). Opcional: un grito del monstruo, apagar luces, etc.")]
     [SerializeField] private UnityEvent _onFallStart;
 
+    [Header("Vista de la caida: referencias en las paredes")]
+    [Tooltip("Arma tiras (vigas/grietas) en las paredes del pozo, BAJO el nivel del piso, para que se perciba el movimiento al mirar hacia adelante. Es UNA sola malla con un submesh por tramo de profundidad (pocos draw calls). Usa Void Shader: sin luz y sin niebla.")]
+    [SerializeField] private bool _wallBands = true;
+    [Tooltip("Metros entre vigas horizontales (con algo de desorden).")]
+    [SerializeField, Min(0.5f)] private float _bandSpacing = 2f;
+    [Tooltip("Alto de cada viga (metros).")]
+    [SerializeField, Min(0.02f)] private float _bandHeight = 0.22f;
+    [Tooltip("Cuanto se separan de la pared hacia adentro del pozo (evita el z-fighting con la pared negra).")]
+    [SerializeField, Min(0.02f)] private float _bandInset = 0.07f;
+    [Tooltip("Metros bajo el piso donde empieza la primera viga (para no cambiar lo que se ve desde el pasillo).")]
+    [SerializeField, Min(0f)] private float _bandStartBelowFloor = 0.8f;
+    [Tooltip("Color de las vigas arriba del pozo (HDR; gris pardo oscuro). Se oscurece con la profundidad hasta casi negro.")]
+    [ColorUsage(false, true)]
+    [SerializeField] private Color _bandColor = new Color(0.16f, 0.12f, 0.09f, 1f);
+    [Tooltip("Cantidad de tramos de profundidad (cada uno es un submesh/material con un color mas oscuro).")]
+    [SerializeField, Range(1, 8)] private int _depthTiers = 4;
+    [Tooltip("Grietas verticales al azar repartidas por las paredes (0 = ninguna).")]
+    [SerializeField, Min(0)] private int _crackCount = 24;
+    [Tooltip("Semilla del desorden: el mismo valor da siempre el mismo pozo.")]
+    [SerializeField] private int _randomSeed = 7;
+
+    [Header("Vista de la caida: polvo y escombros")]
+    [Tooltip("Particulas de polvo que acompanan a la camara durante la caida (se ven subir). Se crean por codigo.")]
+    [SerializeField] private bool _dust = true;
+    [Tooltip("Material de las particulas (Particles/Unlit de URP, de preferencia). Asignarlo: sin esto se usa Shader.Find (gotcha #25) y, si falla, un cuadradito de Void Shader.")]
+    [SerializeField] private Material _dustMaterial;
+    [Tooltip("Cantidad maxima de particulas vivas.")]
+    [SerializeField, Range(8, 120)] private int _dustMaxParticles = 48;
+    [Tooltip("Tamano de cada particula (metros).")]
+    [SerializeField, Min(0.005f)] private float _dustSize = 0.05f;
+    [ColorUsage(false, true)]
+    [SerializeField] private Color _dustColor = new Color(0.45f, 0.38f, 0.30f, 1f);
+
+    [Header("Vista de la caida: camara")]
+    [Tooltip("Grados que se inclina la vista hacia ARRIBA al empezar a caer, para que se vea el vano alejandose. 0 = no inclina.")]
+    [SerializeField, Range(0f, 60f)] private float _lookUpPitch = 25f;
+    [Tooltip("Segundos que tarda en inclinarse.")]
+    [SerializeField, Min(0.01f)] private float _pitchSeconds = 0.4f;
+    [Tooltip("Sacudida de camara al empezar (metros de desplazamiento maximo). 0 = ninguna.")]
+    [SerializeField, Min(0f)] private float _shakeAmount = 0.06f;
+    [Tooltip("Segundos que dura la sacudida (decae sola).")]
+    [SerializeField, Min(0.01f)] private float _shakeSeconds = 0.5f;
+
     private bool _falling;
     private bool _armed;
     private Quaternion _doorClosedRotation;
     private GameObject _plug;
+    private Transform _cam;
+    private Transform _camOriginalParent;
+    private Transform _pivot;
+    private GameObject _dustObject;
+    private Material _dustFallbackMat;
+    private Material[] _bandMaterials;
+    private Material _voidMaterial;
 
     private void Start()
     {
@@ -107,6 +157,14 @@ public class AbyssFall : MonoBehaviour
             {
                 Debug.Log("[AbyssFall] Entry Point queda apagado hasta que algo llame Arm() (no hay Door To Watch asignado).");
             }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (_dustObject != null && _cam != null)
+        {
+            _dustObject.transform.position = _cam.position;
         }
     }
 
@@ -186,6 +244,7 @@ public class AbyssFall : MonoBehaviour
                 c.backgroundColor = Color.black;
             }
             StartCoroutine(Fall(cam));
+            StartDust();
         }
 
         if (_fallClip != null)
@@ -208,19 +267,306 @@ public class AbyssFall : MonoBehaviour
 
     private IEnumerator Fall(Transform cam)
     {
-        if (_hangTime > 0f)
-        {
-            yield return new WaitForSeconds(_hangTime);
-        }
+        // Pivote temporal: el TrackedPoseDriver pisa la rotacion LOCAL de la
+        // camara en cada frame, asi que la inclinacion y la sacudida se aplican
+        // a un padre vacio (la camara conserva su pose mundial al reparentarse).
+        _cam = cam;
+        _camOriginalParent = cam.parent;
+        GameObject pivotGo = new GameObject("Pivote de caida (generado)");
+        _pivot = pivotGo.transform;
+        _pivot.SetParent(_camOriginalParent, true);
+        _pivot.position = cam.position;
+        _pivot.localRotation = Quaternion.identity; // igual que el padre original: la rotacion local de la camara sigue valiendo
+        cam.SetParent(_pivot, true);
+
+        Vector3 basePos = _pivot.position;
         float velocity = 0f;
         float floorY = transform.position.y;
         float bottom = floorY - _depth + 1f;
-        while (cam != null && cam.position.y > bottom)
+        float t = 0f;
+        float hangLeft = _hangTime;
+
+        while (_pivot != null && basePos.y > bottom)
         {
-            velocity += _gravity * Time.deltaTime;
-            cam.position += Vector3.down * velocity * Time.deltaTime;
+            float dt = Time.deltaTime;
+            t += dt;
+
+            // Inclinacion hacia arriba, sobre el eje "derecha" horizontal segun
+            // hacia donde mira la cabeza (si no, mirando de costado seria un roll).
+            if (_lookUpPitch > 0f)
+            {
+                float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / _pitchSeconds));
+                Quaternion yaw = Quaternion.Euler(0f, cam.localEulerAngles.y, 0f);
+                _pivot.localRotation = Quaternion.AngleAxis(-_lookUpPitch * k, yaw * Vector3.right);
+            }
+
+            if (hangLeft > 0f)
+            {
+                hangLeft -= dt;
+            }
+            else
+            {
+                velocity += _gravity * dt;
+                basePos += Vector3.down * velocity * dt;
+            }
+
+            Vector3 shake = Vector3.zero;
+            if (_shakeAmount > 0f && t < _shakeSeconds)
+            {
+                float decay = 1f - t / _shakeSeconds;
+                shake = Random.insideUnitSphere * (_shakeAmount * decay);
+            }
+            _pivot.position = basePos + shake;
             yield return null;
         }
+    }
+
+    private void OnDestroy()
+    {
+        // Entregar la camara a su padre original (si sigue viva) antes de que
+        // se destruya el pivote; seguro si la escena se esta descargando.
+        if (_cam != null && _pivot != null && _cam.parent == _pivot)
+        {
+            _cam.SetParent(_camOriginalParent, true);
+        }
+        if (_pivot != null)
+        {
+            Destroy(_pivot.gameObject);
+        }
+        if (_dustObject != null)
+        {
+            Destroy(_dustObject);
+        }
+        if (_dustFallbackMat != null)
+        {
+            Destroy(_dustFallbackMat);
+        }
+        if (_voidMaterial != null)
+        {
+            Destroy(_voidMaterial);
+        }
+        if (_bandMaterials != null)
+        {
+            foreach (Material m in _bandMaterials)
+            {
+                if (m != null)
+                {
+                    Destroy(m);
+                }
+            }
+        }
+    }
+
+    // ---------------- Polvo ----------------
+
+    private void StartDust()
+    {
+        if (!_dust)
+        {
+            return;
+        }
+        Material mat = ResolveDustMaterial();
+        if (mat == null)
+        {
+            return;
+        }
+
+        _dustObject = new GameObject("Polvo de caida (generado)");
+        // El emisor sigue la POSICION de la camara (ver LateUpdate) pero no su
+        // rotacion, para que la caja de emision quede siempre "hacia abajo".
+        // Las particulas se simulan en espacio MUNDO: quedan quietas y la
+        // camara las pasa, asi que se ven subir.
+        if (_cam != null)
+        {
+            _dustObject.transform.position = _cam.position;
+        }
+        _dustObject.transform.rotation = Quaternion.identity;
+
+        ParticleSystem ps = _dustObject.AddComponent<ParticleSystem>();
+        ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+        ParticleSystem.MainModule main = ps.main;
+        main.loop = true;
+        main.playOnAwake = false;
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.8f, 1.5f);
+        main.startSpeed = 0f;
+        main.startSize = new ParticleSystem.MinMaxCurve(_dustSize * 0.5f, _dustSize);
+        main.startColor = _dustColor;
+        main.maxParticles = _dustMaxParticles;
+        main.gravityModifier = 0f;
+
+        ParticleSystem.EmissionModule em = ps.emission;
+        em.rateOverTime = _dustMaxParticles * 0.8f;
+
+        // Caja delante de la caida (hacia abajo) y dentro del ancho del pozo.
+        ParticleSystem.ShapeModule shape = ps.shape;
+        shape.enabled = true;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        float side = Mathf.Max(0.5f, Mathf.Min(_width, _length) - 0.4f);
+        shape.scale = new Vector3(side, 10f, side);
+        shape.position = new Vector3(0f, -7f, 0f);
+        shape.rotation = Vector3.zero;
+
+        ParticleSystemRenderer pr = _dustObject.GetComponent<ParticleSystemRenderer>();
+        pr.sharedMaterial = mat;
+        pr.renderMode = ParticleSystemRenderMode.Billboard;
+        pr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        pr.receiveShadows = false;
+
+        ps.Play();
+    }
+
+    private Material ResolveDustMaterial()
+    {
+        if (_dustMaterial != null)
+        {
+            return _dustMaterial;
+        }
+        Debug.LogWarning("[AbyssFall] Falta asignar Dust Material: uso Shader.Find('Universal Render Pipeline/Particles/Unlit'), que puede devolver null en el APK (gotcha #25).");
+        Shader sh = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+        if (sh != null)
+        {
+            _dustFallbackMat = new Material(sh);
+            _dustFallbackMat.SetColor("_BaseColor", Color.white);
+            return _dustFallbackMat;
+        }
+        if (_voidShader != null)
+        {
+            // Ultimo recurso (el shader esta serializado, siempre esta en el build):
+            // cuadraditos opacos de un solo color.
+            _dustFallbackMat = new Material(_voidShader);
+            _dustFallbackMat.SetColor("_Color", _dustColor);
+            return _dustFallbackMat;
+        }
+        Debug.LogWarning("[AbyssFall] Sin shader para el polvo: no se crean particulas.");
+        return null;
+    }
+
+    // ---------------- Vigas y grietas ----------------
+
+    /// <summary>
+    /// Una sola malla con quads (un submesh por tramo de profundidad) sobre las
+    /// paredes del pozo. Local: Z hacia adentro, Y arriba, piso en Y = 0.
+    /// </summary>
+    private void BuildBands(Transform root)
+    {
+        int tiers = Mathf.Clamp(_depthTiers, 1, 8);
+        var verts = new List<Vector3>();
+        var tris = new List<int>[tiers];
+        for (int i = 0; i < tiers; i++)
+        {
+            tris[i] = new List<int>();
+        }
+
+        float hw = _width / 2f - 0.05f - _bandInset; // cara interior de las paredes laterales, hacia adentro
+        float zBack = _length - 0.05f - _bandInset;
+        float zFront = 0.1f + _bandInset;            // cara interior del lado de la puerta
+        float yTop = -_bandStartBelowFloor;
+        float yBottom = -_depth + 1f;
+        float span = Mathf.Max(0.01f, yTop - yBottom);
+        var rng = new System.Random(_randomSeed);
+
+        System.Func<double> rnd = () => rng.NextDouble();
+
+        // Vigas horizontales: cada _bandSpacing, con desorden; cada pared tiene
+        // las suyas, a veces cortadas (no cubren todo el ancho).
+        for (float y = yTop; y > yBottom; y -= _bandSpacing * (0.6f + (float)rnd() * 0.8f))
+        {
+            int tier = Mathf.Min(tiers - 1, (int)((yTop - y) / span * tiers));
+            float h = _bandHeight * (0.6f + (float)rnd() * 0.9f);
+            for (int wall = 0; wall < 4; wall++)
+            {
+                if (rnd() < 0.15)
+                {
+                    continue; // hueco: no todas las paredes tienen viga en cada nivel
+                }
+                float len = (wall < 2 ? _length : _width) - 0.4f;
+                float a = (float)rnd() * 0.35f;
+                float b = 1f - (float)rnd() * 0.35f;
+                float u0 = -len / 2f + len * a;
+                float u1 = -len / 2f + len * b;
+                AddWallQuad(verts, tris[tier], wall, hw, zBack, zFront, u0, u1, y - h, y);
+            }
+        }
+
+        // Grietas verticales.
+        for (int i = 0; i < _crackCount; i++)
+        {
+            int wall = rng.Next(0, 4);
+            float len = (wall < 2 ? _length : _width) - 0.4f;
+            float u = -len / 2f + (float)rnd() * len;
+            float cl = 1f + (float)rnd() * 3f;
+            float yTopC = yTop - (float)rnd() * (span - cl);
+            int tier = Mathf.Min(tiers - 1, (int)((yTop - yTopC) / span * tiers));
+            float wdt = 0.03f + (float)rnd() * 0.04f;
+            AddWallQuad(verts, tris[tier], wall, hw, zBack, zFront, u - wdt, u + wdt, yTopC - cl, yTopC);
+        }
+
+        var mesh = new Mesh { name = "Vigas del pozo (generado)" };
+        mesh.SetVertices(verts);
+        mesh.subMeshCount = tiers;
+        for (int i = 0; i < tiers; i++)
+        {
+            mesh.SetTriangles(tris[i], i);
+        }
+        mesh.RecalculateBounds();
+
+        _bandMaterials = new Material[tiers];
+        for (int i = 0; i < tiers; i++)
+        {
+            // Cuanto mas hondo, mas oscuro (hasta casi negro): el fondo se pierde.
+            float k = 1f - (i / (float)tiers);
+            _bandMaterials[i] = new Material(_voidShader);
+            _bandMaterials[i].SetColor("_Color", _bandColor * (k * k));
+        }
+
+        GameObject go = new GameObject("Vigas del pozo");
+        go.transform.SetParent(root, false);
+        go.AddComponent<MeshFilter>().sharedMesh = mesh;
+        MeshRenderer mr = go.AddComponent<MeshRenderer>();
+        mr.sharedMaterials = _bandMaterials;
+        mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        mr.receiveShadows = false;
+    }
+
+    /// <summary>
+    /// Pared 0 = izquierda, 1 = derecha, 2 = fondo, 3 = lado de la puerta.
+    /// u recorre la pared (Z en las laterales, X en fondo/puerta).
+    /// </summary>
+    private static void AddWallQuad(List<Vector3> v, List<int> t, int wall, float hw, float zBack, float zFront, float u0, float u1, float y0, float y1)
+    {
+        Vector3 a, b, c, d;
+        switch (wall)
+        {
+            case 0:
+                a = new Vector3(-hw, y0, ZAlong(u0, zBack, zFront)); b = new Vector3(-hw, y0, ZAlong(u1, zBack, zFront));
+                c = new Vector3(-hw, y1, ZAlong(u1, zBack, zFront)); d = new Vector3(-hw, y1, ZAlong(u0, zBack, zFront));
+                break;
+            case 1:
+                a = new Vector3(hw, y0, ZAlong(u0, zBack, zFront)); b = new Vector3(hw, y0, ZAlong(u1, zBack, zFront));
+                c = new Vector3(hw, y1, ZAlong(u1, zBack, zFront)); d = new Vector3(hw, y1, ZAlong(u0, zBack, zFront));
+                break;
+            case 2:
+                a = new Vector3(u0, y0, zBack); b = new Vector3(u1, y0, zBack);
+                c = new Vector3(u1, y1, zBack); d = new Vector3(u0, y1, zBack);
+                break;
+            default:
+                a = new Vector3(u0, y0, zFront); b = new Vector3(u1, y0, zFront);
+                c = new Vector3(u1, y1, zFront); d = new Vector3(u0, y1, zFront);
+                break;
+        }
+        int i = v.Count;
+        v.Add(a); v.Add(b); v.Add(c); v.Add(d);
+        t.Add(i); t.Add(i + 1); t.Add(i + 2);
+        t.Add(i); t.Add(i + 2); t.Add(i + 3);
+    }
+
+    // u en [-len/2, len/2] -> Z entre zFront y zBack.
+    private static float ZAlong(float u, float zBack, float zFront)
+    {
+        float len = zBack - zFront;
+        return zFront + len / 2f + u;
     }
 
     // ---------------- Pozo ----------------
@@ -233,9 +579,15 @@ public class AbyssFall : MonoBehaviour
             return;
         }
         Material mat = new Material(_voidShader);
+        _voidMaterial = mat;
 
         GameObject root = new GameObject("Pozo (generado)");
         root.transform.SetParent(transform, false);
+
+        if (_wallBands)
+        {
+            BuildBands(root.transform);
+        }
 
         foreach (Bounds b in ShaftPieces())
         {

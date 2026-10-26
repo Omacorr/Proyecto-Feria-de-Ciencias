@@ -37,6 +37,9 @@ public class VolumePulse : MonoBehaviour
     [Tooltip("Fuerza del segundo golpe (\"dub\") respecto del primero.")]
     [SerializeField] private float _secondBeat = 0.6f;
 
+    [Tooltip("Onda suave (seno) en vez de latido: para respiraciones lentas, por ejemplo el brillo de los Backrooms que sube y baja con el zumbido.")]
+    [SerializeField] private bool _smoothWave;
+
     [Tooltip("Segundos de fundido al empezar y al terminar.")]
     [SerializeField] private float _fadeSeconds = 0.8f;
 
@@ -140,7 +143,9 @@ public class VolumePulse : MonoBehaviour
         _phase = (_phase + Time.deltaTime * _bpm / 60f) % 1f;
 
         // "lub" en 0 y "dub" en 0.28 del latido: subida rapida, caida suave.
-        float beat = Mathf.Max(Spike(_phase, 0f), Spike(_phase, 0.28f) * _secondBeat);
+        float beat = _smoothWave
+            ? 0.5f - 0.5f * Mathf.Cos(_phase * Mathf.PI * 2f)
+            : Mathf.Max(Spike(_phase, 0f), Spike(_phase, 0.28f) * _secondBeat);
         float shape = Mathf.Lerp(_restWeight, 1f, beat);
         _volume.weight = Mathf.Clamp01(shape * _maxWeight * _envelope);
     }

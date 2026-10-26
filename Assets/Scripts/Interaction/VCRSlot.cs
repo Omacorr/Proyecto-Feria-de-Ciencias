@@ -23,6 +23,11 @@ public class VCRSlot : MonoBehaviour, IGazeInteractable
 
     [SerializeField] private float _signDuration = 2.5f;
 
+    [Tooltip("Opcional: texto en VR pegado a la cámara. Si se asigna, se usa en vez del cartel.")]
+    [SerializeField] private VRHintText _hint;
+
+    [SerializeField] private string _missingTapeMessage = "No hay nada para ver. Necesito una cinta.";
+
     [Tooltip("Opcional: prop de la cinta ya metida en la ranura (arranca oculto, se prende al insertar).")]
     [SerializeField] private GameObject _tapeInSlotVisual;
 
@@ -78,6 +83,11 @@ public class VCRSlot : MonoBehaviour, IGazeInteractable
 
     private void ShowMissingTapeSign()
     {
+        if (_hint != null)
+        {
+            _hint.Show(_missingTapeMessage);
+            return;
+        }
         if (_missingTapeSign == null)
         {
             Debug.Log("[VCRSlot] Falta la cinta (y no hay cartel asignado).");

@@ -35,6 +35,9 @@ public class TeleportManager : MonoBehaviour
     [SerializeField] private VRFadeController _fadeController;
 
     public bool IsTeleporting { get; private set; }
+
+    /// <summary>Velocidad de caminata en m/s (la usa MonsterChaser para igualar al jugador).</summary>
+    public float WalkSpeed => _walkSpeed;
     public Vector3 PlayerPosition => _cameraTransform != null ? _cameraTransform.position : Vector3.zero;
 
     /// <summary>
@@ -85,6 +88,52 @@ public class TeleportManager : MonoBehaviour
         // Por defecto, todo punto que se registra arranca visible (salvo que
         // resulte ser el que el jugador ya esta pisando).
         point.SetVisible(point != _currentOccupiedPoint);
+    }
+
+    private void Start()
+    {
+        // Al arrancar la escena el jugador ya esta parado sobre algun punto
+        // (el de spawn) y nadie lo habia marcado como ocupado: su orbe quedaba
+        // visible alrededor de la camara. Se busca el punto mas cercano en
+        // horizontal (hasta 1.5 m) y se lo trata como ocupado. Los puntos con
+        // Destination Override sin loop (puertas) se saltean: su posicion no es
+        // un lugar donde uno se para.
+        if (_currentOccupiedPoint != null)
+        {
+            return;
+        }
+
+        Transform cam = _cameraTransform != null ? _cameraTransform : (Camera.main != null ? Camera.main.transform : null);
+        if (cam == null)
+        {
+            return;
+        }
+
+        const float maxStartDistance = 1.5f;
+        TeleportPoint nearest = null;
+        float best = maxStartDistance;
+        foreach (TeleportPoint p in _registeredPoints)
+        {
+            if (p == null || !p.isActiveAndEnabled || p.HasDestinationOverride)
+            {
+                continue;
+            }
+            Vector3 d = p.transform.position - cam.position;
+            d.y = 0f;
+            float dist = d.magnitude;
+            if (dist <= best)
+            {
+                best = dist;
+                nearest = p;
+            }
+        }
+
+        if (nearest != null)
+        {
+            nearest.SetVisible(false);
+            _currentOccupiedPoint = nearest;
+            Debug.Log("[TeleportManager] Punto inicial ocupado: " + nearest.name + " (" + best.ToString("F2") + " m).");
+        }
     }
 
     public void UnregisterPoint(TeleportPoint point)

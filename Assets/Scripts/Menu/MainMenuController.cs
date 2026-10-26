@@ -32,6 +32,9 @@ public class MainMenuController : MonoBehaviour
     [Tooltip("Objeto de la puerta que se abre al Empezar (el del modelo). Si se deja vacio (junto con Camera Rig), Empezar carga directo con fundido.")]
     [SerializeField] private Transform _door;
 
+    [Tooltip("Bisagra opcional: si se asigna, la puerta gira alrededor de la vertical que pasa por este punto en vez de por su propio pivote. Sirve cuando la hoja es un nodo del modelo con el pivote en el origen del mundo.")]
+    [SerializeField] private Transform _doorHinge;
+
     [Tooltip("Grados que gira la puerta al abrirse, alrededor de la vertical. Negativo = abre para el otro lado.")]
     [SerializeField] private float _doorOpenAngle = 100f;
 
@@ -149,7 +152,8 @@ public class MainMenuController : MonoBehaviour
         //    la bisagra por el generador) _doorOpenAngle grados sobre la vertical.
         Debug.Log("[MainMenuController] Abriendo puerta '" + _door.name + "' pos=" +
                   _door.position.ToString("0.00") + " angulo=" + _doorOpenAngle);
-        yield return SwingAround(_door, _door.position, Vector3.up, _doorOpenAngle, _doorOpenDuration);
+        Vector3 hinge = _doorHinge != null ? _doorHinge.position : _door.position;
+        yield return SwingAround(_door, hinge, Vector3.up, _doorOpenAngle, _doorOpenDuration);
 
         // Respiro corto una vez abierta.
         yield return new WaitForSeconds(0.2f);

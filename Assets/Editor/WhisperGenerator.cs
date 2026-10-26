@@ -105,6 +105,7 @@ public static class WhisperGenerator
         Save("crujido_madera_02", SingleCreak(72, 1.6f, 380f));
         Save("crujido_madera_03", SingleCreak(73, 0.8f, 700f));
         Save("golpes_madera", Knocks(81));
+        Save("clic_linterna", FlashlightClick(91));
 
         AssetDatabase.Refresh();
         foreach (string path in written)
@@ -123,6 +124,180 @@ public static class WhisperGenerator
             }
         }
         Debug.Log("[WhisperGenerator] Generados " + written.Count + " efectos en " + EffectsFolder);
+    }
+
+    /// <summary>
+    /// Grito del screamer (Parte 1), aparte del resto de efectos: ~1.3 s, ataque
+    /// instantaneo, grito aspero inhumano. Se genera en Assets/Audios/Efectos.
+    /// </summary>
+    [MenuItem("Herramientas/Generar grito (screamer)")]
+    public static void GenerateScream()
+    {
+        Directory.CreateDirectory(EffectsFolder);
+        string path = EffectsFolder + "/grito_screamer.wav";
+        WriteWav(path, Scream(101));
+        AssetDatabase.Refresh();
+        if (AssetImporter.GetAtPath(path) is AudioImporter imp)
+        {
+            imp.forceToMono = true;
+            AudioImporterSampleSettings s = imp.defaultSampleSettings;
+            s.loadType = AudioClipLoadType.DecompressOnLoad;
+            s.compressionFormat = AudioCompressionFormat.Vorbis;
+            s.quality = 0.7f;
+            s.preloadAudioData = true;
+            imp.defaultSampleSettings = s;
+            imp.SaveAndReimport();
+        }
+        Debug.Log("[WhisperGenerator] Generado " + path);
+    }
+
+    /// <summary>
+    /// Zumbido grave y opresivo para el pasillo de la Parte 3 (loop de 20 s,
+    /// mono, 22050 Hz). Es audible (50 Hz y armonicos), no infrasonido: pensado
+    /// para auriculares. Se genera en Assets/Audios/Efectos/zumbido_grave.wav.
+    /// </summary>
+    [MenuItem("Herramientas/Generar zumbido grave (Parte 3)")]
+    public static void GenerateLowDrone()
+    {
+        Directory.CreateDirectory(EffectsFolder);
+        string path = EffectsFolder + "/zumbido_grave.wav";
+        WriteWav(path, LowDrone(303), DroneRate);
+        AssetDatabase.Refresh();
+        if (AssetImporter.GetAtPath(path) is AudioImporter imp)
+        {
+            imp.forceToMono = true;
+            AudioImporterSampleSettings s = imp.defaultSampleSettings;
+            s.loadType = AudioClipLoadType.DecompressOnLoad;
+            s.compressionFormat = AudioCompressionFormat.Vorbis;
+            s.quality = 0.7f;
+            s.preloadAudioData = true;
+            imp.defaultSampleSettings = s;
+            imp.SaveAndReimport();
+        }
+        Debug.Log("[WhisperGenerator] Generado " + path);
+    }
+
+    private const int DroneRate = 22050;
+
+    // Zumbido grave (20 s en loop perfecto): 50 Hz + 100 Hz (x0.35) + 150 Hz
+    // (x0.12) + una batida de 50.5 Hz (x0.3), con modulacion de amplitud lenta
+    // (0.1 Hz, 25 %) y un "rumor de edificio" de ruido marron pasa-bajos
+    // (~120 Hz). Todas las frecuencias dan ciclos enteros en 20 s (50.5 Hz x 20 s
+    // = 1010 ciclos). El ruido no es periodico: se genera con un tramo extra y
+    // el final se funde sobre el principio, asi el empalme es continuo.
+    private static float[] LowDrone(int seed)
+    {
+        var rng = new System.Random(seed);
+        int n = 20 * DroneRate;
+        int x = (int)(1.5f * DroneRate);      // crossfade del ruido
+        int warmUp = DroneRate;               // descarte del transitorio de los filtros
+
+        // Ruido marron (integrador con fuga) + pasa-bajos de un polo a ~120 Hz.
+        var noise = new float[n + x];
+        float brown = 0f;
+        float lp = 0f;
+        float lpCoef = 1f - (float)Math.Exp(-2.0 * Math.PI * 120.0 / DroneRate);
+        for (int i = -warmUp; i < n + x; i++)
+        {
+            brown = brown * 0.995f + Noise(rng) * 0.05f;
+            lp += lpCoef * (brown - lp);
+            if (i >= 0)
+            {
+                noise[i] = lp;
+            }
+        }
+        float nMax = 0f;
+        foreach (float v in noise)
+        {
+            nMax = Mathf.Max(nMax, Mathf.Abs(v));
+        }
+        float nGain = nMax > 1e-6f ? 0.25f / nMax : 0f;   // rumor suave bajo los tonos
+
+        var data = new float[n];
+        for (int i = 0; i < n; i++)
+        {
+            double t = (double)i / DroneRate;
+            double tone = Math.Sin(2.0 * Math.PI * 50.0 * t)
+                        + 0.35 * Math.Sin(2.0 * Math.PI * 100.0 * t + 0.6)
+                        + 0.12 * Math.Sin(2.0 * Math.PI * 150.0 * t + 1.1)
+                        + 0.3 * Math.Sin(2.0 * Math.PI * 50.5 * t);
+            double am = 1.0 - 0.25 * (0.5 + 0.5 * Math.Sin(2.0 * Math.PI * 0.1 * t));
+            float nz = noise[i];
+            if (i < x)
+            {
+                float w = (float)i / x;
+                nz = noise[i] * w + noise[n + i] * (1f - w);
+            }
+            data[i] = (float)(tone * am) + nz * nGain;
+        }
+        Normalize(data, 0.6f);
+        return data;
+    }
+
+    // Grito (~1.3 s): 3 dientes de sierra desafinados con vibrato rapido y
+    // pitch 700 -> 1100 -> 600 Hz, formantes a/e + ruido aspero, thump grave
+    // al inicio, saturacion tanh y cola de ~0.4 s.
+    private static float[] Scream(int seed)
+    {
+        var rng = new System.Random(seed);
+        float seconds = 1.3f;
+        int n = (int)(seconds * Rate);
+        var data = new float[n];
+        float[] detune = { 1f, 1.013f, 0.987f };
+        var phase = new double[3];
+        var f1 = new Biquad();
+        var f2 = new Biquad();
+        var f3 = new Biquad();
+        var rough = new Biquad();
+        rough.SetBandPass(2600f, 0.8f);
+        float tailStart = seconds - 0.4f;
+        double thumpPhase = 0;
+        for (int i = 0; i < n; i++)
+        {
+            float t = (float)i / Rate;
+            float k = t / seconds;
+            // Pitch: sube a 1100 hacia el 35% y cae a 600.
+            float pitch = k < 0.35f
+                ? Mathf.Lerp(700f, 1100f, Mathf.SmoothStep(0f, 1f, k / 0.35f))
+                : Mathf.Lerp(1100f, 600f, Mathf.SmoothStep(0f, 1f, (k - 0.35f) / 0.65f));
+            float vib = 1f + 0.035f * Mathf.Sin(2f * Mathf.PI * 9f * t) + 0.015f * Mathf.Sin(2f * Mathf.PI * 23f * t);
+            float saw = 0f;
+            for (int o = 0; o < 3; o++)
+            {
+                phase[o] += pitch * vib * detune[o] / Rate;
+                phase[o] -= Math.Floor(phase[o]);
+                saw += (float)(phase[o] * 2.0 - 1.0);
+            }
+            saw /= 3f;
+            // Formantes: se desliza de "a" a "e" y vuelve.
+            if (i % 32 == 0)
+            {
+                float m = Mathf.Sin(Mathf.PI * k);
+                f1.SetBandPass(Mathf.Lerp(730f, 530f, m), 4f);
+                f2.SetBandPass(Mathf.Lerp(1090f, 1840f, m), 5f);
+                f3.SetBandPass(2440f, 6f);
+            }
+            float nz = Noise(rng);
+            float voiced = f1.Process(saw) * 1.2f + f2.Process(saw) * 0.9f + f3.Process(saw) * 0.5f;
+            float grit = rough.Process(nz) * 0.9f * (0.6f + 0.4f * Mathf.Sin(2f * Mathf.PI * 70f * t));
+            float y = voiced * 2.2f + grit + nz * 0.12f;
+            // Thump grave inicial (60-90 Hz, 0.15 s).
+            if (t < 0.15f)
+            {
+                thumpPhase += 2.0 * Math.PI * Mathf.Lerp(90f, 60f, t / 0.15f) / Rate;
+                y += (float)Math.Sin(thumpPhase) * 1.6f * Mathf.Exp(-t / 0.06f);
+            }
+            // Envolvente: ataque instantaneo (2 ms), cola de 0.4 s.
+            float env = Mathf.Min(1f, t / 0.002f);
+            if (t > tailStart)
+            {
+                float r = (t - tailStart) / 0.4f;
+                env *= (1f - r) * (1f - r);
+            }
+            data[i] = (float)Math.Tanh(y * env * 1.6f);
+        }
+        Normalize(data, 0.8f);
+        return data;
     }
 
     // Latidos acelerados que se van calmando (~10 s): "lub" grave y "dub" mas
@@ -307,6 +482,36 @@ public static class WhisperGenerator
         }
         FadeEdges(data, 0f, 0.3f);
         Normalize(data, 0.9f);
+        return data;
+    }
+
+    // Interruptor de linterna (~0.12 s): dos transitorios mecanicos secos (el
+    // "clic" y el "clac" del resorte) a 0 y ~55 ms, con un resonador plastico.
+    private static float[] FlashlightClick(int seed)
+    {
+        var rng = new System.Random(seed);
+        var data = new float[(int)(0.12f * Rate)];
+        float[] times = { 0.004f, 0.056f };
+        float[] hz = { 2600f, 1900f };
+        float[] loud = { 1f, 0.7f };
+        for (int c = 0; c < times.Length; c++)
+        {
+            var res = new Biquad();
+            res.SetBandPass(hz[c], 3f);
+            var body = new Biquad();
+            body.SetBandPass(700f, 2f);
+            int s0 = (int)(times[c] * Rate);
+            int n = (int)(0.05f * Rate);
+            for (int i = 0; i < n && s0 + i < data.Length; i++)
+            {
+                float t = (float)i / Rate;
+                float x = t < 0.0008f ? Noise(rng) : Noise(rng) * 0.05f;
+                float env = Mathf.Exp(-t / 0.008f);
+                data[s0 + i] += (res.Process(x) * 3f + body.Process(x) * 1.2f) * env * loud[c];
+            }
+        }
+        FadeEdges(data, 0f, 0.01f);
+        Normalize(data, 0.8f);
         return data;
     }
 
@@ -664,6 +869,11 @@ public static class WhisperGenerator
 
     private static void WriteWav(string path, float[] data)
     {
+        WriteWav(path, data, Rate);
+    }
+
+    private static void WriteWav(string path, float[] data, int rate)
+    {
         using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
         using (var bw = new BinaryWriter(fs))
         {
@@ -675,8 +885,8 @@ public static class WhisperGenerator
             bw.Write(16);
             bw.Write((short)1);      // PCM
             bw.Write((short)1);      // mono
-            bw.Write(Rate);
-            bw.Write(Rate * 2);      // bytes por segundo
+            bw.Write(rate);
+            bw.Write(rate * 2);      // bytes por segundo
             bw.Write((short)2);      // bytes por muestra
             bw.Write((short)16);     // bits
             bw.Write(Encoding.ASCII.GetBytes("data"));

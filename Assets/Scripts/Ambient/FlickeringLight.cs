@@ -43,6 +43,59 @@ public class FlickeringLight : MonoBehaviour
     private float _burstIntensity;
     private bool _forcedOff;
     private bool _offAfterBurst;
+    private float _intensityMultiplier = 1f;
+    private Coroutine _multiplierFade;
+
+    /// <summary>
+    /// Multiplicador de la intensidad final (1 = sin cambio). Sirve para ir
+    /// "muriendo" la luz de a poco sin tocar la intensidad base.
+    /// </summary>
+    public float IntensityMultiplier
+    {
+        get { return _intensityMultiplier; }
+        set { _intensityMultiplier = Mathf.Max(0f, value); }
+    }
+
+    /// <summary>Fija el multiplicador de intensidad al instante (UnityEvent).</summary>
+    public void SetIntensityMultiplier(float m)
+    {
+        if (_multiplierFade != null)
+        {
+            StopCoroutine(_multiplierFade);
+            _multiplierFade = null;
+        }
+        IntensityMultiplier = m;
+    }
+
+    /// <summary>Lleva el multiplicador al valor "target" suavemente en "seconds".</summary>
+    public void FadeIntensityMultiplier(float target, float seconds)
+    {
+        if (_multiplierFade != null)
+        {
+            StopCoroutine(_multiplierFade);
+            _multiplierFade = null;
+        }
+        if (seconds <= 0f || !isActiveAndEnabled)
+        {
+            IntensityMultiplier = target;
+            return;
+        }
+        _multiplierFade = StartCoroutine(FadeMultiplierRoutine(Mathf.Max(0f, target), seconds));
+    }
+
+    private System.Collections.IEnumerator FadeMultiplierRoutine(float target, float seconds)
+    {
+        float from = _intensityMultiplier;
+        float t = 0f;
+        while (t < seconds)
+        {
+            t += Time.deltaTime;
+            IntensityMultiplier = Mathf.Lerp(from, target, Mathf.SmoothStep(0f, 1f, t / seconds));
+            yield return null;
+        }
+        IntensityMultiplier = target;
+        _multiplierFade = null;
+    }
 
     /// <summary>
     /// Parpadeo violento forzado (prende/apaga rapido y al azar) durante
@@ -107,7 +160,7 @@ public class FlickeringLight : MonoBehaviour
                 _burstIntensity = Random.value < 0.45f ? 0f : _baseIntensity * Random.Range(0.6f, 1.6f);
                 _burstNextStepAt = Time.time + Random.Range(_burstStepSeconds, _burstStepSeconds * 2f);
             }
-            _light.intensity = _burstIntensity;
+            _light.intensity = _burstIntensity * _intensityMultiplier;
             return;
         }
 
@@ -143,6 +196,6 @@ public class FlickeringLight : MonoBehaviour
         // Parpadeo suave.
         float noise = Mathf.PerlinNoise(_noiseSeed, Time.time * _flickerSpeed); // 0..1
         float factor = Mathf.Lerp(1f - _flickerAmount, 1f, noise);
-        _light.intensity = _baseIntensity * factor;
+        _light.intensity = _baseIntensity * factor * _intensityMultiplier;
     }
 }

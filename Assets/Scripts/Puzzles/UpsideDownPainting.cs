@@ -33,6 +33,12 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     [Tooltip("Tildado (recomendado): en el Editor el cuadro esta DERECHO y el script lo pone al reves al arrancar. Destildado: ya lo dejaste al reves a mano en el Editor.")]
     [SerializeField] private bool _authoredUpright = true;
 
+    [Tooltip("Tildado: arranca DERECHO y sin collider (no se puede usar) hasta que alguien llame TurnUpsideDown(). Sirve para que el cuadro recien 'se de vuelta' despues de algo (en Parte 4, la primera vuelta del loop).")]
+    [SerializeField] private bool _startUpright = false;
+
+    [Tooltip("Sonido al darse vuelta solo (TurnUpsideDown). Opcional.")]
+    [SerializeField] private AudioClip _turnSound;
+
     [Header("Animacion")]
     [Tooltip("Segundos que tarda en enderezarse.")]
     [SerializeField] private float _straightenDuration = 1.8f;
@@ -84,6 +90,8 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     private bool _isAnimating;
     private bool _isGazed;
     private float _trembleAmount;
+    // Start Upright: todavia derecho y sin usar, esperando TurnUpsideDown().
+    private bool _isDormant;
 
     private void Awake()
     {
@@ -96,7 +104,32 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
             : transform.localRotation * Quaternion.AngleAxis(-_flipDegrees, _axis);
 
         IsStraightened = false;
-        ApplyAngle(_flipDegrees);
+        if (_startUpright)
+        {
+            _isDormant = true;
+            ApplyAngle(0f);
+            SetCollidersEnabled(false);
+        }
+        else
+        {
+            ApplyAngle(_flipDegrees);
+        }
+    }
+
+    /// <summary>
+    /// Con Start Upright: el cuadro se da vuelta de golpe (con sonido) y pasa a
+    /// poder enderezarse. Solo la primera vez; despues no hace nada.
+    /// </summary>
+    public void TurnUpsideDown()
+    {
+        if (!_isDormant)
+        {
+            return;
+        }
+        _isDormant = false;
+        Play(_turnSound);
+        ResetUpsideDown();
+        Debug.Log($"[UpsideDownPainting] {gameObject.name}: se dio vuelta.");
     }
 
     private void Update()
@@ -134,7 +167,7 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
 
     public void OnGazeSelect()
     {
-        if (IsStraightened || _isAnimating || !IsPlayerInRange())
+        if (_isDormant || IsStraightened || _isAnimating || !IsPlayerInRange())
         {
             return;
         }
@@ -148,7 +181,7 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     /// </summary>
     public void Straighten()
     {
-        if (IsStraightened || _isAnimating || !isActiveAndEnabled)
+        if (_isDormant || IsStraightened || _isAnimating || !isActiveAndEnabled)
         {
             return;
         }
@@ -164,6 +197,7 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     public void ResetUpsideDown()
     {
         StopAllCoroutines();
+        _isDormant = false;
         _isAnimating = false;
         IsStraightened = false;
         _trembleAmount = 0f;

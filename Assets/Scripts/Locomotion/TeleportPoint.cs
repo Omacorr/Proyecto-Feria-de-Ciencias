@@ -33,6 +33,9 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     [Tooltip("Si se asigna, mirar este punto teletransporta a la posicion de ESTE Transform en vez de a la posicion propia. Util para puertas: la puerta se queda quieta donde se ve bien, pero el destino real es otro punto (por ejemplo, un Cube vacio puesto del otro lado de la puerta). Dejalo vacio para el comportamiento normal (moverse a la posicion de este mismo objeto).")]
     [SerializeField] private Transform _destinationOverride;
 
+    [Tooltip("Siempre con fundido aunque la escena use caminata (por ejemplo el punto de examinar el candado).")]
+    [SerializeField] private bool _alwaysFade;
+
     [Header("Loop sin fade (opcional, requiere Destination Override)")]
     [Tooltip("Destildado (por defecto): un punto con Destination Override usa fade, como siempre (puertas). Tildado: el jugador CAMINA hasta este mismo punto (el que esta mirando) y, al llegar, se lo pasa de golpe, sin fade, a la posicion X/Z de Destination Override (la altura de ojos no cambia). Pensado para el loop de Parte 4: 'caminar hacia adelante te devuelve al mismo punto'. Para que no se note el salto, Destination Override tiene que estar en un lugar que se vea IGUAL mirando en la MISMA direccion (el casco no se puede girar por codigo: si el destino esta rotado respecto de este punto, se nota). Si Destination Override es otro TeleportPoint, el jugador queda 'parado' en ese punto (se oculta) y este vuelve a verse adelante. En escenas con 'Use Walk Animation' destildado, el fade normal ya tapa el salto.")]
     [SerializeField] private bool _seamlessLoop;
@@ -66,7 +69,15 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     /// punto que se esta mirando queda raro. Excepcion: con Seamless Loop
     /// tildado da false (se camina hasta este punto y el salto es sin fade).
     /// </summary>
-    public bool UsesFadeTransition => _destinationOverride != null && !_seamlessLoop;
+    public bool UsesFadeTransition => (_destinationOverride != null && !_seamlessLoop) || _alwaysFade;
+
+    /// <summary>
+    /// True si tiene Destination Override sin ser loop (puerta): su posicion no
+    /// es un lugar donde el jugador se para. TeleportManager.Start lo usa para
+    /// no tomarlo como punto de spawn. (Un punto solo con Always Fade SI es un
+    /// lugar donde uno se para.)
+    /// </summary>
+    public bool HasDestinationOverride => _destinationOverride != null && !_seamlessLoop;
 
     /// <summary>
     /// True si este punto es un "loop sin fade": el jugador camina hasta este

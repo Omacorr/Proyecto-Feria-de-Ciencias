@@ -23,6 +23,32 @@ public class MonsterChaser : MonoBehaviour
     [Tooltip("Metros por segundo. LENTO a proposito (0.5 - 0.9 anda bien).")]
     [SerializeField] private float _speed = 0.7f;
 
+    [Header("Velocidad adaptativa")]
+    [Tooltip("Tildado: la velocidad se adapta a la del jugador (promedio de los ultimos segundos) y sube si se queda muy atras. 'Speed' pasa a ser la velocidad MINIMA (arranque lento). Destildado: velocidad constante como antes.")]
+    [SerializeField] private bool _adaptToPlayerSpeed = true;
+
+    [Tooltip("Fraccion de la velocidad promedio del jugador que iguala el monstruo (0.85 = un poco mas lento, ganable).")]
+    [SerializeField] private float _matchFactor = 0.85f;
+
+    [Tooltip("Velocidad maxima (m/s). 0 = automatico: 0.9 x la velocidad de caminata del TeleportManager si se encuentra, si no 3.")]
+    [SerializeField] private float _maxSpeed = 0f;
+
+    [Tooltip("Distancia por el camino (m) a partir de la cual el monstruo acelera para no quedar demasiado atras.")]
+    [SerializeField] private float _rubberBandStartDistance = 8f;
+
+    [Tooltip("m/s extra por cada metro de distancia sobre 'Rubber Band Start Distance'.")]
+    [SerializeField] private float _rubberBandPerMeter = 0.12f;
+
+    [Tooltip("Ventana (segundos) del promedio de la velocidad del jugador. Mas grande = reacciona mas lento.")]
+    [SerializeField] private float _playerSpeedWindow = 2f;
+
+    [Tooltip("Velocidad (m/s) a la que se arrastra el monstruo cuando el jugador esta quieto. Al caminar el jugador, la velocidad sube de esta hacia la adaptativa.")]
+    [SerializeField] private float _minSpeed = 0.5f;
+
+    [Tooltip("Opcional. TeleportManager del jugador (para saber su velocidad de caminata). Vacio = se busca uno en la escena.")]
+    [SerializeField] private TeleportManager _teleportManager;
+
+    [Header("Persecucion")]
     [Tooltip("Distancia (m, horizontal) a la que se considera que te alcanzo.")]
     [SerializeField] private float _catchDistance = 1.4f;
 
@@ -94,6 +120,13 @@ public class MonsterChaser : MonoBehaviour
     private readonly List<Vector3> _trail = new List<Vector3>();
     private float _bobBaseLocalY;
     private Coroutine _loopFade;
+    private float _playerAvgSpeed;
+    private Vector3 _lastTargetPos;
+    private bool _hasLastTargetPos;
+    private bool _teleportManagerSearched;
+
+    /// <summary>Velocidad actual del monstruo en m/s (para depurar).</summary>
+    public float CurrentSpeed { get; private set; }
 
     private void Awake()
     {
@@ -141,6 +174,9 @@ public class MonsterChaser : MonoBehaviour
         // "compas de espera": primero parado, despues camina.
         if (_keepYFixed) _fixedY = transform.position.y;
         _trail.Clear();
+        _playerAvgSpeed = 0f;
+        _hasLastTargetPos = false;
+        CurrentSpeed = _speed;
         _walkStartTime = Time.time + Mathf.Max(0f, _holdBeforeWalk);
 
         if (_appearAudioSource != null && _appearSound != null) _appearAudioSource.PlayOneShot(_appearSound);
@@ -201,10 +237,14 @@ public class MonsterChaser : MonoBehaviour
             goal = _trail[0];
         }
 
+        UpdatePlayerSpeed(t.position);
+        float speed = ComputeSpeed(walking, goal, playerFlat, distToPlayer);
+        CurrentSpeed = speed;
+
         // Primero parado (compas de espera): solo gira a mirarte. Despues camina.
         if (walking)
         {
-            transform.position = Vector3.MoveTowards(transform.position, goal, _speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, goal, speed * Time.deltaTime);
         }
 
         if (_faceTarget)
@@ -221,7 +261,7 @@ public class MonsterChaser : MonoBehaviour
         // animacion del modelo
         if (_animator != null)
         {
-            if (HasParam(_animSpeedParam)) _animator.SetFloat(_animSpeedParam, walking ? _speed : 0f);
+            if (HasParam(_animSpeedParam)) _animator.SetFloat(_animSpeedParam, walking ? speed : 0f);
             if (HasParam(_animWalkParam)) _animator.SetBool(_animWalkParam, walking);
         }
         if (_legacyAnimation != null)
@@ -258,6 +298,85 @@ public class MonsterChaser : MonoBehaviour
             Debug.Log("[MonsterChaser] Te alcanzo.");
             _onCaught?.Invoke();
         }
+    }
+
+    private TeleportManager GetTeleportManager()
+    {
+        if (_teleportManager == null && !_teleportManagerSearched)
+        {
+            _teleportManagerSearched = true;
+            _teleportManager = FindFirstObjectByType<TeleportManager>();
+        }
+        return _teleportManager;
+    }
+
+    /// <summary>Promedio movil exponencial de la velocidad horizontal del objetivo.</summary>
+    private void UpdatePlayerSpeed(Vector3 targetPos)
+    {
+        if (!_hasLastTargetPos)
+        {
+            _lastTargetPos = targetPos;
+            _hasLastTargetPos = true;
+            return;
+        }
+
+        float dt = Time.deltaTime;
+        if (dt <= 0f)
+        {
+            return;
+        }
+
+        Vector3 d = targetPos - _lastTargetPos;
+        d.y = 0f;
+        _lastTargetPos = targetPos;
+        float instant = d.magnitude / dt;
+
+        // Saltos instantaneos (fade, loop sin fade) no son velocidad de
+        // caminata: se descartan.
+        TeleportManager tm = GetTeleportManager();
+        float plausible = tm != null && tm.WalkSpeed > 0f ? tm.WalkSpeed * 2f : 10f;
+        if (instant > plausible)
+        {
+            return;
+        }
+
+        float alpha = 1f - Mathf.Exp(-dt / Mathf.Max(0.1f, _playerSpeedWindow));
+        _playerAvgSpeed += (instant - _playerAvgSpeed) * alpha;
+    }
+
+    private float ComputeSpeed(bool walking, Vector3 goal, Vector3 playerFlat, float distToPlayer)
+    {
+        if (!_adaptToPlayerSpeed || !walking)
+        {
+            return _speed;
+        }
+
+        TeleportManager tm = GetTeleportManager();
+        float max = _maxSpeed > 0f ? _maxSpeed : (tm != null ? 0.9f * tm.WalkSpeed : 3f);
+        max = Mathf.Max(max, _speed);
+
+        // Distancia aproximada por el camino: hasta la miga actual + tramos del
+        // rastro + ultimo tramo hasta el jugador. Sin rastro, la directa.
+        float pathDist = distToPlayer;
+        if (_followTrail && _trail.Count > 0 && distToPlayer > _directChaseRange)
+        {
+            pathDist = Vector3.Distance(transform.position, _trail[0]);
+            for (int i = 1; i < _trail.Count; i++)
+            {
+                pathDist += Vector3.Distance(_trail[i - 1], _trail[i]);
+            }
+            pathDist += Vector3.Distance(_trail[_trail.Count - 1], playerFlat);
+        }
+
+        float rubber = Mathf.Max(0f, pathDist - _rubberBandStartDistance) * _rubberBandPerMeter;
+        float s = Mathf.Max(_speed, _playerAvgSpeed * _matchFactor) + rubber;
+
+        // Actividad del jugador: 0 = quieto, 1 = caminando a ritmo normal. Quieto,
+        // el monstruo apenas se arrastra a _minSpeed.
+        float walk = tm != null && tm.WalkSpeed > 0f ? tm.WalkSpeed : 3f;
+        float activity = Mathf.Clamp01(_playerAvgSpeed / (walk * 0.66f));
+        float low = Mathf.Min(_minSpeed, max);
+        return Mathf.Clamp(Mathf.Lerp(low, s, activity), low, max);
     }
 
     /// <summary>Baja el volumen del loop de persecucion y lo corta (tiempo real).</summary>
