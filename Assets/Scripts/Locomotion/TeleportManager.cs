@@ -35,6 +35,9 @@ public class TeleportManager : MonoBehaviour
     [SerializeField] private VRFadeController _fadeController;
 
     public bool IsTeleporting { get; private set; }
+
+    /// <summary>Velocidad de caminata en m/s (la usa MonsterChaser para igualar al jugador).</summary>
+    public float WalkSpeed => _walkSpeed;
     public Vector3 PlayerPosition => _cameraTransform != null ? _cameraTransform.position : Vector3.zero;
 
     /// <summary>
@@ -45,8 +48,35 @@ public class TeleportManager : MonoBehaviour
     /// </summary>
     public TeleportPoint CurrentOccupiedPoint => _currentOccupiedPoint;
 
+    /// <summary>
+    /// True mientras el movimiento este bloqueado con LockMovement() (caida al
+    /// abismo, monstruo que te agarra, desmayo...). Mientras tanto se ignoran
+    /// los pedidos de teletransporte y se corta una caminata en curso.
+    /// </summary>
+    public bool IsMovementLocked => _movementLocked;
+
     private readonly List<TeleportPoint> _registeredPoints = new List<TeleportPoint>();
     private TeleportPoint _currentOccupiedPoint;
+    private bool _movementLocked;
+
+    /// <summary>
+    /// Bloquea el teletransporte: se ignoran pedidos nuevos y, si el jugador
+    /// esta caminando, se frena ahi mismo (sin disparar On Player Arrived). NO
+    /// corta un fade que ya este en curso (terminaria dejando la pantalla en
+    /// negro). Llamable desde un UnityEvent. Lo usan AbyssFall y
+    /// MonsterController para que ninguna caminata pise el movimiento de la
+    /// camara que hacen ellos.
+    /// </summary>
+    public void LockMovement()
+    {
+        _movementLocked = true;
+    }
+
+    /// <summary>Deshace LockMovement(). Llamable desde un UnityEvent.</summary>
+    public void UnlockMovement()
+    {
+        _movementLocked = false;
+    }
 
     public void RegisterPoint(TeleportPoint point)
     {
@@ -58,6 +88,52 @@ public class TeleportManager : MonoBehaviour
         // Por defecto, todo punto que se registra arranca visible (salvo que
         // resulte ser el que el jugador ya esta pisando).
         point.SetVisible(point != _currentOccupiedPoint);
+    }
+
+    private void Start()
+    {
+        // Al arrancar la escena el jugador ya esta parado sobre algun punto
+        // (el de spawn) y nadie lo habia marcado como ocupado: su orbe quedaba
+        // visible alrededor de la camara. Se busca el punto mas cercano en
+        // horizontal (hasta 1.5 m) y se lo trata como ocupado. Los puntos con
+        // Destination Override sin loop (puertas) se saltean: su posicion no es
+        // un lugar donde uno se para.
+        if (_currentOccupiedPoint != null)
+        {
+            return;
+        }
+
+        Transform cam = _cameraTransform != null ? _cameraTransform : (Camera.main != null ? Camera.main.transform : null);
+        if (cam == null)
+        {
+            return;
+        }
+
+        const float maxStartDistance = 1.5f;
+        TeleportPoint nearest = null;
+        float best = maxStartDistance;
+        foreach (TeleportPoint p in _registeredPoints)
+        {
+            if (p == null || !p.isActiveAndEnabled || p.HasDestinationOverride)
+            {
+                continue;
+            }
+            Vector3 d = p.transform.position - cam.position;
+            d.y = 0f;
+            float dist = d.magnitude;
+            if (dist <= best)
+            {
+                best = dist;
+                nearest = p;
+            }
+        }
+
+        if (nearest != null)
+        {
+            nearest.SetVisible(false);
+            _currentOccupiedPoint = nearest;
+            Debug.Log("[TeleportManager] Punto inicial ocupado: " + nearest.name + " (" + best.ToString("F2") + " m).");
+        }
     }
 
     public void UnregisterPoint(TeleportPoint point)
@@ -73,6 +149,29 @@ public class TeleportManager : MonoBehaviour
             return;
         }
 
+        if (_movementLocked)
+        {
+            Debug.Log("[TeleportManager] Solicitud ignorada, el movimiento esta bloqueado (LockMovement).");
+            return;
+        }
+
+        if (sourcePoint == null)
+        {
+            Debug.LogWarning("[TeleportManager] RequestTeleport sin TeleportPoint de origen, se ignora.");
+            return;
+        }
+
+        if (_cameraTransform == null && Camera.main != null)
+        {
+            // Player.prefab y Player 1.prefab todavia serializan el nombre
+            // viejo del campo (_playerTransform) y no pueden referenciar la
+            // Main Camera separada, asi que cualquier instancia NUEVA de esos
+            // prefabs arranca con este campo vacio. En vez de dejar el
+            // teletransporte roto, se usa la camara principal de la escena.
+            _cameraTransform = Camera.main.transform;
+            Debug.Log("[TeleportManager] Camera Transform vacio: uso Camera.main (" + _cameraTransform.name + "). Asignarlo en el Inspector para no depender de esto.");
+        }
+
         if (_cameraTransform == null)
         {
             Debug.LogWarning("[TeleportManager] Falta asignar Camera Transform en el Inspector (tiene que ser Main Camera, no Player).");
@@ -83,7 +182,9 @@ public class TeleportManager : MonoBehaviour
         // ejemplo puertas) siempre usan fade, sin importar el modo general de
         // la escena: caminar hacia un destino que no es el punto que se esta
         // mirando queda confuso. El resto de los puntos respeta "Use Walk
-        // Animation" como siempre.
+        // Animation" como siempre. Excepcion: los puntos con Seamless Loop
+        // (UsesFadeTransition da false) caminan hasta si mismos y saltan sin
+        // fade al llegar (ver CompleteArrival).
         bool useFade = !_useWalkAnimation || sourcePoint.UsesFadeTransition;
 
         if (useFade)
@@ -127,6 +228,20 @@ public class TeleportManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < duration)
         {
+            if (_movementLocked)
+            {
+                // Otro sistema (caida, monstruo) tomo el control de la camara:
+                // frenar aca, sin pisarle la posicion ni marcar llegada.
+                if (_footstepsAudioSource != null)
+                {
+                    _footstepsAudioSource.Stop();
+                }
+                _currentOccupiedPoint = null;
+                Debug.Log("[TeleportManager] Caminata cortada por LockMovement.");
+                IsTeleporting = false;
+                yield break;
+            }
+
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
             _cameraTransform.position = Vector3.Lerp(startPos, targetPos, t);
@@ -142,9 +257,7 @@ public class TeleportManager : MonoBehaviour
 
         Debug.Log($"[TeleportManager] Llego caminando a {_cameraTransform.position}");
 
-        sourcePoint.SetVisible(false);
-        _currentOccupiedPoint = sourcePoint;
-        sourcePoint.NotifyArrived();
+        CompleteArrival(sourcePoint, startPos);
 
         IsTeleporting = false;
     }
@@ -167,6 +280,13 @@ public class TeleportManager : MonoBehaviour
 
     private void MoveInstant(Vector3 destination, TeleportPoint sourcePoint)
     {
+        if (_movementLocked)
+        {
+            // Se bloqueo el movimiento durante el fundido: no mover la camara
+            // (el fundido igual termina, para no dejar la pantalla en negro).
+            return;
+        }
+
         if (_currentOccupiedPoint != null)
         {
             _currentOccupiedPoint.SetVisible(true);
@@ -178,8 +298,112 @@ public class TeleportManager : MonoBehaviour
 
         Debug.Log($"[TeleportManager] Teletransportado a {_cameraTransform.position}");
 
+        CompleteArrival(sourcePoint, current);
+    }
+
+    /// <summary>
+    /// Cierre comun de caminata y fade: marca el punto como ocupado y dispara
+    /// su On Player Arrived. Si el punto es un loop sin fade (Seamless Loop) y
+    /// el jugador llego avanzando en el sentido del loop, en cambio lo pasa de
+    /// golpe a Destination Override (ver DoSeamlessLoop).
+    /// </summary>
+    private void CompleteArrival(TeleportPoint sourcePoint, Vector3 startPos)
+    {
+        if (sourcePoint.IsSeamlessLoop && ShouldLoop(sourcePoint, startPos))
+        {
+            DoSeamlessLoop(sourcePoint);
+            return;
+        }
+
         sourcePoint.SetVisible(false);
         _currentOccupiedPoint = sourcePoint;
-        sourcePoint.NotifyArrived();
+        SafeNotify(sourcePoint.NotifyArrived, sourcePoint);
+    }
+
+    /// <summary>
+    /// Dispara un evento del punto sin que una excepcion de algo cableado ahi
+    /// (On Player Arrived / On Loop) mate la corrutina de la caminata: si
+    /// pasaba, IsTeleporting quedaba en true para siempre y el jugador no
+    /// podia volver a moverse (en Parte 5 toda la cadena del final corre
+    /// dentro de la llegada a "tp centro").
+    /// </summary>
+    private static void SafeNotify(System.Action notify, TeleportPoint point)
+    {
+        try
+        {
+            notify();
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogException(e, point);
+        }
+    }
+
+    private static bool ShouldLoop(TeleportPoint sourcePoint, Vector3 startPos)
+    {
+        if (!sourcePoint.LoopOnlyWhenMovingAway)
+        {
+            return true;
+        }
+
+        // Solo en XZ: la altura de ojos no cuenta como "avanzar".
+        Vector3 travel = sourcePoint.transform.position - startPos;
+        Vector3 loopDirection = sourcePoint.transform.position - sourcePoint.LoopDestination.position;
+        travel.y = 0f;
+        loopDirection.y = 0f;
+        if (travel.sqrMagnitude < 0.0001f || loopDirection.sqrMagnitude < 0.0001f)
+        {
+            return false;
+        }
+
+        // Positivo = el jugador venia alejandose del destino del loop, o sea
+        // "avanzando hacia adelante": ese es el caso en que lo devolvemos.
+        return Vector3.Dot(travel, loopDirection) > 0f;
+    }
+
+    /// <summary>
+    /// Loop de Parte 4 ("caminar hacia adelante te devuelve al mismo punto"):
+    /// el jugador ya llego caminando a sourcePoint; se lo pasa en el mismo
+    /// frame, sin fade, a la posicion X/Z de su Destination Override. La altura
+    /// de ojos no cambia (ya quedo resuelta por la caminata). La rotacion
+    /// tampoco (la maneja el casco), por eso el destino tiene que mirar en la
+    /// misma direccion que el origen para que el salto no se note.
+    /// </summary>
+    private void DoSeamlessLoop(TeleportPoint sourcePoint)
+    {
+        Transform destination = sourcePoint.LoopDestination;
+        Vector3 current = _cameraTransform.position;
+        _cameraTransform.position = new Vector3(destination.position.x, current.y, destination.position.z);
+
+        Debug.Log($"[TeleportManager] Loop sin fade: {sourcePoint.name} -> {destination.name} ({_cameraTransform.position})");
+
+        // El punto del loop vuelve a quedar "adelante" y seleccionable.
+        sourcePoint.SetVisible(true);
+
+        // Si el destino es otro TeleportPoint, el jugador queda parado ahi.
+        TeleportPoint arrivalPoint = destination.GetComponent<TeleportPoint>();
+        if (arrivalPoint != null && arrivalPoint.isActiveAndEnabled)
+        {
+            arrivalPoint.SetVisible(false);
+            _currentOccupiedPoint = arrivalPoint;
+        }
+        else
+        {
+            _currentOccupiedPoint = null;
+        }
+
+        // El jugador probablemente sigue mirando el mismo punto del loop: sin
+        // esto, el timer de la mirada seguia corriendo desde la caminata y lo
+        // volvia a seleccionar solo.
+        foreach (GazeController gaze in FindObjectsByType<GazeController>(FindObjectsSortMode.None))
+        {
+            gaze.ResetGaze();
+        }
+
+        SafeNotify(sourcePoint.NotifyLooped, sourcePoint);
+        if (_currentOccupiedPoint != null)
+        {
+            SafeNotify(_currentOccupiedPoint.NotifyArrived, _currentOccupiedPoint);
+        }
     }
 }

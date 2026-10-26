@@ -25,7 +25,11 @@ public static class TutorialNarrationSetup
         "Assets/Audios/TutorialLocucion.flac",
     };
 
+    // DESACTIVADO desde el 2026-10-21: las escenas se editan a mano (el compañero dejó el proyecto).
+    // Correr esto modifica y guarda el Tutorial y pisaría esos cambios. Para reactivarlo, definir GENERADORES_VIEJOS.
+#if GENERADORES_VIEJOS
     [MenuItem("Tools/Feria de Ciencias/Agregar locucion al Tutorial")]
+#endif
     public static void Setup()
     {
         if (!File.Exists(TutorialScenePath))

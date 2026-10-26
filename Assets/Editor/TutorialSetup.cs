@@ -38,7 +38,11 @@ public static class TutorialSetup
         "Assets/Audios/TutorialAmbiente.flac",
     };
 
+    // DESACTIVADO desde el 2026-10-21: las escenas se editan a mano (el compañero dejó el proyecto).
+    // Correr esto borra y recrea objetos del Tutorial y pisaría esos cambios. Para reactivarlo, definir GENERADORES_VIEJOS.
+#if GENERADORES_VIEJOS
     [MenuItem("Tools/Feria de Ciencias/Preparar Tutorial (llave + puerta + carga)")]
+#endif
     public static void Prepare()
     {
         if (!File.Exists(TutorialScenePath))

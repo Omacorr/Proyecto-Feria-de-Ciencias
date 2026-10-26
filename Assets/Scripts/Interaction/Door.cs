@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Mecanica de llave y puerta (2/3). Al mirar la puerta y sostener la mirada
@@ -25,6 +26,15 @@ public class Door : MonoBehaviour, IGazeInteractable
 
     [Tooltip("Cuantos segundos se queda visible el cartel de aviso.")]
     [SerializeField] private float _signDuration = 2.5f;
+
+    [Tooltip("Opcional: texto en pantalla (VR) que se muestra al intentar abrir sin llave.")]
+    [SerializeField] private VRHintText _hint;
+
+    [Tooltip("Mensaje que se muestra en 'Hint' cuando falta la llave.")]
+    [SerializeField] private string _missingKeyMessage = "Está cerrada. Necesito una llave.";
+
+    [Tooltip("Se dispara cada vez que el jugador intenta abrir la puerta sin tener la llave.")]
+    [SerializeField] private UnityEvent _onMissingKey;
 
     [Header("Apertura - Posicion")]
     [Tooltip("RECOMENDADO: arrastra a la Scene View un objeto vacio (GameObject vacio, Create Empty) hasta el lugar EXACTO donde tiene que terminar la puerta abierta, y GIRALO tambien hasta que se vea con la orientacion final que queres (usa el gizmo de rotacion, como si fuera la puerta ya abierta). Asignalo aca. En Play/Build la puerta va a terminar exactamente en esa posicion Y esa rotacion, sin importar rotaciones o escalas raras que tenga el padre - se convierte todo solo. Si esto esta asignado, se ignoran 'Open Local Position' y 'Open Local Euler Rotation' de abajo (los dos).")]
@@ -179,9 +189,20 @@ public class Door : MonoBehaviour, IGazeInteractable
 
     private void ShowMissingKeySign()
     {
+        if (_hint != null)
+        {
+            _hint.Show(_missingKeyMessage);
+        }
+
+        _onMissingKey?.Invoke();
+
         if (_missingKeySign == null)
         {
-            Debug.LogWarning($"[Door] {gameObject.name}: falta asignar Missing Key Sign en el Inspector.");
+            if (_hint == null)
+            {
+                Debug.LogWarning($"[Door] {gameObject.name}: falta asignar Missing Key Sign en el Inspector.");
+            }
+
             return;
         }
 

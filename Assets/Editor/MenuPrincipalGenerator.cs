@@ -106,7 +106,11 @@ public static class MenuPrincipalGenerator
     private static readonly Color ColPuertaHoja = new Color(0.16f, 0.11f, 0.07f, 1f);
     private static readonly Color ColPuertaMarco = new Color(0.08f, 0.06f, 0.05f, 1f);
 
+    // DESACTIVADO desde el 2026-10-21: las escenas se editan a mano (el compañero dejó el proyecto).
+    // Correr este generador pisaría esos cambios. Para reactivarlo, definir GENERADORES_VIEJOS en Scripting Define Symbols.
+#if GENERADORES_VIEJOS
     [MenuItem("Tools/Feria de Ciencias/Generar escena 'Menu Principal'")]
+#endif
     public static void Generate()
     {
         if (File.Exists(ScenePath) && !EditorUtility.DisplayDialog(

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Puerta que termina un nivel: al mirarla y sostener la mirada (y tener la
@@ -28,6 +29,10 @@ public class LevelDoor : MonoBehaviour, IGazeInteractable
     [Tooltip("Segundos en negro con el texto antes de aparecer en la escena nueva.")]
     [SerializeField] private float _holdSeconds = 2.5f;
 
+    [Header("Desmayo (opcional)")]
+    [Tooltip("Si se asigna, la salida usa este FaintTransition (VR-safe: bloquea la mirada, sonido, texto, carga) en vez de SceneTransitionOverlay. Vacio = comportamiento de siempre (Tutorial).")]
+    [SerializeField] private FaintTransition _faint;
+
     [Header("Requiere llave (opcional)")]
     [SerializeField] private bool _requiresKey;
     [SerializeField] private KeyInventory _keyInventory;
@@ -44,6 +49,10 @@ public class LevelDoor : MonoBehaviour, IGazeInteractable
     [Header("Sonido (opcional)")]
     [SerializeField] private AudioSource _audioSource;
     [SerializeField] private AudioClip _openSound;
+
+    [Header("Evento")]
+    [Tooltip("Se dispara al abrir la puerta, ANTES del fundido. Util para cortar la persecucion (MonsterChaser.StopChase), parar musica, etc.")]
+    [SerializeField] private UnityEvent _onOpen;
 
     private bool _busy;
     private Coroutine _signRoutine;
@@ -95,6 +104,8 @@ public class LevelDoor : MonoBehaviour, IGazeInteractable
 
     private IEnumerator OpenThenGo()
     {
+        _onOpen?.Invoke();
+
         if (_audioSource != null && _openSound != null)
         {
             _audioSource.PlayOneShot(_openSound);
@@ -113,6 +124,13 @@ public class LevelDoor : MonoBehaviour, IGazeInteractable
                 yield return null;
             }
             _doorPivot.rotation = to;
+        }
+
+        if (_faint != null)
+        {
+            // _busy ya impide disparar dos veces; el FaintTransition hace todo.
+            _faint.TriggerToScene(_nextSceneName);
+            yield break;
         }
 
         // El overlay hace el fundido + carga y sobrevive el cambio de escena.
