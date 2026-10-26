@@ -94,10 +94,11 @@ números `#N` son de "Decisiones abiertas", más abajo.
   ambiente "amarillo sucio", 3 fragmentos, entrega en el centro, silueta
   provisoria del monstruo y final que vuelve al Menú. Ver "Parte 5:
   Backrooms" más abajo.
-- **`Parte Final`:** queda **sin usar**. El final pasa entero en `Parte 5`
-  y el último desmayo va directo a `Menu Principal` (decisión de Omar del
-  2026-09-25: "silueta provisoria… vuelta al Menú"). `kidman_room` sigue en
-  la escena; se puede sacar de Build Settings o reusar más adelante.
+- **`Parte Final`: USADA desde 2026-10-22** (Omar cambió la decisión #5):
+  habitación de hospital con camilla y una última pista (la foto); Parte 5
+  termina con `Desmayo -> Parte Final` y de ahí se vuelve al Menú. Antes
+  (2026-09-25) el final pasaba entero en Parte 5. Ver "Feedback de Omar en
+  el A54 (2026-10-22)".
 - **Transversal — monstruo:** el **código** existe (`MonsterController`) y
   en Parte 5 hay una **silueta provisoria** hecha con primitivas (figura
   negra de ~2.4 m con máscara color hueso). El **modelo** real sigue
@@ -140,7 +141,11 @@ números `#N` son de "Decisiones abiertas", más abajo.
    posición y no por mirada).
 5. ~~**`Parte Final`**~~ → **resuelta 2026-09-25:** el final pasa entero en
    `Parte 5` (entrega → revelación → pitido de hospital) y vuelve al Menú.
-   `Parte Final` queda sin usar.
+   `Parte Final` queda sin usar. **Cambiada por Omar el 2026-10-22:** la
+   Parte 5 termina con `Desmayo -> Parte Final` (camilla de hospital + última
+   pista, la foto) y recién de ahí se vuelve al Menú. Ver "Feedback de Omar en
+   el A54 (2026-10-22)". Otras menciones viejas de "Parte Final sin usar" en
+   este archivo quedaron desactualizadas.
 6. **Texto de transición:** ¿el desmayo muestra texto de nivel ("PARTE 2 —
    CUMPLEAÑOS") como hace hoy `SceneTransitionOverlay`, o es un corte a
    negro seco sin texto como describe el guion? *(2026-09-23: el toggle ya
@@ -683,6 +688,386 @@ ruido cacheado, cámara fuera de XR), `EmissivePulse` (también
 `emissiveFactor` del shader glTF). **Avisarle al compañero** de los puntos
 2–5 y de que el Tutorial tiene el mismo problema de transición (#19) y que
 `keys.glb` pesa 80 MB.
+
+### Feedback de Omar en el A54 (2026-10-22) — sin commitear
+
+**Decisiones de Omar:** `Parte Final` = "camilla + última pista" (decisión #5
+cambiada: ya no está sin usar); el monstruo se riggea por código, sin
+descargar nada; en Parte 1 la linterna no se tiene al inicio (muy oscuro,
+solo lámparas); los cuadros de Parte 4 esperan fotos de Omar (**NO hecho**).
+
+**Todas las escenas:** `TeleportManager.Start` oculta el orbe del tp donde
+arranca el jugador (≤1.5 m); `TeleportManager.WalkSpeed` es público.
+
+**Mira doble/corrida (Parte 2 y 5):** era el `CardboardReticlePointer` (del
+sample de Google) ACTIVO bajo `Main Camera`; en las demás escenas está
+inactivo. Se apagó en Parte 2 y 5. **Gotcha nuevo:** si se ven dos miras,
+revisar que `CardboardReticlePointer` esté inactivo.
+
+**Menú:** `PuertaMenu` era un pivote vacío sin hijos, por eso la puerta no
+giraba. `MainMenuController` ganó `_doorHinge` (bisagra opcional):
+`_door = door_55` (hoja real de horror_room), `_doorHinge = PuertaMenu`,
+ángulo -100 (abre hacia afuera). Carteles: paneles a escala 0.6, botones
+principales 3.1x0.5, textos sin autosize (botones 2.2–2.5, títulos 3.4).
+
+**Tutorial:** `Teletransportadores` (z 31.38, detrás de la puerta de salida)
+desactivado.
+
+**Parte 1:**
+- Linterna para agarrar en la cómoda `cab2`: `Linterna (recoger)`
+  (`Collectable` + primitivas) y `Linterna (logica)` con el nuevo
+  `FlashlightPickup`. Arranca apagada; clic `clic_linterna.wav` (generado
+  en `WhisperGenerator`); luz cálida sobre la linterna que se apaga al
+  agarrarla.
+- Al examinar el candado: `FlashlightPickup.SetTemporarilyOff(true/false)` +
+  `Spot Light (3)` (luz de examinar, 0.9) `SetActive` en `On Examine
+  Start/End` y en `CodeLock.On Unlocked`.
+- `PadLock_sinbrillo.mat`: roughness 0.9, metallic 0.1.
+- Puerta `door1`: `_openLocalEulerRotation` 60 → 95 (la hoja abierta tapaba
+  el paso `tp3 → tp4`; verificado con SphereCast).
+
+**Parte 2:**
+- Monstruo riggeado (ver abajo) en `Monstruo_Menu` y en el diorama
+  `MonstruoGrabacion` (modelo viejo desactivado, raíces sin rotación X).
+- `MonsterChaser`: velocidad adaptativa (`_adaptToPlayerSpeed`,
+  `_matchFactor` 0.85, rubber band desde 5 m a 0.25 m/s por metro,
+  `_maxSpeed` auto = 0.9 x `WalkSpeed`); `_snapFeetToGround` apagado (los
+  bounds del `SkinnedMeshRenderer` tienen margen y lo hacían flotar);
+  `_bobWhileWalking` apagado.
+- VHS: `EmissivePulse` + luz cálida, `Hint (VR)` copiado de Parte 1, pista a
+  los 6 s (`Pista inicial (VHS)`, `TimedSequence`, se corta al agarrar),
+  texto al agarrar; `VCRSlot` ganó `_hint`/`_missingTapeMessage`.
+
+**Parte 3:**
+- Lámparas 0.55 → 0.35, linterna 2.6 → 2.2.
+- `FakeLightPool` (shader `Custom/FakeLightPool`, material
+  `Assets/Materials/FakeLightPool.mat`) bajo cada tp.
+- `IdleFootstepsScare` (nuevo): pasos tras 12–20 s quieto en los tp "pieza".
+- Puerta `27_2`: su `Open Position Target` movía el pivote al borde opuesto;
+  ahora gira sobre su bisagra hacia el pozo (target en el pivote, y+90).
+- `AbyssFall` mejorado: vigas/grietas en las paredes del pozo (una malla, 4
+  tramos, `_bandColor` 0.09/0.075/0.06), polvo (`Polvo_Caida.mat`), la
+  cámara se inclina 25° hacia arriba y sacude al caer (pivote temporal).
+  Probado en cámara lenta.
+
+**Parte 5:**
+- Grano 0.28 → 0.10 (Medium1).
+- 5 tps nuevos (tp19–tp23) y la sala del este (sellada en el modelo) ahora
+  accesible por `Puertas sala este` (vano oscuro + marco, `TeleportPoint`
+  con Destination Override y fade; ida a tp24 y vuelta a tp15) con 6 tps
+  adentro (tp24–tp29). Conectividad verificada con raycasts.
+- Monstruo: `Visual/Modelo (Monstruo_Rig)`; `Mascara` y `Luz interior` ahora
+  hijas del hueso `Head`.
+- `Desmayo -> Menu (final)` renombrado `Desmayo -> Parte Final` (sin texto).
+
+**Monstruo riggeado:** `Assets/Editor/MonsterAutoRig.cs`, menús
+`Tools/Feria de Ciencias/Riggear monstruo (Moustruo1)`, `...: solo
+actualizar malla` y `...: probar en escena`. **Usar "solo actualizar malla"
+si el prefab ya existe**: regenerar el prefab puede cambiar los IDs de los
+huesos y desenganchar la máscara de Parte 5. Genera `Moustruo1_Rig.asset`
+(2.5 m, 19 huesos, 2 influencias, cabeza rígida al hueso `Head`, brazos
+separados de la cadera) y `Assets/Prefabs/Monstruo_Rig.prefab` con
+`ProceduralWalk` (caminata procedural por velocidad: piernas, rodillas,
+brazos colgando, joroba, espasmos de cabeza, respiración; sin Animator).
+
+**Parte Final (nueva):** habitación de hospital de primitivas + muebles
+copiados del hospital de Parte 1 (bed2, cab1, ivst1, chair1, bedscr2, cart1,
+photo); colchón, almohada y frazada; tubo fluorescente con luz 4; ambiente
+Flat (0.11, 0.12, 0.125); rig copiado de Parte 1 (sin linterna ni
+`CardboardReticlePointer`), cámara sentada en la cabecera con
+`WakeUpFromFloor` (0.45 m). `Monitor de hospital` con el nuevo
+`MonitorBeepDisplay` y `monitor_bip_simple.wav` (bip corto generado).
+`Foto (ultima pista)` con `Assets/Texturas/Foto_cumpleanos.png` (render
+sepia de la mesa del cumpleaños de Parte 2, con la VHS) + `InteractiveObject`
++ `GazeAttractor` (luz que crece a los 30 s). Pistas `Pista inicial` (7 s y
+14 s). `Secuencia final`: texto "Mi cumpleaños... Ahora me acuerdo de todo." →
+monitor `SetInterval 0.42` → `ScreenBlink.RapidBlinks` → `Desmayo -> Menu
+(final)` (blanco, "FIN / RECUERDOS ROTOS"). `kidman_room` eliminado. Probado
+en Play hasta el desmayo al Menú. Textos provisorios. Build Settings: Parte
+Final tildada.
+
+**Corrección 2026-10-25 (Omar): la Parte Final vuelve a usar `kidman_room`.**
+Omar avisó que "ya había un mapa elegido". En la rama `origin/Mapas` (del
+compañero, 2026-09-01) cada Parte tiene su mapa, y la `Parte Final` usaba
+`kidman_room` (Sketchfab "Kidman Room", CC-BY-4.0, de Veterock). Es una
+habitación de hospital con dos camillas que da a un pasillo. Lo que se hizo:
+- La habitación de primitivas y los muebles copiados de Parte 1 se borraron
+  (con sus 7 materiales `Hospital_*`; quedan `Hospital_Monitor` y
+  `Hospital_Monitor_Pantalla`).
+- `kidman_room (hospital)` quedó como hijo de `Habitacion de hospital`, en el
+  origen.
+- La cámara está en la cabecera de la camilla derecha, en (1.75, 1.45, 1.85),
+  mirando a -z; el colchón queda a y 0.75. `Player` está en (1.75, 0, 1.85).
+- El monitor está en (0.5, 0.98, 2.15), sobre el carrito entre las camillas.
+- La foto está en la mesita de luz con lámpara, en (2.82, 0.65, 2.6), a la
+  derecha de la cabecera.
+- `Luz del tubo` está en (1.75, 3, 0.8): el techo está a 4.46 m.
+- El modelo pasó a `.gltf` + 116 texturas sueltas (`kidman_room_tex_NN`, con
+  ASTC 6x6 y máximo 1024 en Android; 48 son normal maps). Se conservó el
+  GUID: ~272 MB → ~30 MB. Respaldo del `.glb` en el scratchpad.
+- Probado en Play: despertar, mirada a la foto, secuencia final y desmayo al
+  Menú, sin errores.
+
+**Scripts:** nuevos `FlashlightPickup`, `GazeAttractor`,
+`MonitorBeepDisplay`, `FakeLightPool` (+ shader), `IdleFootstepsScare`,
+`ProceduralWalk`, `MonsterAutoRig`. Modificados `TeleportManager`,
+`MonsterChaser`, `VCRSlot`, `MainMenuController`, `AbyssFall`,
+`WhisperGenerator`.
+
+**Pendiente:** cuadros de Parte 4 (fotos de Omar), probar en el A54
+(rendimiento del SkinnedMesh y del polvo), commitear cuando Omar lo pida.
+
+### Segunda ronda de feedback en el A54 (2026-10-23) — sin commitear
+
+**Menú:**
+- La puerta no abría porque `door_55` es el **marco**; la hoja es
+  `Door_low.002_Door_0.001_62` (`Object_88`). Además `PuertaMenu` estaba del
+  lado del picaporte. Ahora `_door` = la hoja y `_doorHinge` =
+  `Habitacion/BisagraPuertaMenu` (nuevo, en el borde -x de la hoja), ángulo
+  **+100**. Probado en Play en cámara lenta: abre hacia afuera con el marco
+  quieto.
+
+**Tutorial:** quedan solo los 4 tps del medio del cuarto; se borraron
+`Teletransportadores (6)`, `(7)` (afuera, al norte) y `Teletransportadores`
+(detrás de la puerta).
+
+**Parte 1:**
+- Linterna movida a los pies de la cama del spawn (-88.15, 0.635, 41.75)
+  (antes la tapaba el biombo), `EmissivePulse` en la lente, luz 1.8. Pista
+  `Pista inicial (linterna)` a los 5 s ("Está muy oscuro... necesito una
+  luz."), se corta al agarrarla.
+  **2026-10-25 (Omar):** la luz encima "la tapaba", así que pasó a 0.45, con
+  rango 1.6 y 0.7 m arriba / 0.25 m al costado. El `EmissivePulse` de la
+  lente quedó en 0.1–0.7.
+- **Haz de la linterna más realista (2026-10-25):** antes era un círculo
+  duro. Ahora `Main Camera/Spot Light` lleva el cookie
+  `Assets/Texturas/Cookie_Linterna.png`, generado por código: centro
+  brillante, un anillo tenue del reflector, un halo ancho y suave alrededor y
+  un poco de ruido. Valores: ángulo 80 (antes 47.9), intensidad 4.5 (antes
+  3.5), rango 12 y color cálido (1, 0.94, 0.84). URP Mobile tiene los light
+  cookies activados (atlas de 1024). **Aplicado en todas las escenas el
+  mismo día (Omar):** la linterna hija de `Main Camera` lleva el mismo cookie
+  en Menú, Tutorial y Partes 2, 3, 4, 5 y Final, con ángulo 80, el mismo
+  color cálido e intensidad ×1.29 (también el `_baseIntensity` de
+  `FlickeringLight`). Quedaron: Menú, Tutorial y Parte 2 en 4.5, Parte 3 en
+  2.83 y Parte 4 en 51.4. En Parte 5 y Final la linterna está apagada.
+- Texto doble del candado: `ExamineTrigger._lockedHintSign` (cartel viejo
+  `FaltaCodigo`) vaciado; queda solo `VRHintText`.
+- `Spot Light (3)` 30° → 65°, rango 4, 0.3 m más atrás.
+- `TeleportPoint._alwaysFade` (nuevo): `UsesFadeTransition` = override sin
+  loop || `_alwaysFade`; `HasDestinationOverride` (nuevo) lo usa
+  `TeleportManager.Start`. Tildado en `VistaCandado` (se llega al candado
+  con fundido).
+- `ExamineScareSounds._maxSounds` (nuevo, 0 = sin límite) = 1 en `Sustos al
+  examinar`.
+- `BotonVolver`: placa `Mat_BotonVolver.mat` (casi negra) y "VOLVER" en
+  Special Elite con contorno (`Assets/Fonts/SpecialElite SDF Contorno.mat`),
+  alineación centro/medio, fontSize 6.8.
+- **Persecución al abrir el candado (nueva):**
+  `Assets/Scripts/Transitions/ScriptedChase.cs` mueve **solo la posición** de
+  la cámara (nunca la rota), bloquea mirada y movimiento, `_standEyeHeight`
+  para enderezarse si estaba agachado, caída con pivote temporal como
+  `AbyssFall`. Objeto `Persecucion (al abrir el candado)`: 4 waypoints por el
+  pasillo al sur de la puerta (x≈-97, z 25.2 → 7.5), espera 1.6 s, camina
+  1.4 m/s; a los 3 s rugido (`Assets/Audios/Parte2/monstruo_rugido.wav`) y
+  aparece `Monstruo (persecucion)` (instancia de `Monstruo_Rig`) 7 m detrás,
+  que se acerca a 1.6 m; el jugador corre a 3.2 m/s con viñeta de confort
+  (`Vineta de confort`, perfil `Assets/Settings/Vineta Confort
+  Profile.asset`, vignette 0.5); al final tropieza (cae 1.1 m, se inclina
+  35°, golpe seco) y `_onFinished → Desmayo -> Parte 2` (preDelay 3.5 →
+  0.4).
+- `CodeLock.On Unlocked`: se sacó `ReturnToPreviousPoint` (ahora
+  `BotonVolver.SetActive(false)`) y el desmayo directo (ahora
+  `ScriptedChase.Play`). Probado en Play hasta cargar Parte 2.
+
+**Parte 2:**
+- `TP` y `Flechas` arrancan apagados y se prenden en
+  `SecurityFootage._onMovieEnd` (VHS y tele se alcanzan sin tps, gaze 10 m).
+- `MonsterChaser`: `_minSpeed` 0.5 (nuevo), ventana 2 s; la velocidad se
+  interpola por la actividad del jugador (si se queda quieto baja a 0.5).
+- `Tp 1 (18)` alejado de la puerta de salida a ~2.6 m. Medición de paredes a
+  1.4 m: el resto de los tps ya estaba lejos.
+
+**Parte 3:**
+- Se quitaron los 18 `FakeLightPool` (script y shader quedan sin usar).
+- `Sustos (ambiente)`: sin susurros (`_whisperClips` vacío, chance 0);
+  quedan pasos y golpes/crujidos (no había clips de gritos).
+- Pasillo: los tps estaban justo frente a cada par de puertas (pares cada
+  10 m en z -42.5, -32.5, …, 7.5). Ahora `tp2..tp7` en el tramo entre pares
+  (mitad -1.8 m) y nuevos `tp2b..tp7b` (mitad +1.8 m): separación 3.6–6.4 m
+  y ~2.5 m de las puertas. `tp8` → z 19.8. **Ojo:** `tp2` tiene como hijos
+  `tp1` y la puerta-portal `14_2` (se restauraron sus posiciones).
+  **Cambiado otra vez el 2026-10-25 (Omar):** así quedaban a la altura de las
+  paredes, no de las puertas. Ahora los portales alternan cada 5 m: uno
+  frente a cada par de habitaciones (`tp2` -42.5, `tp3` -32.5, `tp4` -22.5,
+  `tp5` -12.5, `tp6` -2.5, `tp7` 7.5) y otro a la altura de la pared que
+  separa cada grupo (`tp2b` -37.5, `tp3b` -27.5, `tp4b` -17.5, `tp5b` -7.5,
+  `tp6b` 2.5, `tp7b` 12.5). Las puertas están en pares, con centros cada
+  10 m (x -2.72 y 3.04). `tp1`, `14_2`, `tp8`, `tp9` y `tp10` no se tocaron. `tp1
+  pieza 2` y `tp5 pieza 2` alejados de las puertas a 2.2 m.
+- **Ambiente de miedo del pasillo (Omar, 2026-10-25, probado en Play).** Salió
+  de una investigación: asusta más la incertidumbre que el monstruo. Todo está
+  bajo el objeto raíz `Ambiente del pasillo`. Sin flashes, sin gritos y sin
+  susurros.
+  1. **Apliques apagados:** 26 de los 29 `lights_N` usan
+     `Assets/Materials/light_cover_apagado.mat` (emisión 0.008). Quedan
+     prendidos `lights_24`, `lights_14` y `lights_6`, uno junto a cada
+     lámpara real. `light_cover.mat` bajó de emisión (1, 0.86, 0) a
+     (0.5, 0.42, 0.05).
+  2. **Luces que se apagan detrás** (`LightsOffBehind`): cuando el jugador
+     deja `Lámpara 1` o `Lámpara 2` 3 m atrás y fuera de vista, la lámpara y
+     su aplique se apagan en 2.5 s. Corta el `FlickeringLight` y usa un
+     property block en el material del aplique. `Lámpara 3` no se apaga:
+     ilumina la silueta.
+  3. **Puerta que se entreabre** (`OpenWhenUnseen`, puerta `17_2`, la del
+     vallado): se arma al llegar a `tp4`. Cuando la puerta queda fuera de
+     vista, corta el zumbido de golpe y, 2 s después, gira 14° en 3 s con
+     `crujido_madera_02`. A la vez sube `Luz roja (rendija)` (spot detrás de
+     la puerta, apuntando al piso, 1.2). El zumbido vuelve con un fundido.
+  4. **Sonido:** `Zumbido grave (loop)` (`zumbido_grave.wav`, 2D, 0.22, menú
+     **Herramientas > Generar zumbido grave (Parte 3)**). `Golpes en puertas
+     pasadas` (`SoundFromPassedPoints`, 25 puertas del pasillo): golpes y
+     crujidos 3D cada 40–90 s, siempre desde una puerta que quedó detrás, a
+     4–16 m. `Sustos (ambiente)` quedó solo con pasos, cada 50–95 s, sin
+     `Distant Clips`.
+  5. **Silueta al fondo** (`DistantWatcher`): `Monstruo_Rig` en (0.13,
+     -0.23, 15.5), justo después de `Lámpara 3`, con una `Contraluz` tenue.
+     Aparece al llegar a `tp5`, pero solo mientras no se la mira. Desaparece
+     de golpe cuando el jugador se acerca a menos de 12 m, cuando la miró y
+     aparta la vista, o a los 25 s. Una sola vez.
+  - **Luces en el A54:** la rendija y la contraluz arrancan apagadas. Las
+    lámparas 1 y 2 se van apagando a medida que se avanza, así que no se
+    supera el tope de 4 luces por objeto por mucho tiempo.
+  - Scripts nuevos: `Ambient/LightsOffBehind`, `Ambient/OpenWhenUnseen`,
+    `Ambient/DistantWatcher`, `Audio/SoundFromPassedPoints`.
+
+**Parte 4:** no hay puertas cerca de tps. El problema "no interactúa al
+llegar" **NO se reprodujo en el Editor**: llegando desde Parte 3 por el
+desmayo, gaze activo, sin bloqueos, colliders bien, y una selección por
+mirada teletransportó a `tp3-4`. **Causa real (Omar, 2026-10-25):** los tps
+estaban a 22–30 m entre sí (desde el spawn, el más cercano a 21.8 m): en el
+celular el orbe es un puntito y no se alcanza a sostener la mirada. Arreglo:
+**39 tps intermedios** clonados de `tp8-9`, cada ≤8 m sobre la línea recta de
+cada tramo, nombrados `tp <A>~<B> (n)` bajo `Teletransportadores` (sin luz
+propia, solo el orbe). El tramo `tp1 → tp pared ciega` tiene 3 en el grupo
+`Intermedios pared ciega (se prenden con la pintura)`, que arranca apagado y
+lo prende `Pintura al reves.On Straightened` (nueva llamada `SetActive(true)`),
+para que no se pueda saltear el loop. Verificado: los 58 tps tienen un
+vecino visible a ≤8.7 m sin pared en el medio (raycast contra el oclusor);
+en Play, tp desde el spawn, el loop `tp1 → tp1-2` sigue andando desde el
+intermedio, y la pintura prende los 3 de la pared ciega. Sin errores.
+**Reducido el mismo día (Omar: "demasiados portales"):** quedan 16
+intermedios, uno por tramo, el más cercano a la mitad. Los tramos de menos de
+17 m (`tp2~tp pintura` y `tp8~tp7-8`) se quedaron sin intermedio. El grupo de
+la pared ciega quedó con 1. En total hay 35 tps, y el vecino visible más
+lejano está a 15.6 m (`tp8`). El loop sigue andando: `tp tp1-2~tp1 (2)` está
+entre `tp1-2` y `tp1`.
+
+**Loop obligatorio (pedido de Omar, 2026-10-25):** antes se podía ir directo a
+la pintura y enderezarla sin haber entrado nunca al loop. Ahora
+`UpsideDownPainting` tiene `Start Upright` (tildado en `Pintura al reves`):
+arranca **derecha y sin collider** (no se puede usar) y recién se da vuelta
+con `TurnUpsideDown()` (método nuevo, solo la primera vez; `Turn Sound`
+opcional), que se llama desde `tp1.On Loop`. O sea: la primera vuelta del
+loop da vuelta el cuadro (lejos, fuera de vista) y desde ahí empieza el
+puzzle. Además `Golpes tras la pintura (pista)` pasó de `Threshold 2` a
+**1** (con `Repeat Every 2`): los golpes desde la pintura suenan en la
+vuelta 1, 3, 5…, así el jugador escucha que "algo pasó" en el cuadro justo
+cuando se da vuelta. Probado en Play: al arrancar está derecha y
+`OnGazeSelect` no hace nada; tras una vuelta queda al revés (rot z 180) con
+collider; al mirarla se endereza y corta el loop. Sin errores.
+
+**Screamer (Omar, 2026-10-25; SOLO en Parte 4, no quiere en otras partes):**
+nuevo `Assets/Scripts/Ambient/Screamer.cs`. `Trigger()` prende un visual
+(instancia de `Monstruo_Rig`, inactiva) con la cara (`_faceAnchor` = hueso
+`Head`) a `_distance` 0.75 m delante de la mirada, lo sigue con Lerp si el
+jugador gira, se abalanza 0.2 m y tiembla (el monstruo, nunca la cámara)
+durante `_holdSeconds` **0.5** (Omar: "un pantallazo de medio segundo"), con
+el grito `PlayOneShot` 2D al 0.85 sin fade-in, que **se corta junto con la
+imagen** (fundido de 0.06 s; el clip dura 1.3 s); bloquea la mirada (`AddBlocker`) y apaga `ProceduralWalk` mientras
+dura. Sin flashes (fotosensibilidad). `_playOnce`. Grito generado:
+`Assets/Audios/Efectos/grito_screamer.wav` (menú **Herramientas > Generar
+grito (screamer)** en `WhisperGenerator`, semilla 101, 1.3 s). En escena:
+`Transiciones/Screamer (3a vuelta del loop)` (Screamer + `CountedEvent`
+`Threshold 3`, `Repeat 0` → `Trigger`), con hijo `Monstruo (screamer)`;
+`tp1.On Loop` suma `CountedEvent.Count`. Lo ilumina la linterna de la
+cámara. Probado en Play con captura: cara a 0.82 m, bien visible.
+
+**Scripts:** nuevo `ScriptedChase`; modificados `TeleportPoint`,
+`TeleportManager`, `MonsterChaser`, `ExamineScareSounds`,
+`MainMenuController` (ya tenía `_doorHinge`).
+
+**Caminata pesada del monstruo (Omar, 2026-10-25):** `ProceduralWalk`
+reescrito con resortes (cabeza y brazos con inercia, `SpringStep`
+semi-implícito) y un bloque nuevo `[Header("Andar pesado")]`. Los cambios:
+- `_heaviness` 1 (0 = la caminata vieja).
+- Paso más lento (`_strideFrequencyMultiplier` 0.75) que frena en cada
+  apoyo (`_phaseBrake`).
+- Cojea de la pierna derecha (`_limpTiming`, `_limpKneeReduction`,
+  `_limpFootDrop`).
+- Cae el peso en cada paso (`_stepDropMeters` 0.06, rodillas flexionadas,
+  golpe en el torso).
+- Balanceo de cadera hacia la pierna de apoyo.
+- Cabeza colgando 14° que cabecea con cada impacto.
+- Brazos casi sin balanceo, que cuelgan y rebotan.
+- Respiración agitada.
+- Espasmos más espaciados mientras camina.
+
+La API no cambió. Probado en Play en una escena de prueba (de costado y de
+frente, cámara lenta) y con capturas: no hay articulaciones invertidas. Si
+algún eje se ve al revés, se invierte el signo del campo correspondiente en
+el prefab `Monstruo_Rig`. Afecta a todos los monstruos (Partes 1, 2, 4 y 5).
+
+### Estética visual por nivel (Omar, 2026-10-25, probado)
+
+Idea: cada recuerdo tiene su propio color. Se hace con Volumes globales de
+grading propios por escena, todos bajo el objeto raíz `Grading (estetica)`.
+Los perfiles están en `Assets/Settings/Grading/`. **No se toca el `Global
+Volume Profile` compartido.** El costo es casi cero: Color Adjustments, Split
+Toning, White Balance y Vignette corren en el mismo pase final.
+
+| Escena | Grading |
+|---|---|
+| Menú | `Grading Menu`: desaturado, sombras azuladas. Se prendió Post Processing en la cámara (antes estaba apagado). |
+| Tutorial | `Grading Tutorial`: neutro y lavado (-20 de saturación). |
+| Parte 1 | `Grading Parte 1`: sombras verde azuladas y luces cálidas, viñeta 0.25. |
+| Parte 2 | `Grading Parte 2`: colores de fiesta -30 % con magenta en las sombras. `Grading persecucion` (prioridad 2, arranca en 0) sube en 2 s con `SecurityFootage._onMovieEnd`: más oscuro y rojizo. |
+| Parte 4 | `Grading Parte 4`: ámbar/sepia con grano. `Grading encierro (vueltas del loop)` se cierra un escalón por vuelta (ver abajo). |
+| Parte 5 | Niebla `Linear` de 5 a 22 m (antes ExponentialSquared 0.04): cerca se ve igual y el fondo se pierde. `Pulso de exposicion (zumbido)`, perfil `Backrooms Pulso` (exposición -0.75), prioridad 1.5: debajo del apagón. Es un `VolumePulse` con `_smoothWave` (nuevo, onda seno) a 16 bpm: el brillo respira lento. `Backrooms Volume Profile` subió el contraste de 14 a 24. |
+| Parte Final | `Grading frio (hospital)`: clínico, frío y claro. `Grading calido (recuerdo)` sube en 6 s desde el primer paso de `Secuencia final`, al mirar la foto. |
+
+**Otros cambios:**
+
+- **Polvo en la linterna:** Menú, Parte 1 y Parte 4. Es un objeto
+  `Polvo (linterna)` hijo de la linterna de `Main Camera`, con 40 partículas
+  como máximo, unlit y en espacio local, para que siempre queden dentro del
+  haz. Usa el material `Assets/Materials/Polvo_Linterna.mat` y la textura
+  `Assets/Texturas/Polvo_Particula.png`. `FlashlightDust` corta la emisión
+  cuando la linterna está apagada; en Parte 1 eso pasa hasta que se la agarra.
+- **Parte 4, vueltas del loop:** `tp1.On Loop` llama a `LoopDecay.Step`. Cada
+  vuelta suma 0.2 de peso al Volume de encierro (viñeta 0.55, menos color,
+  más oscuro) y multiplica las 17 `Luces Tetricas` por 0.85, con un mínimo de
+  0.45 y un tope de 5 vueltas. Usa `FlickeringLight.IntensityMultiplier` /
+  `FadeIntensityMultiplier` (nuevos).
+- **Parte 2, luz de la tele:** `Luz de la tele (fria)` es una luz puntual
+  azulada (1.2, rango 4.5) frente a la pantalla, con parpadeo suave. Se
+  prende con `VCRSlot._onTapeInserted`, así que cuenta como una luz más para
+  el tope de 4 luces por objeto.
+
+**Scripts nuevos:**
+
+- `Ambient/VolumeWeightFade`: `FadeIn`, `FadeOut`, `FadeTo` y `StepUp`.
+- `Ambient/LoopDecay`.
+- `Ambient/FlashlightDust`.
+
+Se modificaron `FlickeringLight` (multiplicador) y `VolumePulse`
+(`_smoothWave`).
+
+**Probado:**
+
+- Capturas antes y después de Parte 1, Parte 4 y Final.
+- En Play, en Parte 4: 2 vueltas dieron peso 0.4 y luces ×0.72, y el polvo
+  tenía 39 partículas. Sin errores.
 
 ### Transiciones "desmayo" — estado al cierre de la sesión 2026-09-23
 
@@ -3366,11 +3751,11 @@ quitarse la máscara).
 | `Menu Principal.unity` | **Funcional.** Paneles, `MainMenuController` (valida la escena destino contra Build Settings), `ConfigMenu`/`GameSettings`, secuencia de entrada con puerta, `FlickeringLight`, aviso de fotosensibilidad al arrancar. **Sin Bloom.** Generada por script (`MenuPrincipalGenerator`, gotcha #23): no tocar a mano. |
 | `Tutorial.unity` | **Del compañero.** Llave, `LevelDoor` hacia `Parte 1`, pantalla de carga, ambiente y locución (`SceneNarration`). Su transición usa Screen Space Overlay (probablemente invisible en Cardboard, #19). |
 | `Parte 1 - El Despertar.unity` | **Completa.** Candado `067` con indicador en los discos, sin niebla y más oscura, latidos al despertar, sustos (pasos y susurros) mientras se ingresa el código, HDR, desmayo a Parte 2 con golpe + respiración y texto. `CameraDebugLogger` sigue activo (sacarlo después de la prueba en el A54). |
-| `Parte 2 - Cumpleaños.unity` | **Del compañero.** `rec_room…` (demasiado pesado para el A54), **sin rig** y sin salida a Parte 3. |
+| `Parte 2 - Cumpleaños.unity` | **Integrada y de Omar** (el compañero se fue). Rig, mapa combinado, puzzle VHS → tele → persecución → puerta a Parte 3; monstruo riggeado con velocidad adaptativa, pista de la VHS, mira corregida (2026-10-22). Probar en el A54. |
 | `Parte 3 - Pasillo de hotel.unity` | **Completa.** Llave → puerta `27_2` → pozo → caída con viento → desmayo a Parte 4. Estética de la Parte 1 (sin niebla, reflejo 0, HDR, 3 lámparas cálidas), sustos de ambiente. Rig propio (no prefab). |
 | `Parte 4 - Pasillo de madera.unity` | **Completa.** Pasillo infinito, pintura al revés con pista sonora cada 2 vueltas, sustos en el loop, derrumbe con sonido y luz amarilla, desmayo amarillo a Parte 5. Ojo en el A54: solo 4 luces por objeto en Mobile (gotcha #18). |
-| `Parte 5 - Backrooms.unity` | **Completa** (2026-09-25). Rig, 20 tps, amarillo sucio, 3 fragmentos, entrega, silueta provisoria y final → Menú. Ver "Parte 5: Backrooms". |
-| `Parte Final.unity` | **Sin usar** (#5): el final pasa en Parte 5. Tiene `kidman_room` (la escena más pesada en memoria); conviene destildarla en Build Settings. |
+| `Parte 5 - Backrooms.unity` | **Completa** (2026-09-25, ampliada 2026-10-22). Rig, 29 tps (sala del este ahora accesible), amarillo sucio, grano suave, 3 fragmentos, entrega, monstruo riggeado y final → `Parte Final`. Ver "Parte 5: Backrooms" y "Feedback de Omar en el A54 (2026-10-22)". |
+| `Parte Final.unity` | **Usada** (2026-10-22, #5 cambiada por Omar): habitación de hospital `kidman_room` (el mapa original de la rama `Mapas`, restaurado el 2026-10-25) con camilla, monitor y foto como última pista → desmayo blanco al Menú; tildada en Build Settings. Textos provisorios. Ver "Feedback de Omar en el A54 (2026-10-22)". |
 
 **Build Settings:** el orden sigue siendo 0 Menú, 1 Tutorial, 2 Parte 1, 3
 Parte 2, 4 Parte 3, 5 Parte 4, 6 Parte 5, 7 Final, pero **hoy (2026-09-25)
@@ -3420,6 +3805,13 @@ un error y no dispara.
 - Menores: sacar `CameraDebugLogger` de Parte 1 después de la prueba; la luz
   `MZ4_Lamp_OFF_m_0` de Parte 1 (fuera del cuarto) si sobra; `Doppler
   Factor = 0`; confirmar si `GameManager` (loop de estado viejo) sigue en uso.
+- **Parte 4, cuadros:** esperan las fotos de Omar (2026-10-22); no hecho.
+  También pendiente: probar en el A54 el rendimiento del monstruo
+  riggeado (SkinnedMesh) y del polvo de `AbyssFall`; commitear todo lo del
+  2026-10-22 cuando Omar lo pida.
+- **Parte 4, "no interactúa al llegar" desde Parte 3 (2026-10-23):** no se
+  reproduce en el Editor; falta `adb logcat` en el A54 durante Parte 3 → 4
+  (ver "Segunda ronda de feedback en el A54 (2026-10-23)").
 - Sin usar pero listos: `Peephole` (no hay mirillas por decisión de Omar),
   `SequenceManager` (para los globos del compañero), `AudioFader.Distort`
   (música de cumpleaños).
