@@ -65,9 +65,6 @@ public class LightsOffBehind : MonoBehaviour
     private float _lastOffTime = -999f;
     private MaterialPropertyBlock _mpb;
 
-    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
-    private static readonly int EmissiveFactorId = Shader.PropertyToID("emissiveFactor");
-
     /// <summary>Activa el sistema.</summary>
     public void Arm() { _armed = true; }
 
@@ -116,7 +113,7 @@ public class LightsOffBehind : MonoBehaviour
         }
 
         // Emision: color de partida de cada sub-material a apagar.
-        var targets = new System.Collections.Generic.List<(Renderer r, int idx, int propId, Color from)>();
+        var targets = new System.Collections.Generic.List<(Renderer r, int idx, Color from)>();
         if (_emissiveMaterial != null && e.emissiveRenderers != null)
         {
             for (int i = 0; i < e.emissiveRenderers.Length; i++)
@@ -127,11 +124,9 @@ public class LightsOffBehind : MonoBehaviour
                 for (int m = 0; m < mats.Length; m++)
                 {
                     if (mats[m] != _emissiveMaterial) continue;
-                    int pid;
-                    if (_emissiveMaterial.HasProperty(EmissionColorId)) pid = EmissionColorId;
-                    else if (_emissiveMaterial.HasProperty(EmissiveFactorId)) pid = EmissiveFactorId;
-                    else continue;
-                    targets.Add((r, m, pid, _emissiveMaterial.GetColor(pid)));
+                    int pid = _emissiveMaterial.HasProperty(EmissionUtil.UrpId) ? EmissionUtil.UrpId : EmissionUtil.GltfId;
+                    if (!_emissiveMaterial.HasProperty(pid)) continue;
+                    targets.Add((r, m, _emissiveMaterial.GetColor(pid)));
                 }
             }
         }
@@ -162,16 +157,12 @@ public class LightsOffBehind : MonoBehaviour
         _onLightOff?.Invoke();
     }
 
-    private void ApplyEmission(System.Collections.Generic.List<(Renderer r, int idx, int propId, Color from)> targets, float factor)
+    private void ApplyEmission(System.Collections.Generic.List<(Renderer r, int idx, Color from)> targets, float factor)
     {
         for (int i = 0; i < targets.Count; i++)
         {
             var t = targets[i];
-            if (t.r == null) continue;
-            _mpb.Clear();
-            t.r.GetPropertyBlock(_mpb, t.idx);
-            _mpb.SetColor(t.propId, Color.Lerp(Color.black, t.from, factor));
-            t.r.SetPropertyBlock(_mpb, t.idx);
+            EmissionUtil.Set(t.r, _mpb, Color.Lerp(Color.black, t.from, factor), t.idx);
         }
     }
 }

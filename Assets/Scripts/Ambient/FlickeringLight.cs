@@ -59,12 +59,7 @@ public class FlickeringLight : MonoBehaviour
     /// <summary>Fija el multiplicador de intensidad al instante (UnityEvent).</summary>
     public void SetIntensityMultiplier(float m)
     {
-        if (_multiplierFade != null)
-        {
-            StopCoroutine(_multiplierFade);
-            _multiplierFade = null;
-        }
-        IntensityMultiplier = m;
+        FadeIntensityMultiplier(m, 0f);
     }
 
     /// <summary>Lleva el multiplicador al valor "target" suavemente en "seconds".</summary>
@@ -152,6 +147,13 @@ public class FlickeringLight : MonoBehaviour
 
     private void Update()
     {
+        // Luz apagada desde afuera (p.ej. LightsOffBehind): nada que parpadear.
+        // Los timers usan Time.time, asi que al prenderla de nuevo retoma sola.
+        if (!_light.enabled)
+        {
+            return;
+        }
+
         // Parpadeo forzado (Burst) en curso: gana sobre todo lo demas.
         if (Time.time < _burstUntil)
         {
@@ -174,7 +176,7 @@ public class FlickeringLight : MonoBehaviour
         // Apagada a proposito (TurnOff / BurstThenOff).
         if (_forcedOff)
         {
-            _light.intensity = 0f;
+            if (_light.intensity != 0f) _light.intensity = 0f;
             return;
         }
 

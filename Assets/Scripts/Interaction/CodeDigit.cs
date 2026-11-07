@@ -42,6 +42,18 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
     [Tooltip("Duracion del amague (ida y vuelta), en segundos.")]
     [SerializeField] private float _hintNudgeSeconds = 0.45f;
 
+    [Header("Giro sostenido (issue #32: candado mas rapido)")]
+    [Tooltip("Si esta tildado, mientras se sigue mirando el disco avanza solo un numero cada 'Hold Step Seconds', sin esperar a que el aro de la mira se vuelva a llenar.")]
+    [SerializeField] private bool _holdToSpin = true;
+    [Tooltip("Si esta tildado, el PRIMER paso de cada mirada lo da la seleccion normal (aro lleno). Recien despues gira solo. Evita que un disco gire por pasarle la mirada por encima.")]
+    [SerializeField] private bool _waitForFirstSelect = true;
+    [Tooltip("Segundos entre paso y paso mientras se sigue mirando el disco.")]
+    [SerializeField] private float _holdStepSeconds = 0.6f;
+    [Tooltip("Pausa EXTRA al caer en el numero correcto de este disco, para que se alcance a soltar la mirada ahi.")]
+    [SerializeField] private float _pauseOnCorrectSeconds = 0.8f;
+    [Tooltip("Una seleccion de GazeController que llega menos de estos segundos despues de un paso se ignora (si no, el giro sostenido y la seleccion normal darian dos pasos juntos).")]
+    [SerializeField] private float _selectDebounceSeconds = 0.3f;
+
     /// <summary>Simbolo que esta mostrando este cilindro ahora mismo.</summary>
     public char CurrentSymbol => !string.IsNullOrEmpty(_symbols) ? _symbols[_currentIndex] : '\0';
 
@@ -54,6 +66,16 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
     private int _currentIndex;
     private bool _isRotating;
     private Coroutine _nudge;
+
+    // Giro sostenido: tiempo acumulado mirando desde el ultimo paso, cuanto
+    // hay que esperar para el proximo (mas largo si cayo en el correcto),
+    // cuantos pasos van en esta mirada y cuando fue el ultimo paso.
+    private bool _gazed;
+    private float _holdTimer;
+    private float _nextStepDelay;
+    private int _stepsThisGaze;
+    private float _lastStepTime = float.NegativeInfinity;
+    private int _lockIndex = -2; // -2 = todavia no se pregunto al CodeLock
 
     private void Awake()
     {
@@ -75,6 +97,9 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
         _isRotating = false;
         _nudge = null;
         transform.localRotation = _baseLocalRotation;
+        ResetHold();
+        _gazed = false;
+        _lastStepTime = float.NegativeInfinity;
     }
 
     private void OnDisable()
@@ -84,6 +109,8 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
 
     public void OnGazeEnter()
     {
+        _gazed = true;
+        ResetHold();
         SetGazed(true);
         if (_gazeHint && !_isRotating && isActiveAndEnabled)
         {
@@ -98,24 +125,59 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
         {
             SetHintGlow(0.75f + 0.25f * Mathf.Sin(Time.time * 5f));
         }
+
+        // Giro sostenido: acumulador propio, independiente del timer de
+        // GazeController (que no se toca). Con _waitForFirstSelect, arranca
+        // recien despues del primer paso de esta mirada.
+        if (!_holdToSpin || (_waitForFirstSelect && _stepsThisGaze == 0))
+        {
+            return;
+        }
+
+        _holdTimer += Time.deltaTime;
+        if (_holdTimer >= _nextStepDelay && !_isRotating)
+        {
+            // Si estaba girando, el acumulador queda "lleno" y da el paso
+            // apenas termina el giro (los pasos se ignoran mientras gira).
+            TryStep();
+        }
     }
 
     public void OnGazeExit()
     {
+        _gazed = false;
+        ResetHold();
         SetGazed(false);
         SetHintGlow(0f);
     }
 
     public void OnGazeSelect()
     {
-        // LOG TEMPORAL: confirma que este cilindro puntual es el que
-        // realmente recibio la seleccion (y no el candado entero). Sacar
-        // despues de resolver el bug de la hitbox.
-        Debug.Log($"[CodeDigit] OnGazeSelect en {gameObject.name} (isRotating={_isRotating})");
-
-        if (_isRotating || string.IsNullOrEmpty(_symbols))
+        // Mientras el giro sostenido maneja el disco, las selecciones
+        // periodicas de GazeController se ignoran: si no, caerian en fases
+        // al azar respecto del acumulador y romperian la pausa del numero
+        // correcto. Un select suelto (sin mirada en curso, o el primero de
+        // una mirada) funciona como siempre.
+        if (_holdToSpin && _gazed && _stepsThisGaze > 0)
         {
             return;
+        }
+        if (Time.time - _lastStepTime < _selectDebounceSeconds)
+        {
+            return;
+        }
+
+        TryStep();
+    }
+
+    /// <summary>
+    /// Avanza un simbolo si no esta girando. Devuelve false si no pudo.
+    /// </summary>
+    private bool TryStep()
+    {
+        if (_isRotating || string.IsNullOrEmpty(_symbols))
+        {
+            return false;
         }
 
         if (_nudge != null)
@@ -127,7 +189,45 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
         _currentIndex = (_currentIndex + 1) % _symbols.Length;
         StartCoroutine(RotateStep());
 
+        _lastStepTime = Time.time;
+        int steps = _stepsThisGaze + 1;
+        ResetHold();
+        _stepsThisGaze = steps;
+
+        // Cayo en el numero correcto de este disco: pausa extra para que el
+        // jugador alcance a sacar la mirada justo ahi.
+        if (IsOnCorrectSymbol())
+        {
+            _nextStepDelay += Mathf.Max(0f, _pauseOnCorrectSeconds);
+        }
+
         _codeLock?.ReportDigitChanged();
+        return true;
+    }
+
+    private bool IsOnCorrectSymbol()
+    {
+        if (_codeLock == null)
+        {
+            return false;
+        }
+        if (_lockIndex == -2)
+        {
+            _lockIndex = _codeLock.GetDigitIndex(this);
+        }
+        if (_lockIndex < 0)
+        {
+            return false;
+        }
+        char target = _codeLock.GetTargetSymbol(_lockIndex);
+        return target != '\0' && target == CurrentSymbol;
+    }
+
+    private void ResetHold()
+    {
+        _holdTimer = 0f;
+        _stepsThisGaze = 0;
+        _nextStepDelay = Mathf.Max(0.05f, _holdStepSeconds);
     }
 
     private Quaternion RotationForIndex(int index)
@@ -180,11 +280,9 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
 
         Quaternion fromRot = transform.localRotation;
         Quaternion toRot = RotationForIndex(_currentIndex);
-
         float duration = Mathf.Max(0f, _rotationDuration);
-        float elapsed = 0f;
 
-        while (elapsed < duration)
+        for (float elapsed = 0f; elapsed < duration;)
         {
             elapsed += Time.deltaTime;
             transform.localRotation = Quaternion.Slerp(fromRot, toRot, Mathf.Clamp01(elapsed / duration));
@@ -195,11 +293,5 @@ public class CodeDigit : MonoBehaviour, IGazeInteractable
         _isRotating = false;
     }
 
-    private void SetGazed(bool gazedAt)
-    {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
-        {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
-        }
-    }
+    private void SetGazed(bool gazedAt) => GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
 }

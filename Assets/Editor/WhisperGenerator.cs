@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
+using static EditorGenUtil;
 
 /// <summary>
 /// Genera los susurros y la respiracion de Parte 1 (sonidos mientras se ingresa
@@ -23,7 +22,6 @@ using UnityEngine;
 /// </summary>
 public static class WhisperGenerator
 {
-    private const int Rate = 44100;
     private const string Folder = "Assets/Audios/Susurros";
 
     // Formantes (Hz) de vocales habladas: F1, F2, F3.
@@ -39,35 +37,14 @@ public static class WhisperGenerator
     [MenuItem("Herramientas/Generar susurros (Parte 1)")]
     public static void Generate()
     {
-        Directory.CreateDirectory(Folder);
         var written = new List<string>();
         int[] syllables = { 4, 6, 5, 7, 3 };
         for (int i = 0; i < syllables.Length; i++)
         {
-            string path = Folder + "/susurro_" + (i + 1).ToString("00") + ".wav";
-            WriteWav(path, Whisper(1000 + i * 37, syllables[i]));
-            written.Add(path);
+            written.Add(WriteClip(Folder, "susurro_" + (i + 1).ToString("00"), Whisper(1000 + i * 37, syllables[i])));
         }
-        string breath = Folder + "/respiracion_01.wav";
-        WriteWav(breath, Breath(77));
-        written.Add(breath);
-
-        AssetDatabase.Refresh();
-        foreach (string path in written)
-        {
-            if (AssetImporter.GetAtPath(path) is AudioImporter imp)
-            {
-                imp.forceToMono = true;
-                imp.loadInBackground = false;
-                AudioImporterSampleSettings s = imp.defaultSampleSettings;
-                s.loadType = AudioClipLoadType.DecompressOnLoad;
-                s.compressionFormat = AudioCompressionFormat.Vorbis;
-                s.quality = 0.7f;
-                s.preloadAudioData = true;
-                imp.defaultSampleSettings = s;
-                imp.SaveAndReimport();
-            }
-        }
+        written.Add(WriteClip(Folder, "respiracion_01", Breath(77)));
+        ImportClips(written);
         Debug.Log("[WhisperGenerator] Generados " + written.Count + " clips en " + Folder);
     }
 
@@ -85,14 +62,8 @@ public static class WhisperGenerator
     [MenuItem("Herramientas/Generar efectos de sonido (latidos, golpe, viento, derrumbe...)")]
     public static void GenerateEffects()
     {
-        Directory.CreateDirectory(EffectsFolder);
         var written = new List<string>();
-        void Save(string name, float[] data)
-        {
-            string path = EffectsFolder + "/" + name + ".wav";
-            WriteWav(path, data);
-            written.Add(path);
-        }
+        void Save(string name, float[] data) => written.Add(WriteClip(EffectsFolder, name, data));
         Save("latidos_despertar", Heartbeat(11));
         Save("golpe_seco", Impact(22));
         Save("caida_viento", FallWind(33));
@@ -107,22 +78,7 @@ public static class WhisperGenerator
         Save("golpes_madera", Knocks(81));
         Save("clic_linterna", FlashlightClick(91));
 
-        AssetDatabase.Refresh();
-        foreach (string path in written)
-        {
-            if (AssetImporter.GetAtPath(path) is AudioImporter imp)
-            {
-                imp.forceToMono = true;
-                AudioImporterSampleSettings s = imp.defaultSampleSettings;
-                bool longClip = path.Contains("zumbido") || path.Contains("latidos") || path.Contains("derrumbe") || path.Contains("monitor");
-                s.loadType = longClip ? AudioClipLoadType.CompressedInMemory : AudioClipLoadType.DecompressOnLoad;
-                s.compressionFormat = AudioCompressionFormat.Vorbis;
-                s.quality = 0.7f;
-                s.preloadAudioData = true;
-                imp.defaultSampleSettings = s;
-                imp.SaveAndReimport();
-            }
-        }
+        ImportClips(written, p => p.Contains("zumbido") || p.Contains("latidos") || p.Contains("derrumbe") || p.Contains("monitor"));
         Debug.Log("[WhisperGenerator] Generados " + written.Count + " efectos en " + EffectsFolder);
     }
 
@@ -133,21 +89,14 @@ public static class WhisperGenerator
     [MenuItem("Herramientas/Generar grito (screamer)")]
     public static void GenerateScream()
     {
-        Directory.CreateDirectory(EffectsFolder);
-        string path = EffectsFolder + "/grito_screamer.wav";
-        WriteWav(path, Scream(101));
-        AssetDatabase.Refresh();
-        if (AssetImporter.GetAtPath(path) is AudioImporter imp)
-        {
-            imp.forceToMono = true;
-            AudioImporterSampleSettings s = imp.defaultSampleSettings;
-            s.loadType = AudioClipLoadType.DecompressOnLoad;
-            s.compressionFormat = AudioCompressionFormat.Vorbis;
-            s.quality = 0.7f;
-            s.preloadAudioData = true;
-            imp.defaultSampleSettings = s;
-            imp.SaveAndReimport();
-        }
+        SaveOne("grito_screamer", Scream(101));
+    }
+
+    // Escribe un clip suelto en Efectos, lo importa y lo loguea.
+    private static void SaveOne(string name, float[] data, int rate = Rate)
+    {
+        string path = WriteClip(EffectsFolder, name, data, rate);
+        ImportClips(new[] { path });
         Debug.Log("[WhisperGenerator] Generado " + path);
     }
 
@@ -159,22 +108,7 @@ public static class WhisperGenerator
     [MenuItem("Herramientas/Generar zumbido grave (Parte 3)")]
     public static void GenerateLowDrone()
     {
-        Directory.CreateDirectory(EffectsFolder);
-        string path = EffectsFolder + "/zumbido_grave.wav";
-        WriteWav(path, LowDrone(303), DroneRate);
-        AssetDatabase.Refresh();
-        if (AssetImporter.GetAtPath(path) is AudioImporter imp)
-        {
-            imp.forceToMono = true;
-            AudioImporterSampleSettings s = imp.defaultSampleSettings;
-            s.loadType = AudioClipLoadType.DecompressOnLoad;
-            s.compressionFormat = AudioCompressionFormat.Vorbis;
-            s.quality = 0.7f;
-            s.preloadAudioData = true;
-            imp.defaultSampleSettings = s;
-            imp.SaveAndReimport();
-        }
-        Debug.Log("[WhisperGenerator] Generado " + path);
+        SaveOne("zumbido_grave", LowDrone(303), DroneRate);
     }
 
     private const int DroneRate = 22050;
@@ -667,20 +601,6 @@ public static class WhisperGenerator
         }
     }
 
-    private static void FadeEdges(float[] data, float inSeconds, float outSeconds)
-    {
-        int fi = (int)(inSeconds * Rate);
-        int fo = (int)(outSeconds * Rate);
-        for (int i = 0; i < fi && i < data.Length; i++)
-        {
-            data[i] *= (float)i / fi;
-        }
-        for (int i = 0; i < fo && i < data.Length; i++)
-        {
-            data[data.Length - 1 - i] *= (float)i / fo;
-        }
-    }
-
     // ------------------------------------------------------------------ susurro
 
     private static float[] Whisper(int seed, int syllableCount)
@@ -815,131 +735,8 @@ public static class WhisperGenerator
         }
     }
 
-    // ------------------------------------------------------------------- helpers
-
-    private static float Noise(System.Random rng)
-    {
-        // Suma de dos uniformes: ruido un poco menos "duro" que el uniforme puro.
-        return (float)(rng.NextDouble() + rng.NextDouble() - 1.0);
-    }
-
-    private static float Envelope(int i, int n, float attackFraction, float releaseFraction)
-    {
-        int minRamp = (int)(0.008f * Rate);
-        int attack = Mathf.Max(minRamp, (int)(n * attackFraction));
-        int release = Mathf.Max(minRamp, (int)(n * releaseFraction));
-        float e = 1f;
-        if (i < attack)
-        {
-            e = 0.5f - 0.5f * Mathf.Cos(Mathf.PI * i / attack);
-        }
-        else if (i > n - release)
-        {
-            e = 0.5f - 0.5f * Mathf.Cos(Mathf.PI * (n - i) / release);
-        }
-        return e;
-    }
-
     private static void AppendSilence(List<float> output, float seconds)
     {
-        int n = (int)(seconds * Rate);
-        for (int i = 0; i < n; i++)
-        {
-            output.Add(0f);
-        }
-    }
-
-    private static void Normalize(float[] data, float peak)
-    {
-        float max = 0f;
-        foreach (float v in data)
-        {
-            max = Mathf.Max(max, Mathf.Abs(v));
-        }
-        if (max < 1e-6f)
-        {
-            return;
-        }
-        float g = peak / max;
-        for (int i = 0; i < data.Length; i++)
-        {
-            data[i] *= g;
-        }
-    }
-
-    private static void WriteWav(string path, float[] data)
-    {
-        WriteWav(path, data, Rate);
-    }
-
-    private static void WriteWav(string path, float[] data, int rate)
-    {
-        using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
-        using (var bw = new BinaryWriter(fs))
-        {
-            int bytes = data.Length * 2;
-            bw.Write(Encoding.ASCII.GetBytes("RIFF"));
-            bw.Write(36 + bytes);
-            bw.Write(Encoding.ASCII.GetBytes("WAVE"));
-            bw.Write(Encoding.ASCII.GetBytes("fmt "));
-            bw.Write(16);
-            bw.Write((short)1);      // PCM
-            bw.Write((short)1);      // mono
-            bw.Write(rate);
-            bw.Write(rate * 2);      // bytes por segundo
-            bw.Write((short)2);      // bytes por muestra
-            bw.Write((short)16);     // bits
-            bw.Write(Encoding.ASCII.GetBytes("data"));
-            bw.Write(bytes);
-            foreach (float v in data)
-            {
-                bw.Write((short)Mathf.Clamp(Mathf.RoundToInt(v * 32767f), -32768, 32767));
-            }
-        }
-    }
-
-    /// <summary>Filtro biquad (transpuesto directa II), formulas del Audio EQ Cookbook.</summary>
-    private class Biquad
-    {
-        private float _b0, _b1, _b2, _a1, _a2, _z1, _z2;
-
-        public void SetBandPass(float hz, float q)
-        {
-            double w = 2.0 * Math.PI * Mathf.Clamp(hz, 20f, Rate * 0.45f) / Rate;
-            double alpha = Math.Sin(w) / (2.0 * q);
-            double a0 = 1.0 + alpha;
-            Set(alpha / a0, 0.0, -alpha / a0, -2.0 * Math.Cos(w) / a0, (1.0 - alpha) / a0);
-        }
-
-        public void SetHighPass(float hz, float q)
-        {
-            double w = 2.0 * Math.PI * Mathf.Clamp(hz, 20f, Rate * 0.45f) / Rate;
-            double alpha = Math.Sin(w) / (2.0 * q);
-            double cos = Math.Cos(w);
-            double a0 = 1.0 + alpha;
-            Set((1.0 + cos) / 2.0 / a0, -(1.0 + cos) / a0, (1.0 + cos) / 2.0 / a0, -2.0 * cos / a0, (1.0 - alpha) / a0);
-        }
-
-        public void SetLowPass(float hz, float q)
-        {
-            double w = 2.0 * Math.PI * Mathf.Clamp(hz, 20f, Rate * 0.45f) / Rate;
-            double alpha = Math.Sin(w) / (2.0 * q);
-            double cos = Math.Cos(w);
-            double a0 = 1.0 + alpha;
-            Set((1.0 - cos) / 2.0 / a0, (1.0 - cos) / a0, (1.0 - cos) / 2.0 / a0, -2.0 * cos / a0, (1.0 - alpha) / a0);
-        }
-
-        private void Set(double b0, double b1, double b2, double a1, double a2)
-        {
-            _b0 = (float)b0; _b1 = (float)b1; _b2 = (float)b2; _a1 = (float)a1; _a2 = (float)a2;
-        }
-
-        public float Process(float x)
-        {
-            float y = _b0 * x + _z1;
-            _z1 = _b1 * x - _a1 * y + _z2;
-            _z2 = _b2 * x - _a2 * y;
-            return y;
-        }
+        output.AddRange(new float[(int)(seconds * Rate)]);
     }
 }

@@ -17,6 +17,9 @@ public class SceneTransitionOverlay : MonoBehaviour
     public static void Play(string sceneName, string bigText, string subText,
                             float fadeDuration = 1.2f, float holdSeconds = 2.5f, Color? color = null)
     {
+        // Mismos eventos que el desmayo (los escucha GameTimer, feria).
+        FaintOverlay.NotifyFaintStarted(sceneName);
+
         GameObject go = new GameObject("SceneTransitionOverlay");
         DontDestroyOnLoad(go);
         SceneTransitionOverlay o = go.AddComponent<SceneTransitionOverlay>();
@@ -70,10 +73,12 @@ public class SceneTransitionOverlay : MonoBehaviour
         yield return Fade(img, txt, 0f, 1f);
 
         // 2. cargar la escena (sin activarla todavia)
+        FaintOverlay.NotifyLoadBegin(_scene);
         AsyncOperation op = SceneManager.LoadSceneAsync(_scene);
         if (op == null)
         {
             Debug.LogError("[SceneTransitionOverlay] No pude cargar '" + _scene + "'. Esta en File > Build Settings?");
+            FaintOverlay.NotifySceneActivated(SceneManager.GetActiveScene().name);
             yield return Fade(img, txt, 1f, 0f);
             Destroy(gameObject);
             yield break;
@@ -87,6 +92,11 @@ public class SceneTransitionOverlay : MonoBehaviour
             yield return null;
         }
         op.allowSceneActivation = true;
+        while (!op.isDone)
+        {
+            yield return null;
+        }
+        FaintOverlay.NotifySceneActivated(SceneManager.GetActiveScene().name);
 
         // 3. ya en la escena nueva: fundido de salida y limpieza
         yield return null;

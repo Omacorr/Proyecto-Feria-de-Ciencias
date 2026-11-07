@@ -125,8 +125,7 @@ public class AbyssFall : MonoBehaviour
     private Quaternion _doorClosedRotation;
     private GameObject _plug;
     private Transform _cam;
-    private Transform _camOriginalParent;
-    private Transform _pivot;
+    private CameraPivot _pivot;
     private GameObject _dustObject;
     private Material _dustFallbackMat;
     private Material[] _bandMaterials;
@@ -229,7 +228,7 @@ public class AbyssFall : MonoBehaviour
 
         _onFallStart?.Invoke();
 
-        Transform cam = _cameraTransform != null ? _cameraTransform : (Camera.main != null ? Camera.main.transform : null);
+        Transform cam = OverlayUtil.CameraOr(_cameraTransform);
         if (cam == null)
         {
             Debug.LogWarning("[AbyssFall] No hay camara para hacer caer.");
@@ -267,37 +266,26 @@ public class AbyssFall : MonoBehaviour
 
     private IEnumerator Fall(Transform cam)
     {
-        // Pivote temporal: el TrackedPoseDriver pisa la rotacion LOCAL de la
-        // camara en cada frame, asi que la inclinacion y la sacudida se aplican
-        // a un padre vacio (la camara conserva su pose mundial al reparentarse).
+        // La inclinacion y la sacudida van en un pivote padre (ver CameraPivot).
         _cam = cam;
-        _camOriginalParent = cam.parent;
-        GameObject pivotGo = new GameObject("Pivote de caida (generado)");
-        _pivot = pivotGo.transform;
-        _pivot.SetParent(_camOriginalParent, true);
-        _pivot.position = cam.position;
-        _pivot.localRotation = Quaternion.identity; // igual que el padre original: la rotacion local de la camara sigue valiendo
-        cam.SetParent(_pivot, true);
+        _pivot = new CameraPivot(cam, "Pivote de caida (generado)");
+        Transform pivot = _pivot.Pivot;
 
-        Vector3 basePos = _pivot.position;
+        Vector3 basePos = pivot.position;
         float velocity = 0f;
         float floorY = transform.position.y;
         float bottom = floorY - _depth + 1f;
         float t = 0f;
         float hangLeft = _hangTime;
 
-        while (_pivot != null && basePos.y > bottom)
+        while (pivot != null && basePos.y > bottom)
         {
             float dt = Time.deltaTime;
             t += dt;
 
-            // Inclinacion hacia arriba, sobre el eje "derecha" horizontal segun
-            // hacia donde mira la cabeza (si no, mirando de costado seria un roll).
             if (_lookUpPitch > 0f)
             {
-                float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / _pitchSeconds));
-                Quaternion yaw = Quaternion.Euler(0f, cam.localEulerAngles.y, 0f);
-                _pivot.localRotation = Quaternion.AngleAxis(-_lookUpPitch * k, yaw * Vector3.right);
+                _pivot.Tilt(-_lookUpPitch * Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / _pitchSeconds)));
             }
 
             if (hangLeft > 0f)
@@ -316,23 +304,14 @@ public class AbyssFall : MonoBehaviour
                 float decay = 1f - t / _shakeSeconds;
                 shake = Random.insideUnitSphere * (_shakeAmount * decay);
             }
-            _pivot.position = basePos + shake;
+            pivot.position = basePos + shake;
             yield return null;
         }
     }
 
     private void OnDestroy()
     {
-        // Entregar la camara a su padre original (si sigue viva) antes de que
-        // se destruya el pivote; seguro si la escena se esta descargando.
-        if (_cam != null && _pivot != null && _cam.parent == _pivot)
-        {
-            _cam.SetParent(_camOriginalParent, true);
-        }
-        if (_pivot != null)
-        {
-            Destroy(_pivot.gameObject);
-        }
+        _pivot?.Release();
         if (_dustObject != null)
         {
             Destroy(_dustObject);
@@ -411,8 +390,7 @@ public class AbyssFall : MonoBehaviour
         ParticleSystemRenderer pr = _dustObject.GetComponent<ParticleSystemRenderer>();
         pr.sharedMaterial = mat;
         pr.renderMode = ParticleSystemRenderMode.Billboard;
-        pr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        pr.receiveShadows = false;
+        OverlayUtil.ConfigureRenderer(pr);
 
         ps.Play();
     }
@@ -526,8 +504,7 @@ public class AbyssFall : MonoBehaviour
         go.AddComponent<MeshFilter>().sharedMesh = mesh;
         MeshRenderer mr = go.AddComponent<MeshRenderer>();
         mr.sharedMaterials = _bandMaterials;
-        mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        mr.receiveShadows = false;
+        OverlayUtil.ConfigureRenderer(mr);
     }
 
     /// <summary>
@@ -536,26 +513,18 @@ public class AbyssFall : MonoBehaviour
     /// </summary>
     private static void AddWallQuad(List<Vector3> v, List<int> t, int wall, float hw, float zBack, float zFront, float u0, float u1, float y0, float y1)
     {
-        Vector3 a, b, c, d;
-        switch (wall)
+        // Paredes 0/1: x fijo y u a lo largo de Z; paredes 2/3: z fijo y u a lo largo de X.
+        Vector3 P(float u, float y)
         {
-            case 0:
-                a = new Vector3(-hw, y0, ZAlong(u0, zBack, zFront)); b = new Vector3(-hw, y0, ZAlong(u1, zBack, zFront));
-                c = new Vector3(-hw, y1, ZAlong(u1, zBack, zFront)); d = new Vector3(-hw, y1, ZAlong(u0, zBack, zFront));
-                break;
-            case 1:
-                a = new Vector3(hw, y0, ZAlong(u0, zBack, zFront)); b = new Vector3(hw, y0, ZAlong(u1, zBack, zFront));
-                c = new Vector3(hw, y1, ZAlong(u1, zBack, zFront)); d = new Vector3(hw, y1, ZAlong(u0, zBack, zFront));
-                break;
-            case 2:
-                a = new Vector3(u0, y0, zBack); b = new Vector3(u1, y0, zBack);
-                c = new Vector3(u1, y1, zBack); d = new Vector3(u0, y1, zBack);
-                break;
-            default:
-                a = new Vector3(u0, y0, zFront); b = new Vector3(u1, y0, zFront);
-                c = new Vector3(u1, y1, zFront); d = new Vector3(u0, y1, zFront);
-                break;
+            switch (wall)
+            {
+                case 0: return new Vector3(-hw, y, ZAlong(u, zBack, zFront));
+                case 1: return new Vector3(hw, y, ZAlong(u, zBack, zFront));
+                case 2: return new Vector3(u, y, zBack);
+                default: return new Vector3(u, y, zFront);
+            }
         }
+        Vector3 a = P(u0, y0), b = P(u1, y0), c = P(u1, y1), d = P(u0, y1);
         int i = v.Count;
         v.Add(a); v.Add(b); v.Add(c); v.Add(d);
         t.Add(i); t.Add(i + 1); t.Add(i + 2);
@@ -599,8 +568,7 @@ public class AbyssFall : MonoBehaviour
             wall.transform.localScale = b.size;
             MeshRenderer mr = wall.GetComponent<MeshRenderer>();
             mr.sharedMaterial = mat;
-            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            mr.receiveShadows = false;
+            OverlayUtil.ConfigureRenderer(mr);
         }
 
         if (_plugDoorway && _doorwayWidth > 0f && _doorwayHeight > 0f)
@@ -615,8 +583,7 @@ public class AbyssFall : MonoBehaviour
             _plug.transform.localScale = new Vector3(dw, dh, 1f);
             MeshRenderer pr = _plug.GetComponent<MeshRenderer>();
             pr.sharedMaterial = mat;
-            pr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            pr.receiveShadows = false;
+            OverlayUtil.ConfigureRenderer(pr);
         }
     }
 

@@ -68,38 +68,17 @@ public class LevelDoor : MonoBehaviour, IGazeInteractable
             return;
         }
 
-        if (_requiresKey && (_keyInventory == null || !_keyInventory.HasKey))
+        bool hasKey = _keyInventory != null && _keyInventory.HasKey;
+        if (_requiresKey && !hasKey)
         {
-            Debug.Log("[LevelDoor] " + gameObject.name + ": mirada recibida pero FALTA la llave " +
-                      "(KeyInventory=" + (_keyInventory != null) + ", HasKey=" + (_keyInventory != null && _keyInventory.HasKey) + ").");
-            ShowMissingKeySign();
+            Debug.Log($"[LevelDoor] {gameObject.name}: mirada recibida pero FALTA la llave (KeyInventory={_keyInventory != null}, HasKey={hasKey}).");
+            TimedSign.Show(this, _missingKeySign, _signDuration, ref _signRoutine);
             return;
         }
 
-        Debug.Log("[LevelDoor] " + gameObject.name + ": abriendo -> transicion a '" + _nextSceneName + "'.");
+        Debug.Log($"[LevelDoor] {gameObject.name}: abriendo -> transicion a '{_nextSceneName}'.");
         _busy = true;
         StartCoroutine(OpenThenGo());
-    }
-
-    private void ShowMissingKeySign()
-    {
-        if (_missingKeySign == null)
-        {
-            return;
-        }
-        if (_signRoutine != null)
-        {
-            StopCoroutine(_signRoutine);
-        }
-        _signRoutine = StartCoroutine(SignRoutine());
-    }
-
-    private IEnumerator SignRoutine()
-    {
-        _missingKeySign.SetActive(true);
-        yield return new WaitForSeconds(_signDuration);
-        _missingKeySign.SetActive(false);
-        _signRoutine = null;
     }
 
     private IEnumerator OpenThenGo()
@@ -115,12 +94,10 @@ public class LevelDoor : MonoBehaviour, IGazeInteractable
         {
             Quaternion from = _doorPivot.rotation;
             Quaternion to = Quaternion.AngleAxis(_doorOpenAngle, Vector3.up) * from;
-            float e = 0f;
-            while (e < _doorOpenDuration)
+            for (float e = 0f; e < _doorOpenDuration;)
             {
                 e += Time.deltaTime;
-                float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(e / _doorOpenDuration));
-                _doorPivot.rotation = Quaternion.Slerp(from, to, k);
+                _doorPivot.rotation = Quaternion.Slerp(from, to, Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(e / _doorOpenDuration)));
                 yield return null;
             }
             _doorPivot.rotation = to;

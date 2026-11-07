@@ -16,6 +16,12 @@ public class CameraDebugLogger : MonoBehaviour
 
     private void Update()
     {
+        // Solo en Editor / Development Build: evita armar el string (GC) en el APK final.
+        if (!Debug.isDebugBuild)
+        {
+            return;
+        }
+
         _timer += Time.deltaTime;
         if (_timer < 1f)
         {

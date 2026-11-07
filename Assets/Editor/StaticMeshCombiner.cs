@@ -36,19 +36,14 @@ public static class StaticMeshCombiner
     private static void MenuCombine()
     {
         GameObject root = Selection.activeGameObject;
-        if (root == null) return;
-        string folder = DefaultFolder(root);
-        string result = Combine(root, DefaultCellSize, folder);
-        Debug.Log(result, root);
+        if (root != null) Debug.Log(Combine(root, DefaultCellSize, DefaultFolder(root)), root);
     }
 
     [MenuItem("Tools/Feria de Ciencias/Revertir combinado (selección)")]
     private static void MenuRevert()
     {
         GameObject root = Selection.activeGameObject;
-        if (root == null) return;
-        string result = Revert(root, DefaultFolder(root));
-        Debug.Log(result, root);
+        if (root != null) Debug.Log(Revert(root, DefaultFolder(root)), root);
     }
 
     [MenuItem("Tools/Feria de Ciencias/Combinar mallas estáticas (selección)", true)]
@@ -283,8 +278,7 @@ public static class StaticMeshCombiner
                 registry.Append(PathFromRoot(c.Renderer.transform, root.transform)).Append('\t').AppendLine(c.Renderer.gameObject.name);
             }
 
-            string fullRegistry = Path.Combine(Directory.GetParent(Application.dataPath).FullName, outputFolder, RegistryFileName);
-            File.WriteAllText(fullRegistry, registry.ToString());
+            File.WriteAllText(RegistryPath(outputFolder), registry.ToString());
         }
         finally
         {
@@ -320,7 +314,7 @@ public static class StaticMeshCombiner
         outputFolder = (outputFolder ?? DefaultFolder(root)).Replace('\\', '/').TrimEnd('/');
 
         int reenabled = 0, missing = 0;
-        string fullRegistry = Path.Combine(Directory.GetParent(Application.dataPath).FullName, outputFolder, RegistryFileName);
+        string fullRegistry = RegistryPath(outputFolder);
         if (File.Exists(fullRegistry))
         {
             int undoGroup = Undo.GetCurrentGroup();
@@ -372,6 +366,11 @@ public static class StaticMeshCombiner
 
     // ------------------------------------------------------------------ Utilidades
 
+    private static string RegistryPath(string outputFolder)
+    {
+        return Path.Combine(Directory.GetParent(Application.dataPath).FullName, outputFolder, RegistryFileName);
+    }
+
     private static GameObject FindContainer(GameObject root)
     {
         Transform parent = root.transform.parent;
@@ -390,6 +389,8 @@ public static class StaticMeshCombiner
         for (; t != null; t = t.parent)
         {
             if (t.name == CombinedContainerName) return true;
+            // Visual de los portales (lo arma PortalVisual en runtime): nunca se combina.
+            if (t.name == PortalVisual.RootName) return true;
             if (t == root) break;
         }
         return false;

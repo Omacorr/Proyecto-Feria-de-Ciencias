@@ -201,8 +201,7 @@ public class ProceduralWalk : MonoBehaviour
 
     private void Find(ref Transform field, string boneName)
     {
-        if (field != null) return;
-        field = FindDeep(transform, boneName);
+        if (field == null) field = FindDeep(transform, boneName);
     }
 
     private static Transform FindDeep(Transform root, string boneName)
@@ -294,18 +293,18 @@ public class ProceduralWalk : MonoBehaviour
 
         Vector3 sw = Vector3.Cross(d, Vector3.forward);
         if (sw.sqrMagnitude < 1e-4f) sw = Vector3.right;
-        var j = new Joint
+        Vector3 up = LocalAxis(t, Vector3.up);
+        return new Joint
         {
             t = t,
             rest = t.localRotation,
             restPos = t.localPosition,
             sw = LocalAxis(t, sw.normalized),
             roll = LocalAxis(t, Vector3.forward),
-            yaw = LocalAxis(t, Vector3.up),
-            up = LocalAxis(t, Vector3.up),
+            yaw = up,
+            up = up,
             lat = LocalAxis(t, Vector3.right)
         };
-        return j;
     }
 
     private static void Pose(Joint j, float swing, float roll = 0f, float yaw = 0f)
@@ -400,12 +399,10 @@ public class ProceduralWalk : MonoBehaviour
         float elScale = Mathf.Lerp(1f, _elbowStraighten, h);
         float phL = _phase + Mathf.PI;
         float phR = _phase;
-        float elL = elScale * (_elbowRestBend + _elbowSwingBend * amp * (0.5f + 0.5f * Mathf.Sin(phL - _elbowLagRadians)));
-        float elR = elScale * (_elbowRestBend + _elbowSwingBend * amp * (0.5f + 0.5f * Mathf.Sin(phR - _elbowLagRadians)));
         Pose(_jLUA, armL);
         Pose(_jRUA, armR);
-        Pose(_jLLA, elL);
-        Pose(_jRLA, elR);
+        Pose(_jLLA, elScale * (_elbowRestBend + _elbowSwingBend * amp * (0.5f + 0.5f * Mathf.Sin(phL - _elbowLagRadians))));
+        Pose(_jRLA, elScale * (_elbowRestBend + _elbowSwingBend * amp * (0.5f + 0.5f * Mathf.Sin(phR - _elbowLagRadians))));
 
         // --- respiracion (mas rapida y amplia al caminar, fase continua) ---
         _breathPhase += Mathf.PI * 2f * Mathf.Lerp(_breathHz, _heavyBreathHz, hm) * dt;

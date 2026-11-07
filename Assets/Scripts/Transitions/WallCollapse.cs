@@ -139,7 +139,7 @@ public class WallCollapse : MonoBehaviour
 
     private IEnumerator Sequence()
     {
-        Transform cam = _cameraTransform != null ? _cameraTransform : (Camera.main != null ? Camera.main.transform : null);
+        Transform cam = OverlayUtil.CameraOr(_cameraTransform);
         Vector3 camStart = cam != null ? cam.position : Vector3.zero;
         Vector3 pullDir = -transform.forward; // hacia la pared
         float total = _crackTime + _collapseSpread + _lightRampTime + 2f;
@@ -229,8 +229,7 @@ public class WallCollapse : MonoBehaviour
             _glowMat = new Material(_glowShader);
             MeshRenderer glowRenderer = glow.GetComponent<MeshRenderer>();
             glowRenderer.sharedMaterial = _glowMat;
-            glowRenderer.shadowCastingMode = ShadowCastingMode.Off;
-            glowRenderer.receiveShadows = false;
+            OverlayUtil.ConfigureRenderer(glowRenderer);
             SetGlow(0.3f);
         }
         else

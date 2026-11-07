@@ -213,20 +213,26 @@ public class AudioFader : MonoBehaviour
 
     private IEnumerator VolumeRoutine(float target, float seconds, bool stopAtEnd)
     {
-        float from = _source.volume;
-        float elapsed = 0f;
-        while (elapsed < seconds)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            _source.volume = Mathf.Lerp(from, target, Mathf.Clamp01(elapsed / seconds));
-            yield return null;
-        }
-        _source.volume = target;
+        yield return Ramp(_source.volume, target, seconds, false, v => _source.volume = v);
         if (stopAtEnd)
         {
             _source.Stop();
         }
         _volumeRoutine = null;
+    }
+
+    // Rampa en tiempo real; curved = arranca lento y se acelera, como una cinta que se frena.
+    private static IEnumerator Ramp(float from, float to, float seconds, bool curved, System.Action<float> set)
+    {
+        float elapsed = 0f;
+        while (elapsed < seconds)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(elapsed / seconds);
+            set(Mathf.Lerp(from, to, curved ? k * k : k));
+            yield return null;
+        }
+        set(to);
     }
 
     private void PitchTo(float target, float seconds)
@@ -242,17 +248,7 @@ public class AudioFader : MonoBehaviour
 
     private IEnumerator PitchRoutine(float target, float seconds)
     {
-        float from = _source.pitch;
-        float elapsed = 0f;
-        while (elapsed < seconds)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            float k = Mathf.Clamp01(elapsed / seconds);
-            // Arranca lento y se "frena" cada vez mas rapido, como una cinta.
-            _source.pitch = Mathf.Lerp(from, target, k * k);
-            yield return null;
-        }
-        _source.pitch = target;
+        yield return Ramp(_source.pitch, target, seconds, true, p => _source.pitch = p);
         _pitchRoutine = null;
     }
 

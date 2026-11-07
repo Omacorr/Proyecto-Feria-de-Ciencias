@@ -106,6 +106,9 @@ public class MainMenuController : MonoBehaviour
         }
         _isLoading = true;
 
+        // Cronometro de la feria: arranca con Empezar (el jugador no ve nada).
+        GameTimer.StartRun();
+
         if (_door != null && _cameraRig != null)
         {
             StartCoroutine(EntranceSequence());
@@ -116,6 +119,9 @@ public class MainMenuController : MonoBehaviour
         }
         else
         {
+            // Carga sincronica: GameTimer descuenta la carga con LoadBegin y
+            // detecta la escena nueva por SceneManager.sceneLoaded.
+            FaintOverlay.NotifyLoadBegin(_gameSceneName);
             SceneManager.LoadScene(_gameSceneName);
         }
     }
@@ -186,10 +192,13 @@ public class MainMenuController : MonoBehaviour
             _loadingText.SetActive(true);
         }
 
+        // Cronometro: el reloj queda congelado mientras carga.
+        FaintOverlay.NotifyLoadBegin(_gameSceneName);
         AsyncOperation op = SceneManager.LoadSceneAsync(_gameSceneName);
         if (op == null)
         {
             Debug.LogError("[MainMenuController] No pude cargar '" + _gameSceneName + "'. Esta en File > Build Settings?");
+            FaintOverlay.NotifySceneActivated(SceneManager.GetActiveScene().name);
             yield break;
         }
         op.allowSceneActivation = false;
@@ -204,11 +213,17 @@ public class MainMenuController : MonoBehaviour
         }
 
         op.allowSceneActivation = true;
+        // Este objeto se destruye con la escena del Menu, asi que la activacion
+        // la avisa GameTimer por su cuenta (SceneManager.sceneLoaded).
     }
 
     private IEnumerator LoadWithFadeOnly()
     {
-        yield return _fade.FadeOutAndIn(() => SceneManager.LoadScene(_gameSceneName));
+        yield return _fade.FadeOutAndIn(() =>
+        {
+            FaintOverlay.NotifyLoadBegin(_gameSceneName);
+            SceneManager.LoadScene(_gameSceneName);
+        });
     }
 
     // Gira 't' 'angle' grados alrededor del eje 'axis' que pasa por 'pivot'

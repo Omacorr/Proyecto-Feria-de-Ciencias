@@ -34,9 +34,4 @@ public class CountedEvent : MonoBehaviour
             _onReached?.Invoke();
         }
     }
-
-    public void ResetCount()
-    {
-        Current = 0;
-    }
 }

@@ -15,7 +15,7 @@ using UnityEngine.Events;
 ///    tamano del cuadro + Layer Interactive (7).
 ///  - El modelo visual (marco + lienzo) como HIJO, centrado en la raiz.
 ///  - En el Editor se deja el cuadro DERECHO (se ve bien la imagen al ubicarlo):
-///    el script lo da vuelta solo al arrancar ("Authored Upright" tildado).
+///    el script lo da vuelta solo al arrancar.
 ///
 /// El giro es alrededor de un eje LOCAL (Flip Axis), por defecto Z: el eje que
 /// atraviesa el lienzo de frente. Si al probar gira "de costado" en vez de
@@ -30,14 +30,8 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     [Tooltip("Grados que esta girado el cuadro cuando esta 'al reves'. 180 = cabeza abajo.")]
     [SerializeField] private float _flipDegrees = 180f;
 
-    [Tooltip("Tildado (recomendado): en el Editor el cuadro esta DERECHO y el script lo pone al reves al arrancar. Destildado: ya lo dejaste al reves a mano en el Editor.")]
-    [SerializeField] private bool _authoredUpright = true;
-
     [Tooltip("Tildado: arranca DERECHO y sin collider (no se puede usar) hasta que alguien llame TurnUpsideDown(). Sirve para que el cuadro recien 'se de vuelta' despues de algo (en Parte 4, la primera vuelta del loop).")]
     [SerializeField] private bool _startUpright = false;
-
-    [Tooltip("Sonido al darse vuelta solo (TurnUpsideDown). Opcional.")]
-    [SerializeField] private AudioClip _turnSound;
 
     [Header("Animacion")]
     [Tooltip("Segundos que tarda en enderezarse.")]
@@ -55,26 +49,6 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     [Tooltip("Velocidad del temblor.")]
     [SerializeField] private float _trembleSpeed = 18f;
 
-    [Header("Uso")]
-    [Tooltip("Distancia maxima (horizontal) entre la camara y el cuadro para poder enderezarlo. 0 = sin limite (alcanza con que llegue el gaze).")]
-    [SerializeField] private float _maxUseDistance = 0f;
-
-    [Tooltip("Main Camera. Solo hace falta si se usa Max Use Distance; si queda vacio usa Camera.main.")]
-    [SerializeField] private Transform _cameraTransform;
-
-    [Tooltip("Tildado: al quedar derecho se apagan sus Collider, asi el aro del reticle no se vuelve a llenar sobre un cuadro que ya no hace nada.")]
-    [SerializeField] private bool _disableCollidersWhenDone = true;
-
-    [Header("Audio (opcional)")]
-    [Tooltip("AudioSource desde donde suenan los clips (puede estar en el propio cuadro).")]
-    [SerializeField] private AudioSource _audioSource;
-
-    [Tooltip("Sonido al empezar a girar (roce de madera, clavo).")]
-    [SerializeField] private AudioClip _straightenSound;
-
-    [Tooltip("Sonido al quedar derecho (golpe seco contra la pared).")]
-    [SerializeField] private AudioClip _settledSound;
-
     [Header("Eventos")]
     [Tooltip("Se dispara apenas empieza a girar.")]
     [SerializeField] private UnityEvent _onStraightenStart;
@@ -82,9 +56,7 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     [Tooltip("Se dispara UNA vez, cuando termina de quedar derecho. Ej: tp pared ciega -> GameObject.SetActive(true).")]
     [SerializeField] private UnityEvent _onStraightened;
 
-    /// <summary>True una vez que el cuadro termino de quedar derecho.</summary>
-    public bool IsStraightened { get; private set; }
-
+    private bool _straightened;
     private Quaternion _uprightRotation;
     private Vector3 _axis;
     private bool _isAnimating;
@@ -97,28 +69,21 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     {
         _axis = _flipAxis.sqrMagnitude > 0.0001f ? _flipAxis.normalized : Vector3.forward;
 
-        // Guardamos la rotacion "derecha" de referencia; todo lo demas se
-        // calcula como un giro alrededor del eje local a partir de ella.
-        _uprightRotation = _authoredUpright
-            ? transform.localRotation
-            : transform.localRotation * Quaternion.AngleAxis(-_flipDegrees, _axis);
+        // Rotacion "derecha" de referencia; todo lo demas es un giro alrededor
+        // del eje local a partir de ella.
+        _uprightRotation = transform.localRotation;
 
-        IsStraightened = false;
+        _isDormant = _startUpright;
+        ApplyAngle(_startUpright ? 0f : _flipDegrees);
         if (_startUpright)
         {
-            _isDormant = true;
-            ApplyAngle(0f);
             SetCollidersEnabled(false);
-        }
-        else
-        {
-            ApplyAngle(_flipDegrees);
         }
     }
 
     /// <summary>
-    /// Con Start Upright: el cuadro se da vuelta de golpe (con sonido) y pasa a
-    /// poder enderezarse. Solo la primera vez; despues no hace nada.
+    /// Con Start Upright: el cuadro se da vuelta de golpe y pasa a poder
+    /// enderezarse. Solo la primera vez; despues no hace nada.
     /// </summary>
     public void TurnUpsideDown()
     {
@@ -127,14 +92,14 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
             return;
         }
         _isDormant = false;
-        Play(_turnSound);
-        ResetUpsideDown();
+        SetCollidersEnabled(true);
+        ApplyAngle(_flipDegrees);
         Debug.Log($"[UpsideDownPainting] {gameObject.name}: se dio vuelta.");
     }
 
     private void Update()
     {
-        if (IsStraightened || _isAnimating || !_isGazed || _trembleAmount <= 0f)
+        if (_straightened || _isAnimating || !_isGazed || _trembleAmount <= 0f)
         {
             return;
         }
@@ -159,7 +124,7 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
         _isGazed = false;
         _trembleAmount = 0f;
 
-        if (!IsStraightened && !_isAnimating)
+        if (!_straightened && !_isAnimating && !_isDormant)
         {
             ApplyAngle(_flipDegrees);
         }
@@ -167,11 +132,6 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
 
     public void OnGazeSelect()
     {
-        if (_isDormant || IsStraightened || _isAnimating || !IsPlayerInRange())
-        {
-            return;
-        }
-
         Straighten();
     }
 
@@ -181,7 +141,7 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
     /// </summary>
     public void Straighten()
     {
-        if (_isDormant || IsStraightened || _isAnimating || !isActiveAndEnabled)
+        if (_isDormant || _straightened || _isAnimating || !isActiveAndEnabled)
         {
             return;
         }
@@ -189,50 +149,26 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
         StartCoroutine(StraightenRoutine());
     }
 
-    /// <summary>
-    /// Lo vuelve a poner al reves, sin animacion, y lo deja listo para
-    /// enderezarse otra vez (por ejemplo, si el loop del pasillo "reinicia" la
-    /// pintura). No deshace lo que se haya disparado en On Straightened.
-    /// </summary>
-    public void ResetUpsideDown()
-    {
-        StopAllCoroutines();
-        _isDormant = false;
-        _isAnimating = false;
-        IsStraightened = false;
-        _trembleAmount = 0f;
-        SetCollidersEnabled(true);
-        ApplyAngle(_flipDegrees);
-    }
-
     private IEnumerator StraightenRoutine()
     {
         _isAnimating = true;
-        Play(_straightenSound);
         _onStraightenStart?.Invoke();
         Debug.Log($"[UpsideDownPainting] {gameObject.name}: enderezando.");
 
         float duration = Mathf.Max(0.01f, _straightenDuration);
-        float elapsed = 0f;
-        while (elapsed < duration)
+        for (float elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)
         {
-            elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duration);
             // Arranca lento (como si costara despegarlo), acelera y frena.
-            float eased = t * t * (3f - 2f * t);
-            ApplyAngle(Mathf.Lerp(_flipDegrees, 0f, eased));
+            ApplyAngle(Mathf.Lerp(_flipDegrees, 0f, t * t * (3f - 2f * t)));
             yield return null;
         }
 
         ApplyAngle(0f);
-        Play(_settledSound);
-
         if (_settleWobbleDegrees > 0f && _settleWobbleDuration > 0f)
         {
-            elapsed = 0f;
-            while (elapsed < _settleWobbleDuration)
+            for (float elapsed = 0f; elapsed < _settleWobbleDuration; elapsed += Time.deltaTime)
             {
-                elapsed += Time.deltaTime;
                 float u = Mathf.Clamp01(elapsed / _settleWobbleDuration);
                 // Dos oscilaciones que se apagan.
                 ApplyAngle(_settleWobbleDegrees * (1f - u) * Mathf.Sin(u * Mathf.PI * 4f));
@@ -242,12 +178,9 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
         }
 
         _isAnimating = false;
-        IsStraightened = true;
-
-        if (_disableCollidersWhenDone)
-        {
-            SetCollidersEnabled(false);
-        }
+        _straightened = true;
+        // Sin collider el aro del reticle no se vuelve a llenar sobre un cuadro que ya no hace nada.
+        SetCollidersEnabled(false);
 
         Debug.Log($"[UpsideDownPainting] {gameObject.name}: derecho.");
         _onStraightened?.Invoke();
@@ -258,41 +191,11 @@ public class UpsideDownPainting : MonoBehaviour, IGazeInteractable
         transform.localRotation = _uprightRotation * Quaternion.AngleAxis(degrees, _axis);
     }
 
-    private bool IsPlayerInRange()
-    {
-        if (_maxUseDistance <= 0f)
-        {
-            return true;
-        }
-
-        Transform cam = _cameraTransform;
-        if (cam == null && Camera.main != null)
-        {
-            cam = Camera.main.transform;
-        }
-        if (cam == null)
-        {
-            return true;
-        }
-
-        Vector3 offset = transform.position - cam.position;
-        offset.y = 0f;
-        return offset.magnitude <= _maxUseDistance;
-    }
-
     private void SetCollidersEnabled(bool on)
     {
         foreach (Collider col in GetComponentsInChildren<Collider>(true))
         {
             col.enabled = on;
-        }
-    }
-
-    private void Play(AudioClip clip)
-    {
-        if (clip != null && _audioSource != null)
-        {
-            _audioSource.PlayOneShot(clip);
         }
     }
 }

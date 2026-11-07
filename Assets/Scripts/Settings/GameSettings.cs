@@ -29,6 +29,17 @@ public class GameSettings : MonoBehaviour
     // los dispositivos.
     private const string GazeSpeedKey = "cfg.gazeSpeed";
     private const string ReticleSizeKey = "cfg.reticleSize";
+    private const string FairModeKey = "cfg.fairMode";
+    private const string PortalsVisibleKey = "cfg.portalsVisible";
+
+    // Con modo feria la mirada queda fija en este valor, sin importar el preset
+    // de GazeSpeed: en la feria pasan muchas personas que nunca usaron VR y no
+    // hay tiempo de explicarles el menu de configuracion.
+    private const float FairModeGazeSeconds = 1.2f;
+
+    // Multiplicador de los tiempos de HintDirector. Con modo feria las pistas
+    // llegan antes (cada visitante tiene pocos minutos).
+    private const float FairModeHintTimeScale = 0.6f;
 
     // "Velocidad de carga del gaze" = segundos de mirada sostenida para
     // seleccionar. Menos segundos = mas rapido. El indice del array es (int)Level.
@@ -43,8 +54,28 @@ public class GameSettings : MonoBehaviour
     public Level GazeSpeed { get; private set; } = Level.Medio;
     public Level ReticleSize { get; private set; } = Level.Medio;
 
-    /// <summary>Segundos de mirada sostenida para seleccionar, segun el preset actual.</summary>
-    public float GazeSelectDuration => GazeSelectSecondsByLevel[Mathf.Clamp((int)GazeSpeed, 0, 2)];
+    /// <summary>
+    /// Modo feria (prendido por defecto): mirada fija de 1.2 s y pistas mas
+    /// rapidas (HintTimeScale 0.6). Apagado vuelve al preset de GazeSpeed.
+    /// </summary>
+    public bool FairMode { get; private set; } = true;
+
+    /// <summary>
+    /// Portales visibles (true, por defecto) o sutiles (false). Los portales
+    /// escuchan FeriaEvents.PortalVisibilityChanged o leen este valor al arrancar.
+    /// </summary>
+    public bool PortalsVisible { get; private set; } = true;
+
+    /// <summary>Multiplicador de los tiempos de pista: 0.6 con modo feria, 1 sin.</summary>
+    public float HintTimeScale => FairMode ? FairModeHintTimeScale : 1f;
+
+    /// <summary>
+    /// Segundos de mirada sostenida para seleccionar. Con modo feria es fijo
+    /// (1.2 s); sin modo feria sale del preset de GazeSpeed.
+    /// </summary>
+    public float GazeSelectDuration => FairMode
+        ? FairModeGazeSeconds
+        : GazeSelectSecondsByLevel[Mathf.Clamp((int)GazeSpeed, 0, 2)];
 
     /// <summary>Multiplicador de tamaño del reticulo, segun el preset actual.</summary>
     public float ReticleScale => ReticleScaleByLevel[Mathf.Clamp((int)ReticleSize, 0, 2)];
@@ -75,6 +106,8 @@ public class GameSettings : MonoBehaviour
 
         GazeSpeed = (Level)PlayerPrefs.GetInt(GazeSpeedKey, (int)Level.Medio);
         ReticleSize = (Level)PlayerPrefs.GetInt(ReticleSizeKey, (int)Level.Medio);
+        FairMode = PlayerPrefs.GetInt(FairModeKey, 1) != 0;
+        PortalsVisible = PlayerPrefs.GetInt(PortalsVisibleKey, 1) != 0;
 
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -106,6 +139,28 @@ public class GameSettings : MonoBehaviour
         PlayerPrefs.SetInt(ReticleSizeKey, (int)level);
         PlayerPrefs.Save();
         Apply();
+    }
+
+    /// <summary>Prende o apaga el modo feria, lo guarda y lo aplica a la escena.</summary>
+    public void SetFairMode(bool on)
+    {
+        FairMode = on;
+        PlayerPrefs.SetInt(FairModeKey, on ? 1 : 0);
+        PlayerPrefs.Save();
+        Apply();
+    }
+
+    /// <summary>
+    /// Portales visibles (true) o sutiles (false). Lo guarda, lo aplica y avisa
+    /// por FeriaEvents.PortalVisibilityChanged a los portales de la escena.
+    /// </summary>
+    public void SetPortalsVisible(bool visible)
+    {
+        PortalsVisible = visible;
+        PlayerPrefs.SetInt(PortalsVisibleKey, visible ? 1 : 0);
+        PlayerPrefs.Save();
+        Apply();
+        FeriaEvents.NotifyPortalVisibility(visible);
     }
 
     /// <summary>

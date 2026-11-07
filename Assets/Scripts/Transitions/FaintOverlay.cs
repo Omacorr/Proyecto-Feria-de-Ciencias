@@ -57,6 +57,48 @@ public class FaintOverlay : MonoBehaviour
     /// </summary>
     public static bool IsRunning => s_active != null;
 
+    // ---------------- Eventos de transicion (para GameTimer, feria) ----------------
+    // Estaticos para que el cronometro no tenga que conocer a cada overlay.
+    // SceneTransitionOverlay y MainMenuController los disparan con los Notify*
+    // de abajo, asi todo cambio de escena "con carga" pasa por el mismo lugar.
+    // Un listener que tire excepcion nunca corta la transicion.
+
+    /// <summary>Se disparo un desmayo/transicion. Parametro: escena destino.</summary>
+    public static event Action<string> FaintStarted;
+
+    /// <summary>Justo antes de LoadSceneAsync. Parametro: escena que se carga.</summary>
+    public static event Action<string> LoadBegin;
+
+    /// <summary>La escena nueva ya quedo activa (op.isDone). Parametro: su nombre.</summary>
+    public static event Action<string> SceneActivated;
+
+    /// <summary>El jugador termino de abrir los ojos en la escena nueva. Parametro: su nombre.</summary>
+    public static event Action<string> EyesOpened;
+
+    internal static void NotifyFaintStarted(string scene) => SafeRaise(FaintStarted, scene);
+    internal static void NotifyLoadBegin(string scene) => SafeRaise(LoadBegin, scene);
+    internal static void NotifySceneActivated(string scene) => SafeRaise(SceneActivated, scene);
+    internal static void NotifyEyesOpened(string scene) => SafeRaise(EyesOpened, scene);
+
+    private static void SafeRaise(Action<string> evt, string scene)
+    {
+        if (evt == null)
+        {
+            return;
+        }
+        foreach (Delegate d in evt.GetInvocationList())
+        {
+            try
+            {
+                ((Action<string>)d)(scene);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+    }
+
     public struct Settings
     {
         public string SceneName;
@@ -95,7 +137,6 @@ public class FaintOverlay : MonoBehaviour
     // FadeImage (UI/AlwaysOnTop = Overlay = 4000), y el texto encima de la esfera.
     private const int SphereQueue = 4999;
     private const int TextQueue = 5000;
-    private const int IgnoreRaycastLayer = 2;
 
     private const float TextDistance = 3f;       // metros adelante de la camara
     private const float TextBlockHeight = 0.45f; // alto total del bloque de texto a esa distancia
@@ -138,6 +179,8 @@ public class FaintOverlay : MonoBehaviour
             return;
         }
 
+        NotifyFaintStarted(settings.SceneName);
+
         GameObject go = new GameObject("FaintOverlay");
         DontDestroyOnLoad(go);
         FaintOverlay o = go.AddComponent<FaintOverlay>();
@@ -165,37 +208,11 @@ public class FaintOverlay : MonoBehaviour
         _audio.playOnAwake = false;
         _audio.spatialBlend = 0f;
 
-        _mat = CreateOverlayMaterial(_s.Material);
+        _mat = OverlayUtil.CreateOverlayMaterial(_s.Material, "[FaintOverlay]", SphereQueue);
         if (_mat != null)
         {
-            _mat.renderQueue = SphereQueue;
-
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            sphere.name = "FaintSphere";
-            // Sin collider: si no, el Raycast del GazeController pegaria contra la esfera.
-            DestroyImmediate(sphere.GetComponent<Collider>());
-            sphere.layer = IgnoreRaycastLayer;
-            sphere.transform.SetParent(transform, false);
-            _sphere = sphere.transform;
-
-            // Los shaders de UI multiplican por el color de vertice; la esfera
-            // primitiva no trae colores, asi que se los ponemos en blanco.
-            MeshFilter mf = sphere.GetComponent<MeshFilter>();
-            _mesh = Instantiate(mf.sharedMesh);
-            Color[] white = new Color[_mesh.vertexCount];
-            for (int i = 0; i < white.Length; i++)
-            {
-                white[i] = Color.white;
-            }
-            _mesh.colors = white;
-            mf.sharedMesh = _mesh;
-
-            _sphereRenderer = sphere.GetComponent<MeshRenderer>();
-            _sphereRenderer.sharedMaterial = _mat;
-            _sphereRenderer.shadowCastingMode = ShadowCastingMode.Off;
-            _sphereRenderer.receiveShadows = false;
-            _sphereRenderer.lightProbeUsage = LightProbeUsage.Off;
-            _sphereRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+            _sphereRenderer = OverlayUtil.CreateSphere("FaintSphere", transform, _mat, true, out _mesh);
+            _sphere = _sphereRenderer.transform;
         }
 
         if (_s.ShowText)
@@ -209,55 +226,6 @@ public class FaintOverlay : MonoBehaviour
         FollowCamera();
         SetAlpha(0f);
         SetTextAlpha(0f);
-    }
-
-    private static Material CreateOverlayMaterial(Material preferred)
-    {
-        if (preferred != null && preferred.shader != null && preferred.shader.isSupported)
-        {
-            return new Material(preferred);
-        }
-        if (preferred != null)
-        {
-            Debug.LogWarning("[FaintOverlay] El shader del Overlay Material ('" + preferred.name + "') no esta disponible en este dispositivo. Pruebo alternativas.");
-        }
-
-        Shader sh = Shader.Find("UI/AlwaysOnTop");
-        if (sh != null && sh.isSupported)
-        {
-            if (preferred == null)
-            {
-                Debug.LogWarning("[FaintOverlay] Overlay Material vacio en FaintTransition: uso Shader.Find(\"UI/AlwaysOnTop\"). En el build de Android puede no estar incluido - asignar Assets/Materials/Mat_ReticleAlwaysOnTop.");
-            }
-            return new Material(sh);
-        }
-
-        // UI/Default esta en Always Included Shaders, asi que existe en cualquier build.
-        // Su ZTest sale de la propiedad unity_GUIZTestMode: la forzamos a Always.
-        sh = Shader.Find("UI/Default");
-        if (sh != null && sh.isSupported)
-        {
-            Material m = new Material(sh);
-            m.SetFloat("unity_GUIZTestMode", (float)CompareFunction.Always);
-            Debug.LogWarning("[FaintOverlay] No encontre UI/AlwaysOnTop (stripeado del build?). Uso UI/Default con ZTest Always. Asignar Mat_ReticleAlwaysOnTop en el Overlay Material de FaintTransition.");
-            return m;
-        }
-
-        sh = Shader.Find("Hidden/Internal-Colored");
-        if (sh != null && sh.isSupported)
-        {
-            Material m = new Material(sh);
-            m.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            m.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-            m.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
-            m.SetFloat("_ZWrite", 0f);
-            m.SetFloat("_ZTest", (float)CompareFunction.Always);
-            Debug.LogWarning("[FaintOverlay] Uso Hidden/Internal-Colored para el fundido. Asignar Mat_ReticleAlwaysOnTop en el Overlay Material de FaintTransition.");
-            return m;
-        }
-
-        Debug.LogError("[FaintOverlay] No encontre NINGUN shader para el fundido: la escena se carga igual, pero sin fundido. Asignar Mat_ReticleAlwaysOnTop en el Overlay Material de FaintTransition.");
-        return null;
     }
 
     private void BuildText()
@@ -281,21 +249,11 @@ public class FaintOverlay : MonoBehaviour
             return;
         }
 
-        GameObject go = new GameObject("FaintText");
-        go.layer = IgnoreRaycastLayer;
-        go.transform.SetParent(transform, false);
-        _textTransform = go.transform;
-
-        _textRenderer = go.AddComponent<MeshRenderer>();
-        _text = go.AddComponent<TextMesh>();
-        _text.font = _font;
-        _text.fontSize = TitleFontSize;
         // Estimacion inicial (una linea de TextMesh mide ~ fontSize * characterSize / 10);
         // despues CalibrateText() lo corrige midiendo el mesh real.
-        _text.characterSize = (TextBlockHeight * 0.65f) * 10f / TitleFontSize;
-        _text.anchor = TextAnchor.MiddleCenter;
-        _text.alignment = TextAlignment.Center;
-        _text.richText = true;
+        _text = OverlayUtil.CreateText("FaintText", transform, _font, TitleFontSize,
+            (TextBlockHeight * 0.65f) * 10f / TitleFontSize, TextQueue, out _textRenderer, out _textMat);
+        _textTransform = _text.transform;
 
         string content = title.Length > 0 ? "<b>" + title + "</b>" : string.Empty;
         if (sub.Length > 0)
@@ -303,16 +261,6 @@ public class FaintOverlay : MonoBehaviour
             content += (content.Length > 0 ? "\n" : string.Empty) + "<size=" + SubtitleFontSize + ">" + sub + "</size>";
         }
         _text.text = content;
-
-        // Copia del material de la fuente (shader GUI/Text: ZTest Always) para
-        // poder subirle la cola sin tocar el material interno compartido.
-        _textMat = new Material(_font.material);
-        _textMat.renderQueue = TextQueue;
-        _textRenderer.sharedMaterial = _textMat;
-        _textRenderer.shadowCastingMode = ShadowCastingMode.Off;
-        _textRenderer.receiveShadows = false;
-        _textRenderer.lightProbeUsage = LightProbeUsage.Off;
-        _textRenderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
         Font.textureRebuilt += OnFontTextureRebuilt;
 
         // Letra negra sobre fundido claro (Parte 4, blanco-amarillo), blanca sobre oscuro.
@@ -320,15 +268,7 @@ public class FaintOverlay : MonoBehaviour
         _textColor = lum > 0.5f ? Color.black : Color.white;
     }
 
-    // La textura de una fuente dinamica se puede regenerar; la copia del
-    // material tiene que apuntar a la textura nueva.
-    private void OnFontTextureRebuilt(Font f)
-    {
-        if (f == _font && _textMat != null && _font != null && _font.material != null)
-        {
-            _textMat.mainTexture = _font.material.mainTexture;
-        }
-    }
+    private void OnFontTextureRebuilt(Font f) => OverlayUtil.RefreshFontTexture(f, _font, _textMat);
 
     private void CalibrateText()
     {
@@ -358,7 +298,7 @@ public class FaintOverlay : MonoBehaviour
     // TrackedPoseDriver/Cardboard puede actualizar la camara despues del LateUpdate.
     private void FollowCamera()
     {
-        Camera cam = ResolveCamera();
+        Camera cam = OverlayUtil.ResolveCamera();
         if (cam != null)
         {
             PlaceAt(cam);
@@ -375,38 +315,15 @@ public class FaintOverlay : MonoBehaviour
         }
     }
 
-    private static Camera ResolveCamera()
-    {
-        Camera cam = Camera.main;
-        if (cam != null && cam.isActiveAndEnabled)
-        {
-            return cam;
-        }
-        // Sin MainCamera (por ejemplo, en el frame del cambio de escena): la
-        // primera camara de juego activa que haya.
-        Camera[] all = Camera.allCameras;
-        for (int i = 0; i < all.Length; i++)
-        {
-            if (all[i] != null && all[i].cameraType == CameraType.Game)
-            {
-                return all[i];
-            }
-        }
-        return null;
-    }
-
     private void PlaceAt(Camera cam)
     {
-        Transform ct = cam.transform;
         if (_sphere != null)
         {
-            _sphere.position = ct.position;
-            // Diametro holgado respecto del near clip, para que no quede recortada.
-            float d = Mathf.Max(0.5f, cam.nearClipPlane * 4f);
-            _sphere.localScale = new Vector3(d, d, d);
+            OverlayUtil.PlaceSphere(_sphere, cam);
         }
         if (_textTransform != null)
         {
+            Transform ct = cam.transform;
             float dist = Mathf.Max(TextDistance, cam.nearClipPlane * 4f);
             _textTransform.SetPositionAndRotation(ct.position + ct.forward * dist, ct.rotation);
         }
@@ -440,28 +357,20 @@ public class FaintOverlay : MonoBehaviour
         }
     }
 
-    private IEnumerator Fade(float from, float to, float duration)
-    {
-        float e = 0f;
-        while (e < duration)
-        {
-            e += Time.unscaledDeltaTime;
-            SetAlpha(Mathf.Lerp(from, to, Mathf.Clamp01(e / duration)));
-            yield return null;
-        }
-        SetAlpha(to);
-    }
+    private IEnumerator Fade(float from, float to, float duration) => FadeWith(SetAlpha, from, to, duration);
 
-    private IEnumerator FadeText(float from, float to, float duration)
+    private IEnumerator FadeText(float from, float to, float duration) => FadeWith(SetTextAlpha, from, to, duration);
+
+    private static IEnumerator FadeWith(Action<float> set, float from, float to, float duration)
     {
         float e = 0f;
         while (e < duration)
         {
             e += Time.unscaledDeltaTime;
-            SetTextAlpha(Mathf.Lerp(from, to, Mathf.Clamp01(e / duration)));
+            set(Mathf.Lerp(from, to, Mathf.Clamp01(e / duration)));
             yield return null;
         }
-        SetTextAlpha(to);
+        set(to);
     }
 
     private void PlayClip(AudioClip clip)
@@ -497,6 +406,7 @@ public class FaintOverlay : MonoBehaviour
 
         // 2. Cargar la escena siguiente en segundo plano, con la pantalla tapada.
         AsyncOperation op = null;
+        NotifyLoadBegin(_s.SceneName);
         try
         {
             op = SceneManager.LoadSceneAsync(_s.SceneName);
@@ -508,6 +418,9 @@ public class FaintOverlay : MonoBehaviour
         if (op == null)
         {
             Debug.LogError("[FaintOverlay] No pude cargar '" + _s.SceneName + "'. Esta agregada y tildada en File > Build Settings, con el nombre EXACTO?");
+            // Se avisa igual (con la escena que sigue activa) para que el
+            // cronometro no quede congelado por una carga que nunca empezo.
+            NotifySceneActivated(SceneManager.GetActiveScene().name);
             yield return Fade(1f, 0f, 0.5f);
             // FaintTransition habia bloqueado la mirada: devolverla para no dejar al jugador trabado.
             foreach (GazeController gaze in FindObjectsByType<GazeController>(FindObjectsSortMode.None))
@@ -544,6 +457,7 @@ public class FaintOverlay : MonoBehaviour
         {
             yield return null;
         }
+        NotifySceneActivated(SceneManager.GetActiveScene().name);
 
         // 3. Ya en la escena nueva: "abrir los ojos de golpe". La mirada queda
         //    bloqueada hasta tener los ojos abiertos (que no se pueda elegir un
@@ -564,6 +478,7 @@ public class FaintOverlay : MonoBehaviour
 
         UnblockGaze();
         Release(); // desde aca ya se puede disparar otro desmayo
+        NotifyEyesOpened(SceneManager.GetActiveScene().name);
 
         // Dejar terminar los sonidos antes de destruir el objeto (con tope,
         // por si el audio queda pausado y isPlaying no baja nunca).
@@ -601,29 +516,9 @@ public class FaintOverlay : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void BlockGazeInNewScene()
-    {
-        foreach (GazeController gaze in FindObjectsByType<GazeController>(FindObjectsSortMode.None))
-        {
-            if (gaze.enabled)
-            {
-                gaze.enabled = false;
-                _blockedGaze.Add(gaze);
-            }
-        }
-    }
+    private void BlockGazeInNewScene() => OverlayUtil.DisableGaze(_blockedGaze);
 
-    private void UnblockGaze()
-    {
-        foreach (GazeController gaze in _blockedGaze)
-        {
-            if (gaze != null)
-            {
-                gaze.enabled = true;
-            }
-        }
-        _blockedGaze.Clear();
-    }
+    private void UnblockGaze() => OverlayUtil.RestoreGaze(_blockedGaze);
 
     private void Release()
     {

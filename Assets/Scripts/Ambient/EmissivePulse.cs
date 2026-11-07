@@ -29,10 +29,6 @@ public class EmissivePulse : MonoBehaviour
 
     private Renderer _renderer;
     private MaterialPropertyBlock _mpb;
-    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
-    // Shader glTF de glTFast (Shader Graphs/glTF-pbrMetallicRoughness).
-    private static readonly int GltfEmissiveId = Shader.PropertyToID("emissiveFactor");
-    private bool _useGltfEmissive;
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorId = Shader.PropertyToID("_Color");
 
@@ -40,10 +36,6 @@ public class EmissivePulse : MonoBehaviour
     {
         _renderer = GetComponent<Renderer>();
         _mpb = new MaterialPropertyBlock();
-
-        // Usa la propiedad emisiva que exista en el material.
-        Material m = _renderer != null ? _renderer.sharedMaterial : null;
-        _useGltfEmissive = m != null && !m.HasProperty(EmissionColorId) && m.HasProperty(GltfEmissiveId);
     }
 
     private void Update()
@@ -56,19 +48,18 @@ public class EmissivePulse : MonoBehaviour
         float k = Mathf.Sin((Time.time + _phaseOffset) * _speed) * 0.5f + 0.5f;
         float intensity = Mathf.Lerp(_min, _max, k);
 
-        _renderer.GetPropertyBlock(_mpb);
         if (_pulseBaseColorInstead)
         {
             Color c = _color * intensity;
             c.a = 1f;
+            _renderer.GetPropertyBlock(_mpb);
             _mpb.SetColor(BaseColorId, c);
             _mpb.SetColor(ColorId, c);
+            _renderer.SetPropertyBlock(_mpb);
         }
         else
         {
-            if (_useGltfEmissive) _mpb.SetColor(GltfEmissiveId, _color * intensity);
-            else _mpb.SetColor(EmissionColorId, _color * intensity);
+            EmissionUtil.Set(_renderer, _mpb, _color * intensity);
         }
-        _renderer.SetPropertyBlock(_mpb);
     }
 }

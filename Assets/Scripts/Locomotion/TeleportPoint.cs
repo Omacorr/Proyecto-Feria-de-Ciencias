@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -57,6 +58,46 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     [Tooltip("Se dispara cada vez que el jugador llega parado a este punto (lo llama TeleportManager apenas termina de moverlo). Util para marcar que el jugador 'ya vio' algo puesto en este lugar - por ejemplo, tp14 (frente a las notas con el codigo) puede cablear esto a CodeClueTracker.MarkSeen(). Tambien sirve para un sonido de LLEGADA (distinto al de arriba): arrastra un objeto con AudioSource aca y elegi la funcion AudioSource.Play() (con el clip ya asignado en ese AudioSource) - no hace falta tocar codigo para eso.")]
     [SerializeField] private UnityEvent _onPlayerArrived;
 
+    [Header("Visual externo (opcional)")]
+    [Tooltip("Tildado: otro componente (PortalVisual) dibuja este punto. El renderer viejo (orbe/cubo) queda SIEMPRE apagado (no se borra de la escena) y SetVisible solo prende/apaga el Collider. Destildado: comportamiento de siempre.")]
+    [SerializeField] private bool _hasExternalVisual;
+
+    // ---- Eventos C# para visuales externos (PortalVisual) y otros sistemas ----
+
+    /// <summary>Empezo a mirarse este punto.</summary>
+    public event Action GazeEntered;
+    /// <summary>Se dejo de mirar este punto.</summary>
+    public event Action GazeExited;
+    /// <summary>Progreso de la mirada (0..1), cada frame mientras se lo mira.</summary>
+    public event Action<float> GazeProgress;
+    /// <summary>La mirada completo la seleccion (se repite cada vez que GazeController re-selecciona).</summary>
+    public event Action Selected;
+    /// <summary>El jugador llego parado a este punto (mismo momento que On Player Arrived).</summary>
+    public event Action Arrived;
+    /// <summary>TeleportManager mostro u oculto este punto (SetVisible).</summary>
+    public event Action<bool> VisibilityChanged;
+
+    /// <summary>Ultimo valor pasado a SetVisible (true hasta que alguien diga lo contrario).</summary>
+    public bool IsVisible => _isVisible;
+
+    /// <summary>
+    /// Si es true, el renderer viejo queda siempre apagado y SetVisible solo
+    /// toca el Collider (el dibujo lo hace PortalVisual). Lo setea
+    /// PortalSetupTool en el Editor; tambien se puede cambiar en runtime.
+    /// </summary>
+    public bool HasExternalVisual
+    {
+        get => _hasExternalVisual;
+        set
+        {
+            _hasExternalVisual = value;
+            if (Application.isPlaying)
+            {
+                ApplyLegacyRenderers(!_hasExternalVisual && _isVisible);
+            }
+        }
+    }
+
     public bool OverridesPlayerHeight => _overridePlayerHeight;
     public float TargetPlayerHeight => _targetPlayerHeight;
 
@@ -110,18 +151,77 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     }
 
     private Renderer _renderer;
+    private Renderer[] _legacyRenderers;
     private Collider _collider;
+    private bool _isVisible = true;
 
     private void Awake()
     {
-        // GetComponentInChildren (no GetComponent): permite que el modelo visual
+        // Buscar en hijos (no solo GetComponent): permite que el modelo visual
         // sea un hijo (por ejemplo un modelo importado con jerarquia propia, como
         // el orbe), mientras el Collider de interaccion sigue viviendo en este
-        // mismo objeto. Sigue encontrando el caso simple de siempre (Renderer y
-        // Collider en el propio objeto) exactamente igual que antes.
-        _renderer = GetComponentInChildren<Renderer>();
+        // mismo objeto. Se saltean los renderers que arma PortalVisual (hijo
+        // "__PortalVisual"), por si su Awake corrio antes que este. Sin visual
+        // externo da exactamente lo mismo que GetComponentInChildren<Renderer>().
+        _renderer = FindLegacyRenderer();
         _collider = GetComponent<Collider>();
+        if (_hasExternalVisual)
+        {
+            ApplyLegacyRenderers(false);
+        }
         SetGazed(false);
+    }
+
+    private Renderer FindLegacyRenderer()
+    {
+        // Mismo orden que GetComponentInChildren (solo activos, primero el
+        // propio objeto) pero sin los renderers del visual externo.
+        foreach (Renderer r in GetComponentsInChildren<Renderer>(false))
+        {
+            if (!IsUnderPortalVisual(r.transform))
+            {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    private void CollectLegacyRenderers()
+    {
+        // Todos los renderers viejos (tambien inactivos), sin el visual externo.
+        var list = new System.Collections.Generic.List<Renderer>();
+        foreach (Renderer r in GetComponentsInChildren<Renderer>(true))
+        {
+            if (!IsUnderPortalVisual(r.transform)) list.Add(r);
+        }
+        _legacyRenderers = list.ToArray();
+    }
+
+    private bool IsUnderPortalVisual(Transform t)
+    {
+        for (; t != null && t != transform; t = t.parent)
+        {
+            if (t.name == PortalVisual.RootName)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void ApplyLegacyRenderers(bool enabledState)
+    {
+        if (_legacyRenderers == null)
+        {
+            CollectLegacyRenderers();
+        }
+        foreach (Renderer r in _legacyRenderers)
+        {
+            if (r != null)
+            {
+                r.enabled = enabledState;
+            }
+        }
     }
 
     private void OnEnable()
@@ -137,16 +237,20 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     public void OnGazeEnter()
     {
         SetGazed(true);
+        GazeEntered?.Invoke();
     }
 
     public void OnGazeStay(float progress)
     {
-        // El feedback de progreso ya lo muestra GazeReticle.
+        // El feedback de progreso ya lo muestra GazeReticle; el evento es para
+        // visuales externos (PortalVisual sube el brillo de la marca).
+        GazeProgress?.Invoke(progress);
     }
 
     public void OnGazeExit()
     {
         SetGazed(false);
+        GazeExited?.Invoke();
     }
 
     public void OnGazeSelect()
@@ -156,6 +260,8 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
             Debug.LogWarning($"[TeleportPoint] {gameObject.name} no tiene TeleportManager asignado.");
             return;
         }
+
+        Selected?.Invoke();
 
         // Si ya esta en medio de otro teletransporte, RequestTeleport lo va a
         // ignorar igual - chequeamos aca tambien para no reproducir el sonido
@@ -179,6 +285,7 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     public void NotifyArrived()
     {
         _onPlayerArrived?.Invoke();
+        Arrived?.Invoke();
     }
 
     /// <summary>
@@ -196,7 +303,14 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     /// </summary>
     public void SetVisible(bool visible)
     {
-        if (_renderer != null)
+        _isVisible = visible;
+
+        if (_hasExternalVisual)
+        {
+            // El dibujo lo maneja PortalVisual: el renderer viejo, siempre apagado.
+            ApplyLegacyRenderers(false);
+        }
+        else if (_renderer != null)
         {
             _renderer.enabled = visible;
         }
@@ -210,13 +324,15 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
         {
             SetGazed(false);
         }
+
+        VisibilityChanged?.Invoke(visible);
     }
 
     private void SetGazed(bool gazedAt)
     {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
+        if (!_hasExternalVisual)
         {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
+            GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
         }
     }
 }

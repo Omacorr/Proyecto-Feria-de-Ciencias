@@ -1,4 +1,3 @@
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -68,11 +67,7 @@ public class FragmentDropOff : MonoBehaviour, IGazeInteractable
     {
         _renderer = GetComponent<Renderer>();
         SetGazed(false);
-
-        if (_missingSign != null)
-        {
-            _missingSign.SetActive(false);
-        }
+        TimedSign.Hide(_missingSign);
     }
 
     public void OnGazeEnter()
@@ -83,10 +78,7 @@ public class FragmentDropOff : MonoBehaviour, IGazeInteractable
         }
     }
 
-    public void OnGazeStay(float progress)
-    {
-        // El feedback de progreso ya lo muestra GazeReticle.
-    }
+    public void OnGazeStay(float progress) { }
 
     public void OnGazeExit()
     {
@@ -160,19 +152,7 @@ public class FragmentDropOff : MonoBehaviour, IGazeInteractable
             }
         }
 
-        if (_signRoutine != null)
-        {
-            StopCoroutine(_signRoutine);
-        }
-        _signRoutine = StartCoroutine(SignRoutine());
-    }
-
-    private IEnumerator SignRoutine()
-    {
-        _missingSign.SetActive(true);
-        yield return new WaitForSeconds(_signDuration);
-        _missingSign.SetActive(false);
-        _signRoutine = null;
+        TimedSign.Show(this, _missingSign, _signDuration, ref _signRoutine);
     }
 
     private void Play(AudioClip clip)
@@ -183,11 +163,5 @@ public class FragmentDropOff : MonoBehaviour, IGazeInteractable
         }
     }
 
-    private void SetGazed(bool gazedAt)
-    {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
-        {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
-        }
-    }
+    private void SetGazed(bool gazedAt) => GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
 }

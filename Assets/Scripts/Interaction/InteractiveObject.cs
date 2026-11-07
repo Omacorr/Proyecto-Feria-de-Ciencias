@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEngine.Events;
 
 /// <summary>
-/// Etapa 4: objeto interactivo generico. Cambia de material mientras esta en la
-/// mira, y dispara un evento configurable cuando se lo selecciona (mirada
-/// sostenida). Pensado para botones, palancas o cualquier elemento "activable"
-/// que no se consume al usarlo (a diferencia de Collectable).
+/// Objeto interactivo generico. Cambia de material mientras esta en la mira y
+/// dispara un evento cuando se lo selecciona (mirada sostenida). Pensado para
+/// botones, palancas o cualquier elemento "activable" que no se consume al
+/// usarlo (a diferencia de Collectable).
 ///
-/// Sonidos opcionales: un "hover" al posar la mirada y un "select" al activar.
-/// Si se asigna un AudioSource, se usa PlayOneShot; si no, no suena nada.
+/// Sonidos opcionales: "hover" al posar la mirada y "select" al activar
+/// (PlayOneShot por el AudioSource asignado; sin AudioSource no suena nada).
 /// </summary>
 public class InteractiveObject : MonoBehaviour, IGazeInteractable
 {
@@ -45,15 +45,8 @@ public class InteractiveObject : MonoBehaviour, IGazeInteractable
         Play(_hoverSound);
     }
 
-    public void OnGazeStay(float progress)
-    {
-        // El feedback visual de progreso (reticulo) se agrega en la etapa 5.
-    }
-
-    public void OnGazeExit()
-    {
-        SetGazed(false);
-    }
+    public void OnGazeStay(float progress) { }
+    public void OnGazeExit() => SetGazed(false);
 
     public void OnGazeSelect()
     {
@@ -69,11 +62,5 @@ public class InteractiveObject : MonoBehaviour, IGazeInteractable
         }
     }
 
-    private void SetGazed(bool gazedAt)
-    {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
-        {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
-        }
-    }
+    private void SetGazed(bool gazedAt) => GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
 }

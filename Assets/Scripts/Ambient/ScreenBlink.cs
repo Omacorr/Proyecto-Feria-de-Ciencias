@@ -196,23 +196,15 @@ public class ScreenBlink : MonoBehaviour
             return;
         }
 
-        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphere.name = "ScreenBlink (parpados)";
-        // Sin collider: si no, el Raycast del GazeController pegaria contra la esfera.
-        DestroyImmediate(sphere.GetComponent<Collider>());
-        sphere.layer = 2; // Ignore Raycast
-        _sphere = sphere.transform; // en la raiz: la escala/rotacion de este objeto no la afecta
-
         _mat = new Material(sh);
         _mat.SetColor(ColorId, _color);
         _mat.SetFloat(SoftnessId, _softness);
         _mat.SetFloat(CurveId, _curve);
 
-        _renderer = sphere.GetComponent<MeshRenderer>();
-        _renderer.sharedMaterial = _mat;
-        _renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        _renderer.receiveShadows = false;
+        // En la raiz: la escala/rotacion de este objeto no la afecta.
+        _renderer = OverlayUtil.CreateSphere("ScreenBlink (parpados)", null, _mat, false, out _);
         _renderer.enabled = false;
+        _sphere = _renderer.transform;
     }
 
     // Se llama en LateUpdate Y justo antes de renderizar, porque el
@@ -224,13 +216,10 @@ public class ScreenBlink : MonoBehaviour
             return;
         }
         Camera cam = Camera.main;
-        if (cam == null)
+        if (cam != null)
         {
-            return;
+            OverlayUtil.PlaceSphere(_sphere, cam);
         }
-        _sphere.position = cam.transform.position;
-        float d = Mathf.Max(0.5f, cam.nearClipPlane * 4f);
-        _sphere.localScale = new Vector3(d, d, d);
     }
 
     private void SetClosed(float value)

@@ -34,26 +34,9 @@ public class Collectable : MonoBehaviour, IGazeInteractable
         SetGazed(false);
     }
 
-    public void OnGazeEnter()
-    {
-        if (!IsCollected)
-        {
-            SetGazed(true);
-        }
-    }
-
-    public void OnGazeStay(float progress)
-    {
-        // El feedback visual de progreso (reticulo) se agrega en la etapa 5.
-    }
-
-    public void OnGazeExit()
-    {
-        if (!IsCollected)
-        {
-            SetGazed(false);
-        }
-    }
+    public void OnGazeEnter() => SetGazed(true);
+    public void OnGazeStay(float progress) { }
+    public void OnGazeExit() => SetGazed(false);
 
     public void OnGazeSelect()
     {
@@ -88,11 +71,12 @@ public class Collectable : MonoBehaviour, IGazeInteractable
         }
     }
 
+    // Una vez recolectado no se vuelve a tocar el material.
     private void SetGazed(bool gazedAt)
     {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
+        if (!IsCollected)
         {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
+            GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
         }
     }
 }

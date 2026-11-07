@@ -124,8 +124,7 @@ public class ScriptedChase : MonoBehaviour
     private float _eyeOffset;
     private bool _started;
     private Transform _cam;
-    private Transform _pivot;
-    private Transform _camOriginalParent;
+    private CameraPivot _pivot;
     private bool _blocking;
     private Coroutine _routine;
 
@@ -138,7 +137,7 @@ public class ScriptedChase : MonoBehaviour
         }
         _started = true;
 
-        _cam = _camera != null ? _camera : (Camera.main != null ? Camera.main.transform : null);
+        _cam = OverlayUtil.CameraOr(_camera);
         if (_cam == null)
         {
             Debug.LogWarning("[ScriptedChase] No hay camara: no se puede reproducir.");
@@ -343,19 +342,12 @@ public class ScriptedChase : MonoBehaviour
 
     private IEnumerator FallRoutine(float s)
     {
-        // Pivote temporal (como AbyssFall): el TrackedPoseDriver pisa la rotacion
-        // de la camara, asi que la inclinacion se aplica a un padre vacio.
-        _camOriginalParent = _cam.parent;
-        GameObject pivotGo = new GameObject("Pivote de tropiezo (generado)");
-        _pivot = pivotGo.transform;
-        _pivot.SetParent(_camOriginalParent, true);
-        _pivot.position = _cam.position;
-        _pivot.localRotation = Quaternion.identity;
-        _cam.SetParent(_pivot, true);
+        _pivot = new CameraPivot(_cam, "Pivote de tropiezo (generado)");
+        Transform pivot = _pivot.Pivot;
 
         Vector3 dir;
         Sample(s, out dir);
-        Vector3 basePos = _pivot.position;
+        Vector3 basePos = pivot.position;
         float t = 0f;
         float dur = Mathf.Max(0.05f, _fallSeconds);
 
@@ -365,16 +357,15 @@ public class ScriptedChase : MonoBehaviour
             float k = Mathf.Clamp01(t / dur);
             float ease = k * k; // ease-in: acelera como una caida
 
-            _pivot.position = basePos + Vector3.down * (_fallDrop * ease) + dir * (_fallLurch * Mathf.SmoothStep(0f, 1f, k));
+            pivot.position = basePos + Vector3.down * (_fallDrop * ease) + dir * (_fallLurch * Mathf.SmoothStep(0f, 1f, k));
 
             if (_fallPitch > 0f)
             {
-                Quaternion yaw = Quaternion.Euler(0f, _cam.localEulerAngles.y, 0f);
-                _pivot.localRotation = Quaternion.AngleAxis(_fallPitch * ease, yaw * Vector3.right);
+                _pivot.Tilt(_fallPitch * ease);
             }
 
             // El monstruo sigue corriendo mientras cae.
-            float behind = Mathf.Lerp(_monsterEndBehind, _monsterEndBehind, k);
+            float behind = _monsterEndBehind;
             PlaceMonster(s - behind);
             yield return null;
         }
@@ -483,14 +474,7 @@ public class ScriptedChase : MonoBehaviour
     private void OnDestroy()
     {
         SetBlocked(false);
-        if (_cam != null && _pivot != null && _cam.parent == _pivot)
-        {
-            _cam.SetParent(_camOriginalParent, true);
-        }
-        if (_pivot != null)
-        {
-            Destroy(_pivot.gameObject);
-        }
+        _pivot?.Release();
         if (_comfortVolume != null)
         {
             _comfortVolume.weight = 0f;

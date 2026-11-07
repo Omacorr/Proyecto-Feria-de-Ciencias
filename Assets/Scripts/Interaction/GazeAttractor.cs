@@ -41,9 +41,6 @@ public class GazeAttractor : MonoBehaviour
 
     [SerializeField] private float _volumeMax = 0.6f;
 
-    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
-    private static readonly int EmissiveFactorId = Shader.PropertyToID("emissiveFactor");
-
     private MaterialPropertyBlock _block;
     private float _armedAt;
     private bool _armed;
@@ -120,7 +117,7 @@ public class GazeAttractor : MonoBehaviour
 
         if (_renderer != null)
         {
-            SetEmission(Color.Lerp(Color.black, _emissionMax, k));
+            EmissionUtil.Set(_renderer, _block, Color.Lerp(Color.black, _emissionMax, k));
         }
 
         if (_audio != null)
@@ -138,7 +135,7 @@ public class GazeAttractor : MonoBehaviour
 
         if (_renderer != null)
         {
-            SetEmission(Color.black);
+            EmissionUtil.Set(_renderer, _block, Color.black);
         }
 
         if (_audio != null)
@@ -149,13 +146,5 @@ public class GazeAttractor : MonoBehaviour
                 _audio.Stop();
             }
         }
-    }
-
-    private void SetEmission(Color c)
-    {
-        _renderer.GetPropertyBlock(_block);
-        _block.SetColor(EmissionColorId, c);
-        _block.SetColor(EmissiveFactorId, c);
-        _renderer.SetPropertyBlock(_block);
     }
 }

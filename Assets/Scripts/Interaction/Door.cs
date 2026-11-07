@@ -79,29 +79,13 @@ public class Door : MonoBehaviour, IGazeInteractable
         _renderer = GetComponent<Renderer>();
         _closedLocalPosition = transform.localPosition;
         _closedLocalRotation = transform.localRotation;
-
-        if (_missingKeySign != null)
-        {
-            _missingKeySign.SetActive(false);
-        }
-
+        TimedSign.Hide(_missingKeySign);
         SetGazed(false);
     }
 
-    public void OnGazeEnter()
-    {
-        SetGazed(true);
-    }
-
-    public void OnGazeStay(float progress)
-    {
-        // El feedback de progreso ya lo muestra GazeReticle.
-    }
-
-    public void OnGazeExit()
-    {
-        SetGazed(false);
-    }
+    public void OnGazeEnter() => SetGazed(true);
+    public void OnGazeStay(float progress) { }
+    public void OnGazeExit() => SetGazed(false);
 
     public void OnGazeSelect()
     {
@@ -110,9 +94,7 @@ public class Door : MonoBehaviour, IGazeInteractable
             return;
         }
 
-        bool canOpen = !_requiresKey || (_keyInventory != null && _keyInventory.HasKey);
-
-        if (canOpen)
+        if (!_requiresKey || (_keyInventory != null && _keyInventory.HasKey))
         {
             Open();
         }
@@ -123,27 +105,19 @@ public class Door : MonoBehaviour, IGazeInteractable
     }
 
     /// <summary>
-    /// True si no hay restriccion de posicion, o si la hay y el jugador
-    /// esta parado exactamente sobre el Required Point. Solo se usa para
-    /// filtrar la apertura por mirada (OnGazeSelect) - Open() llamado
-    /// desde afuera (por ejemplo CodeLock) no pasa por aca.
+    /// True si no hay restriccion de posicion, o si el jugador esta parado
+    /// sobre el Required Point. Solo filtra la apertura por mirada: Open()
+    /// llamado desde afuera (CodeLock) no pasa por aca.
     /// </summary>
     private bool IsPlayerInRange()
     {
-        if (_requiredPoint == null)
-        {
-            return true;
-        }
-
-        return _teleportManager != null && _teleportManager.CurrentOccupiedPoint == _requiredPoint;
+        return _requiredPoint == null
+            || (_teleportManager != null && _teleportManager.CurrentOccupiedPoint == _requiredPoint);
     }
 
     /// <summary>
-    /// Abre la puerta directamente, sin pasar por el chequeo de llave.
-    /// Publica para que otros scripts la puedan abrir por su cuenta - por
-    /// ejemplo, CodeLock.OnUnlocked cableado a esta funcion en las dos hojas
-    /// de una puerta doble, para que ambas se abran juntas apenas se
-    /// resuelve el candado, sin que el jugador tenga que mirar cada hoja.
+    /// Abre la puerta sin pasar por el chequeo de llave. Publica para que
+    /// CodeLock.OnUnlocked abra las dos hojas de una puerta doble juntas.
     /// </summary>
     public void Open()
     {
@@ -159,32 +133,21 @@ public class Door : MonoBehaviour, IGazeInteractable
             _audioSource.PlayOneShot(_openSound);
         }
 
-        // Si hay un Open Position Target asignado, convertimos su posicion Y
-        // rotacion MUNDIALES (las que ves en la Scene View, sin ambiguedad
-        // posible) a los valores LOCALES que le corresponden segun el padre
-        // actual de la puerta. Asi el resultado en Play/Build es exactamente
-        // donde y como orientaste el objeto vacio, sin importar rotacion o
-        // escala rara que tenga el padre - se convierte todo solo. Si no hay
-        // target asignado, se usan los valores viejos tipeados a mano
-        // (Open Local Position / Open Local Euler Rotation, legacy).
-        Vector3 targetLocalPosition = _openLocalPosition;
-        Quaternion openRotation = _closedLocalRotation * Quaternion.Euler(_openLocalEulerRotation);
+        // Con Open Position Target se convierte su posicion y rotacion MUNDIALES
+        // a locales segun el padre actual, asi el resultado es exactamente lo que
+        // se ve en el Editor aunque el padre tenga rotacion o escala raras. Sin
+        // target se usan los valores legacy (Open Local Position / Euler Rotation).
+        Vector3 targetPos = _openLocalPosition;
+        Quaternion targetRot = _closedLocalRotation * Quaternion.Euler(_openLocalEulerRotation);
 
         if (_openPositionTarget != null)
         {
-            if (transform.parent != null)
-            {
-                targetLocalPosition = transform.parent.InverseTransformPoint(_openPositionTarget.position);
-                openRotation = Quaternion.Inverse(transform.parent.rotation) * _openPositionTarget.rotation;
-            }
-            else
-            {
-                targetLocalPosition = _openPositionTarget.position;
-                openRotation = _openPositionTarget.rotation;
-            }
+            Transform parent = transform.parent;
+            targetPos = parent != null ? parent.InverseTransformPoint(_openPositionTarget.position) : _openPositionTarget.position;
+            targetRot = parent != null ? Quaternion.Inverse(parent.rotation) * _openPositionTarget.rotation : _openPositionTarget.rotation;
         }
 
-        StartCoroutine(MoveDoor(_closedLocalPosition, targetLocalPosition, _closedLocalRotation, openRotation));
+        StartCoroutine(MoveDoor(_closedLocalPosition, targetPos, _closedLocalRotation, targetRot));
     }
 
     private void ShowMissingKeySign()
@@ -196,44 +159,21 @@ public class Door : MonoBehaviour, IGazeInteractable
 
         _onMissingKey?.Invoke();
 
-        if (_missingKeySign == null)
+        if (_missingKeySign == null && _hint == null)
         {
-            if (_hint == null)
-            {
-                Debug.LogWarning($"[Door] {gameObject.name}: falta asignar Missing Key Sign en el Inspector.");
-            }
-
-            return;
+            Debug.LogWarning($"[Door] {gameObject.name}: falta asignar Missing Key Sign en el Inspector.");
         }
 
-        if (_signCoroutine != null)
-        {
-            StopCoroutine(_signCoroutine);
-        }
-
-        _signCoroutine = StartCoroutine(ShowSignTemporarily());
-    }
-
-    private IEnumerator ShowSignTemporarily()
-    {
-        _missingKeySign.SetActive(true);
-        yield return new WaitForSeconds(_signDuration);
-        _missingKeySign.SetActive(false);
-        _signCoroutine = null;
+        TimedSign.Show(this, _missingKeySign, _signDuration, ref _signCoroutine);
     }
 
     private IEnumerator MoveDoor(Vector3 fromPos, Vector3 toPos, Quaternion fromRot, Quaternion toRot)
     {
         _isMoving = true;
 
-        // Duracion fija en segundos (Open Duration), no una velocidad en
-        // metros/segundo. Antes calculabamos el tiempo como distancia /
-        // velocidad, pero esa distancia se mide en unidades LOCALES, y si el
-        // padre de la puerta tiene una escala rara (comun en mapas
-        // importados), unidades locales chicas pueden representar
-        // muchisimos metros reales (o al reves) - eso hacia que la puerta
-        // pareciera "trabada" tardando minutos u horas en terminar de
-        // moverse aunque la posicion en si estuviera bien puesta.
+        // Duracion fija en segundos, no velocidad: la distancia se mide en
+        // unidades LOCALES y con un padre de escala rara la puerta tardaba
+        // minutos en terminar de moverse.
         float duration = Mathf.Max(0f, _openDuration);
         float elapsed = 0f;
 
@@ -255,11 +195,5 @@ public class Door : MonoBehaviour, IGazeInteractable
         Debug.Log($"[Door] {gameObject.name} termino MoveDoor. localPosFinal={transform.localPosition} worldPosDespues={transform.position}");
     }
 
-    private void SetGazed(bool gazedAt)
-    {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
-        {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
-        }
-    }
+    private void SetGazed(bool gazedAt) => GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
 }

@@ -48,6 +48,25 @@ public class CodeLock : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Posicion de un disco dentro de la combinacion (0 = primero), o -1 si
+    /// no es de este candado. La usa CodeDigit para saber cual es "su" numero
+    /// correcto y frenar un poco al pasar por el (issue #32).
+    /// </summary>
+    public int GetDigitIndex(CodeDigit digit)
+    {
+        return _digits == null || digit == null ? -1 : System.Array.IndexOf(_digits, digit);
+    }
+
+    /// <summary>
+    /// Simbolo correcto de la posicion <paramref name="index"/> de la
+    /// combinacion, o '\0' si el indice no existe.
+    /// </summary>
+    public char GetTargetSymbol(int index)
+    {
+        return string.IsNullOrEmpty(_targetCode) || index < 0 || index >= _targetCode.Length ? '\0' : _targetCode[index];
+    }
+
     private string BuildCurrentCode()
     {
         var chars = new char[_digits.Length];

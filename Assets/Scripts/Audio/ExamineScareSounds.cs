@@ -127,10 +127,7 @@ public class ExamineScareSounds : MonoBehaviour
 
     private bool EnsureListener()
     {
-        if (_listener == null && Camera.main != null)
-        {
-            _listener = Camera.main.transform;
-        }
+        _listener = OverlayUtil.CameraOr(_listener);
         return _listener != null && isActiveAndEnabled;
     }
 
@@ -172,15 +169,11 @@ public class ExamineScareSounds : MonoBehaviour
     /// <summary>Empieza la secuencia de sustos (desde On Examine Start).</summary>
     public void StartScares()
     {
-        if (_loop != null || !isActiveAndEnabled)
+        if (_loop != null)
         {
             return;
         }
-        if (_listener == null && Camera.main != null)
-        {
-            _listener = Camera.main.transform;
-        }
-        if (_listener == null)
+        if (!EnsureListener())
         {
             Debug.LogWarning("[ExamineScareSounds] No hay camara: sin sustos.");
             return;

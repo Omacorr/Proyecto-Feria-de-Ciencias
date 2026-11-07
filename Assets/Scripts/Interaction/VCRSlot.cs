@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -44,8 +43,8 @@ public class VCRSlot : MonoBehaviour, IGazeInteractable
 
     private void Awake()
     {
-        if (_missingTapeSign != null) _missingTapeSign.SetActive(false);
-        if (_tapeInSlotVisual != null) _tapeInSlotVisual.SetActive(false);
+        TimedSign.Hide(_missingTapeSign);
+        TimedSign.Hide(_tapeInSlotVisual);
     }
 
     public void OnGazeEnter() { }
@@ -70,8 +69,7 @@ public class VCRSlot : MonoBehaviour, IGazeInteractable
         if (_tapeInSlotVisual != null) _tapeInSlotVisual.SetActive(true);
 
         // Apagar los colliders de la tele para que el reticle NO siga
-        // rellenando el anillo cada vez que la mires: la cinta ya se metio,
-        // no hay nada mas que hacer con la tele.
+        // rellenando el anillo cada vez que la mires: la cinta ya se metio.
         foreach (Collider col in GetComponents<Collider>())
         {
             col.enabled = false;
@@ -86,22 +84,14 @@ public class VCRSlot : MonoBehaviour, IGazeInteractable
         if (_hint != null)
         {
             _hint.Show(_missingTapeMessage);
-            return;
         }
-        if (_missingTapeSign == null)
+        else if (_missingTapeSign == null)
         {
             Debug.Log("[VCRSlot] Falta la cinta (y no hay cartel asignado).");
-            return;
         }
-        if (_signRoutine != null) StopCoroutine(_signRoutine);
-        _signRoutine = StartCoroutine(SignRoutine());
-    }
-
-    private IEnumerator SignRoutine()
-    {
-        _missingTapeSign.SetActive(true);
-        yield return new WaitForSeconds(_signDuration);
-        _missingTapeSign.SetActive(false);
-        _signRoutine = null;
+        else
+        {
+            TimedSign.Show(this, _missingTapeSign, _signDuration, ref _signRoutine);
+        }
     }
 }

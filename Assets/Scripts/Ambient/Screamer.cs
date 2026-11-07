@@ -92,7 +92,7 @@ public class Screamer : MonoBehaviour
             Debug.LogWarning("[Screamer] Falta asignar 'Visual'.", this);
             return;
         }
-        Transform cam = _camera != null ? _camera : (Camera.main != null ? Camera.main.transform : null);
+        Transform cam = OverlayUtil.CameraOr(_camera);
         if (cam == null)
         {
             Debug.LogWarning("[Screamer] No hay camara.", this);

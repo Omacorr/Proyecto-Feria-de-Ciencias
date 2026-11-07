@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
+using static EditorGenUtil;
 
 /// <summary>
 /// Genera por sintesis (sin descargar nada, sin licencias) los sonidos de
@@ -18,21 +18,17 @@ using UnityEngine;
 /// </summary>
 public static class Parte2SoundGenerator
 {
-    private const int Rate = 44100;
     private const string Folder = "Assets/Audios/Parte2";
     private const float Peak = 0.8f;
 
     [MenuItem("Herramientas/Generar sonidos (Parte 2)")]
     public static void Generate()
     {
-        Directory.CreateDirectory(Folder);
         var written = new List<string>();
         void Save(string name, float[] data)
         {
             Normalize(data, Peak);
-            string path = Folder + "/" + name + ".wav";
-            WriteWav(path, data);
-            written.Add(path);
+            written.Add(WriteClip(Folder, name, data));
         }
 
         Save("cumple_cajita", MusicBox(101));
@@ -44,33 +40,9 @@ public static class Parte2SoundGenerator
         Save("monstruo_rugido", MonsterRoar(107));
         Save("ambiente_salon", RoomTone(108));
 
-        AssetDatabase.Refresh();
-        foreach (string path in written)
-        {
-            if (!(AssetImporter.GetAtPath(path) is AudioImporter imp))
-            {
-                continue;
-            }
-            string name = Path.GetFileNameWithoutExtension(path);
-            bool longLoop = name == "ambiente_salon" || name == "cumple_cajita" || name == "tv_estatica"
-                            || name == "monstruo_respiracion" || name == "monstruo_pasos";
-            bool lowBand = name.StartsWith("monstruo_") || name == "ambiente_salon";
-
-            imp.forceToMono = true;
-            imp.loadInBackground = false;
-            AudioImporterSampleSettings s = imp.defaultSampleSettings;
-            s.loadType = longLoop ? AudioClipLoadType.CompressedInMemory : AudioClipLoadType.DecompressOnLoad;
-            s.compressionFormat = AudioCompressionFormat.Vorbis;
-            s.quality = 0.7f;
-            s.preloadAudioData = true;
-            if (lowBand)
-            {
-                s.sampleRateSetting = AudioSampleRateSetting.OverrideSampleRate;
-                s.sampleRateOverride = 22050;
-            }
-            imp.defaultSampleSettings = s;
-            imp.SaveAndReimport();
-        }
+        ImportClips(written,
+            p => Path.GetFileNameWithoutExtension(p) is "ambiente_salon" or "cumple_cajita" or "tv_estatica" or "monstruo_respiracion" or "monstruo_pasos",
+            p => Path.GetFileNameWithoutExtension(p) is string n && (n.StartsWith("monstruo_") || n == "ambiente_salon"));
         Debug.Log("[Parte2SoundGenerator] Generados " + written.Count + " clips en " + Folder);
     }
 
@@ -495,164 +467,5 @@ public static class Parte2SoundGenerator
         }
         float s = Mathf.Sin(Mathf.PI * (t - a) / (b - a));
         return s * s;
-    }
-
-    // Cierra un loop de ruido: el audio trae x muestras de mas al final; las
-    // primeras x muestras se mezclan con ese sobrante y listo (union continua).
-    private static float[] MakeLoop(float[] data, int x)
-    {
-        int n = data.Length - x;
-        var output = new float[n];
-        Array.Copy(data, 0, output, 0, n);
-        for (int i = 0; i < x; i++)
-        {
-            float w = (float)i / x;
-            output[i] = data[i] * w + data[n + i] * (1f - w);
-        }
-        return output;
-    }
-
-    private static float Noise(System.Random rng)
-    {
-        return (float)(rng.NextDouble() + rng.NextDouble() - 1.0);
-    }
-
-    private static float Envelope(int i, int n, float attackFraction, float releaseFraction)
-    {
-        int minRamp = (int)(0.008f * Rate);
-        int attack = Mathf.Max(minRamp, (int)(n * attackFraction));
-        int release = Mathf.Max(minRamp, (int)(n * releaseFraction));
-        float e = 1f;
-        if (i < attack)
-        {
-            e = 0.5f - 0.5f * Mathf.Cos(Mathf.PI * i / attack);
-        }
-        else if (i > n - release)
-        {
-            e = 0.5f - 0.5f * Mathf.Cos(Mathf.PI * (n - i) / release);
-        }
-        return e;
-    }
-
-    private static void FadeEdges(float[] data, float inSeconds, float outSeconds)
-    {
-        int fi = (int)(inSeconds * Rate);
-        int fo = (int)(outSeconds * Rate);
-        for (int i = 0; i < fi && i < data.Length; i++)
-        {
-            data[i] *= (float)i / fi;
-        }
-        for (int i = 0; i < fo && i < data.Length; i++)
-        {
-            data[data.Length - 1 - i] *= (float)i / fo;
-        }
-    }
-
-    private static void Normalize(float[] data, float peak)
-    {
-        float max = 0f;
-        foreach (float v in data)
-        {
-            max = Mathf.Max(max, Mathf.Abs(v));
-        }
-        if (max < 1e-6f)
-        {
-            return;
-        }
-        float g = peak / max;
-        for (int i = 0; i < data.Length; i++)
-        {
-            data[i] *= g;
-        }
-    }
-
-    private static void WriteWav(string path, float[] data)
-    {
-        using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
-        using (var bw = new BinaryWriter(fs))
-        {
-            int bytes = data.Length * 2;
-            bw.Write(Encoding.ASCII.GetBytes("RIFF"));
-            bw.Write(36 + bytes);
-            bw.Write(Encoding.ASCII.GetBytes("WAVE"));
-            bw.Write(Encoding.ASCII.GetBytes("fmt "));
-            bw.Write(16);
-            bw.Write((short)1);
-            bw.Write((short)1);
-            bw.Write(Rate);
-            bw.Write(Rate * 2);
-            bw.Write((short)2);
-            bw.Write((short)16);
-            bw.Write(Encoding.ASCII.GetBytes("data"));
-            bw.Write(bytes);
-            foreach (float v in data)
-            {
-                bw.Write((short)Mathf.Clamp(Mathf.RoundToInt(v * 32767f), -32768, 32767));
-            }
-        }
-    }
-
-    /// <summary>Ruido rosado (aproximacion de Paul Kellet).</summary>
-    private class PinkNoise
-    {
-        private float _b0, _b1, _b2, _b3, _b4, _b5, _b6;
-
-        public float Next(float white)
-        {
-            _b0 = 0.99886f * _b0 + white * 0.0555179f;
-            _b1 = 0.99332f * _b1 + white * 0.0750759f;
-            _b2 = 0.96900f * _b2 + white * 0.1538520f;
-            _b3 = 0.86650f * _b3 + white * 0.3104856f;
-            _b4 = 0.55000f * _b4 + white * 0.5329522f;
-            _b5 = -0.7616f * _b5 - white * 0.0168980f;
-            float pink = _b0 + _b1 + _b2 + _b3 + _b4 + _b5 + _b6 + white * 0.5362f;
-            _b6 = white * 0.115926f;
-            return pink * 0.25f;
-        }
-    }
-
-    /// <summary>Filtro biquad (Audio EQ Cookbook).</summary>
-    private class Biquad
-    {
-        private float _b0, _b1, _b2, _a1, _a2, _z1, _z2;
-
-        public void SetBandPass(float hz, float q)
-        {
-            double w = 2.0 * Math.PI * Mathf.Clamp(hz, 20f, Rate * 0.45f) / Rate;
-            double alpha = Math.Sin(w) / (2.0 * q);
-            double a0 = 1.0 + alpha;
-            Set(alpha / a0, 0.0, -alpha / a0, -2.0 * Math.Cos(w) / a0, (1.0 - alpha) / a0);
-        }
-
-        public void SetHighPass(float hz, float q)
-        {
-            double w = 2.0 * Math.PI * Mathf.Clamp(hz, 20f, Rate * 0.45f) / Rate;
-            double alpha = Math.Sin(w) / (2.0 * q);
-            double cos = Math.Cos(w);
-            double a0 = 1.0 + alpha;
-            Set((1.0 + cos) / 2.0 / a0, -(1.0 + cos) / a0, (1.0 + cos) / 2.0 / a0, -2.0 * cos / a0, (1.0 - alpha) / a0);
-        }
-
-        public void SetLowPass(float hz, float q)
-        {
-            double w = 2.0 * Math.PI * Mathf.Clamp(hz, 20f, Rate * 0.45f) / Rate;
-            double alpha = Math.Sin(w) / (2.0 * q);
-            double cos = Math.Cos(w);
-            double a0 = 1.0 + alpha;
-            Set((1.0 - cos) / 2.0 / a0, (1.0 - cos) / a0, (1.0 - cos) / 2.0 / a0, -2.0 * cos / a0, (1.0 - alpha) / a0);
-        }
-
-        private void Set(double b0, double b1, double b2, double a1, double a2)
-        {
-            _b0 = (float)b0; _b1 = (float)b1; _b2 = (float)b2; _a1 = (float)a1; _a2 = (float)a2;
-        }
-
-        public float Process(float x)
-        {
-            float y = _b0 * x + _z1;
-            _z1 = _b1 * x - _a1 * y + _z2;
-            _z2 = _b2 * x - _a2 * y;
-            return y;
-        }
     }
 }

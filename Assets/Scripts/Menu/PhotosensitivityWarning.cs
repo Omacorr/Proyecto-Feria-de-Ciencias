@@ -34,7 +34,6 @@ public class PhotosensitivityWarning : MonoBehaviour
     private const int TitleFontSize = 80;
     private const int PanelQueue = 4996;        // encima del reticle/FadeImage (4000), debajo de ScreenBlink/FaintOverlay
     private const int TextQueue = 4997;
-    private const int IgnoreRaycastLayer = 2;
 
     private const string Title = "ADVERTENCIA";
     private const string Body =
@@ -127,30 +126,18 @@ public class PhotosensitivityWarning : MonoBehaviour
 
     private void BuildPanel()
     {
-        Shader shader = Shader.Find("UI/AlwaysOnTop");
-        bool fallback = shader == null;
-        if (fallback)
-        {
-            shader = Shader.Find("UI/Default");
-        }
-        if (shader == null)
+        _panelMat = OverlayUtil.CreateOverlayMaterial(null, "[PhotosensitivityWarning]", PanelQueue, false); // se crea por código, sin Inspector: UI/AlwaysOnTop entra al build por los materiales de la mira.
+        if (_panelMat == null)
         {
             return;
         }
-
-        _panelMat = new Material(shader);
-        if (fallback && _panelMat.HasProperty("unity_GUIZTestMode"))
-        {
-            _panelMat.SetInt("unity_GUIZTestMode", (int)CompareFunction.Always);
-        }
         _panelMat.color = Color.black;
-        _panelMat.renderQueue = PanelQueue;
 
         // Un quad pegado a la camara, lo bastante cerca y grande para tapar todo
         // el campo visual de cada ojo (mas alla del plano de corte cercano).
         float distance = Mathf.Max(0.5f, _camera.nearClipPlane * 3f);
         _panel = new GameObject("Panel");
-        _panel.layer = IgnoreRaycastLayer;
+        _panel.layer = OverlayUtil.IgnoreRaycastLayer;
         _panel.transform.SetParent(_camera.transform, false);
         _panel.transform.localPosition = new Vector3(0f, 0f, distance);
         _panel.transform.localScale = new Vector3(distance * 10f, distance * 10f, 1f);
@@ -159,10 +146,7 @@ public class PhotosensitivityWarning : MonoBehaviour
         _panel.AddComponent<MeshFilter>().sharedMesh = _panelMesh;
         MeshRenderer r = _panel.AddComponent<MeshRenderer>();
         r.sharedMaterial = _panelMat;
-        r.shadowCastingMode = ShadowCastingMode.Off;
-        r.receiveShadows = false;
-        r.lightProbeUsage = LightProbeUsage.Off;
-        r.reflectionProbeUsage = ReflectionProbeUsage.Off;
+        OverlayUtil.ConfigureRenderer(r);
     }
 
     private void BuildText()
@@ -177,44 +161,17 @@ public class PhotosensitivityWarning : MonoBehaviour
             return;
         }
 
-        _textGo = new GameObject("Texto");
-        _textGo.layer = IgnoreRaycastLayer;
-        _textGo.transform.SetParent(_camera.transform, false);
-        _textGo.transform.localPosition = new Vector3(0f, 0f, TextDistance);
-
-        MeshRenderer r = _textGo.AddComponent<MeshRenderer>();
-        _text = _textGo.AddComponent<TextMesh>();
-        _text.font = _font;
-        _text.fontSize = BodyFontSize;
         // Una linea de TextMesh mide ~ fontSize * characterSize / 10.
-        _text.characterSize = LineHeight * 10f / BodyFontSize;
-        _text.anchor = TextAnchor.MiddleCenter;
-        _text.alignment = TextAlignment.Center;
-        _text.richText = true;
+        _text = OverlayUtil.CreateText("Texto", _camera.transform, _font, BodyFontSize,
+            LineHeight * 10f / BodyFontSize, TextQueue, out _, out _textMat);
+        _textGo = _text.gameObject;
+        _textGo.transform.localPosition = new Vector3(0f, 0f, TextDistance);
         _text.text = "<size=" + TitleFontSize + "><color=#B3261E>" + Title + "</color></size>\n" +
                      "<i>fotosensibilidad</i>\n\n" + Body;
         _text.color = new Color(0.92f, 0.90f, 0.86f, 1f);
-
-        // Copia del material de la fuente (shader GUI/Text, ZTest Always) para
-        // subirle la cola sin tocar el material compartido de la fuente.
-        _textMat = new Material(_font.material);
-        _textMat.renderQueue = TextQueue;
-        r.sharedMaterial = _textMat;
-        r.shadowCastingMode = ShadowCastingMode.Off;
-        r.receiveShadows = false;
-        r.lightProbeUsage = LightProbeUsage.Off;
-        r.reflectionProbeUsage = ReflectionProbeUsage.Off;
     }
 
-    // La textura de una fuente dinamica se puede regenerar; la copia del
-    // material tiene que apuntar a la textura nueva.
-    private void OnFontTextureRebuilt(Font f)
-    {
-        if (f == _font && _textMat != null && _font != null && _font.material != null)
-        {
-            _textMat.mainTexture = _font.material.mainTexture;
-        }
-    }
+    private void OnFontTextureRebuilt(Font f) => OverlayUtil.RefreshFontTexture(f, _font, _textMat);
 
     private void SetAlpha(float a)
     {
@@ -234,25 +191,11 @@ public class PhotosensitivityWarning : MonoBehaviour
     {
         if (block)
         {
-            foreach (GazeController gaze in FindObjectsByType<GazeController>(FindObjectsSortMode.None))
-            {
-                if (gaze.enabled)
-                {
-                    gaze.enabled = false;
-                    _blockedGaze.Add(gaze);
-                }
-            }
+            OverlayUtil.DisableGaze(_blockedGaze);
         }
         else
         {
-            foreach (GazeController gaze in _blockedGaze)
-            {
-                if (gaze != null)
-                {
-                    gaze.enabled = true;
-                }
-            }
-            _blockedGaze.Clear();
+            OverlayUtil.RestoreGaze(_blockedGaze);
         }
     }
 

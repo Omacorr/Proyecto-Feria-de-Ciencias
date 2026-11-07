@@ -64,7 +64,7 @@ public class TeleportManager : MonoBehaviour
     /// esta caminando, se frena ahi mismo (sin disparar On Player Arrived). NO
     /// corta un fade que ya este en curso (terminaria dejando la pantalla en
     /// negro). Llamable desde un UnityEvent. Lo usan AbyssFall y
-    /// MonsterController para que ninguna caminata pise el movimiento de la
+    /// ScriptedChase para que ninguna caminata pise el movimiento de la
     /// camara que hacen ellos.
     /// </summary>
     public void LockMovement()
@@ -164,10 +164,9 @@ public class TeleportManager : MonoBehaviour
         if (_cameraTransform == null && Camera.main != null)
         {
             // Player.prefab y Player 1.prefab todavia serializan el nombre
-            // viejo del campo (_playerTransform) y no pueden referenciar la
-            // Main Camera separada, asi que cualquier instancia NUEVA de esos
-            // prefabs arranca con este campo vacio. En vez de dejar el
-            // teletransporte roto, se usa la camara principal de la escena.
+            // viejo del campo (_playerTransform), asi que cualquier instancia
+            // NUEVA de esos prefabs arranca con este campo vacio: se usa la
+            // camara principal de la escena en vez de dejar el tp roto.
             _cameraTransform = Camera.main.transform;
             Debug.Log("[TeleportManager] Camera Transform vacio: uso Camera.main (" + _cameraTransform.name + "). Asignarlo en el Inspector para no depender de esto.");
         }
@@ -186,15 +185,7 @@ public class TeleportManager : MonoBehaviour
         // (UsesFadeTransition da false) caminan hasta si mismos y saltan sin
         // fade al llegar (ver CompleteArrival).
         bool useFade = !_useWalkAnimation || sourcePoint.UsesFadeTransition;
-
-        if (useFade)
-        {
-            StartCoroutine(DoFadeTeleport(destination, sourcePoint));
-        }
-        else
-        {
-            StartCoroutine(DoWalk(destination, sourcePoint));
-        }
+        StartCoroutine(useFade ? DoFadeTeleport(destination, sourcePoint) : DoWalk(destination, sourcePoint));
     }
 
     private IEnumerator DoWalk(Vector3 destination, TeleportPoint sourcePoint)
@@ -230,7 +221,7 @@ public class TeleportManager : MonoBehaviour
         {
             if (_movementLocked)
             {
-                // Otro sistema (caida, monstruo) tomo el control de la camara:
+                // Otro sistema (caida, persecucion) tomo el control de la camara:
                 // frenar aca, sin pisarle la posicion ni marcar llegada.
                 if (_footstepsAudioSource != null)
                 {
@@ -243,8 +234,7 @@ public class TeleportManager : MonoBehaviour
             }
 
             elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / duration);
-            _cameraTransform.position = Vector3.Lerp(startPos, targetPos, t);
+            _cameraTransform.position = Vector3.Lerp(startPos, targetPos, Mathf.Clamp01(elapsed / duration));
             yield return null;
         }
 

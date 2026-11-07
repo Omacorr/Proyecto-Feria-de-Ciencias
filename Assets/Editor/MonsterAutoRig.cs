@@ -72,22 +72,22 @@ public static class MonsterAutoRig
         public Vector3 tail;
     }
 
+    // Corre una acción de menú logueando cualquier excepción y limpiando la barra de progreso.
+    private static void Run(string failMessage, Action action)
+    {
+        try { action(); }
+        catch (Exception e) { Debug.LogError("[MonsterAutoRig] " + failMessage + e); }
+        finally { EditorUtility.ClearProgressBar(); }
+    }
+
     [MenuItem("Tools/Feria de Ciencias/Riggear monstruo (Moustruo1)")]
     public static void RigMenu()
     {
-        try
+        Run("Falló: ", () =>
         {
             GameObject prefab = BuildRig();
             if (prefab != null) Selection.activeObject = prefab;
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("[MonsterAutoRig] Falló: " + e);
-        }
-        finally
-        {
-            EditorUtility.ClearProgressBar();
-        }
+        });
     }
 
     private static bool _onlyUpdateMesh;
@@ -96,25 +96,14 @@ public static class MonsterAutoRig
     public static void UpdateMeshOnlyMenu()
     {
         _onlyUpdateMesh = true;
-        try
-        {
-            BuildRig();
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("[MonsterAutoRig] Falló: " + e);
-        }
-        finally
-        {
-            _onlyUpdateMesh = false;
-            EditorUtility.ClearProgressBar();
-        }
+        Run("Falló: ", () => BuildRig());
+        _onlyUpdateMesh = false;
     }
 
     [MenuItem("Tools/Feria de Ciencias/Riggear monstruo: probar en escena")]
     public static void TestInScene()
     {
-        try
+        Run("No se pudo instanciar: ", () =>
         {
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
             if (prefab == null) prefab = BuildRig();
@@ -127,11 +116,7 @@ public static class MonsterAutoRig
             Selection.activeGameObject = go;
             Debug.Log("[MonsterAutoRig] Monstruo_Rig instanciado en " + pos +
                       ". Para ver la caminata: Play y mover el objeto, o SetSpeedOverride desde un script.");
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("[MonsterAutoRig] No se pudo instanciar: " + e);
-        }
+        });
     }
 
     // =====================================================================

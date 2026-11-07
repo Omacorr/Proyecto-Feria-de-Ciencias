@@ -55,9 +55,6 @@ public class MonitorBeepDisplay : MonoBehaviour
     [Tooltip("Intensidad de la luz en el pico del destello.")]
     [SerializeField] private float _lightPeak = 1.5f;
 
-    private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
-    private static readonly int EmissiveFactorId = Shader.PropertyToID("emissiveFactor");
-
     private MaterialPropertyBlock _block;
     private Coroutine _loop;
     private Coroutine _speedUp;
@@ -186,13 +183,7 @@ public class MonitorBeepDisplay : MonoBehaviour
 
     private void ApplyVisual(Color emission, float lightK)
     {
-        if (_screen != null)
-        {
-            _screen.GetPropertyBlock(_block);
-            _block.SetColor(EmissionColorId, emission);
-            _block.SetColor(EmissiveFactorId, emission);
-            _screen.SetPropertyBlock(_block);
-        }
+        EmissionUtil.Set(_screen, _block, emission);
 
         if (_light != null)
         {

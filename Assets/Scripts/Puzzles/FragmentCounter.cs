@@ -109,7 +109,7 @@ public class FragmentCounter : MonoBehaviour
         }
 
         int index = Count - 1;
-        if (_fragmentTexts != null && index >= 0 && index < _fragmentTexts.Length && !string.IsNullOrEmpty(_fragmentTexts[index]))
+        if (_fragmentTexts != null && index < _fragmentTexts.Length && !string.IsNullOrEmpty(_fragmentTexts[index]))
         {
             return _fragmentTexts[index];
         }
@@ -137,7 +137,6 @@ public class FragmentCounter : MonoBehaviour
         {
             return;
         }
-
         if (_labelRoutine != null)
         {
             StopCoroutine(_labelRoutine);
@@ -156,9 +155,6 @@ public class FragmentCounter : MonoBehaviour
 
     private void Play(AudioClip clip)
     {
-        if (clip != null && _audioSource != null)
-        {
-            _audioSource.PlayOneShot(clip);
-        }
+        if (clip != null && _audioSource != null) _audioSource.PlayOneShot(clip);
     }
 }
