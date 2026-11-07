@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Recuerdos Rotos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: 'SE Local'; src: url('/fonts/SpecialElite-Regular.ttf') format('truetype'); }
+  :root { --bg:#070606; --txt:#e8e0cf; --dim:#8a8274; --amb:#c98a2b; --red:#8c2f27; --line:#2a2622; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--txt); overflow: hidden;
+    font-family: 'Special Elite', 'SE Local', monospace; }
+  .wrap { height: 100vh; aspect-ratio: auto; display: grid; grid-template-columns: 1.55fr 1fr; gap: 3vh 3vw; padding: 4vh 3vw; }
+  h1 { font-weight: normal; font-size: 2.6vh; letter-spacing: .35em; color: var(--dim); text-transform: uppercase; }
+  .izq { display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+  .estado { color: var(--amb); font-size: 3.2vh; min-height: 4vh; }
+  .nombre { font-size: 7vh; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .crono { font-size: 21vh; line-height: 1; color: var(--txt); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+  .crono.congelado { color: var(--dim); }
+  .parte { font-size: 4vh; color: var(--amb); }
+  .parciales { display: grid; grid-template-columns: auto auto; gap: .6vh 3vw; font-size: 2.6vh; justify-content: start; }
+  .parciales .n { color: var(--dim); } .parciales .v.r { color: var(--amb); }
+  .der { display: flex; flex-direction: column; gap: 3vh; min-width: 0; }
+  .titulo { border-bottom: 1px solid var(--line); padding-bottom: 1vh; margin-bottom: 1.2vh; }
+  table { width: 100%; border-collapse: collapse; font-size: 3vh; }
+  td { padding: .55vh 0; border-bottom: 1px solid #14110f; }
+  td.p { width: 3.5ch; color: var(--dim); } td.t { text-align: right; font-variant-numeric: tabular-nums; color: var(--amb); }
+  td.nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 14ch; }
+  tr.top1 td { color: var(--txt); } tr.top1 td.t { color: var(--txt); }
+  .rec { font-size: 2.2vh; display: grid; grid-template-columns: 1fr auto; gap: .5vh 1vw; color: var(--dim); }
+  .rec .v { color: var(--amb); font-variant-numeric: tabular-nums; }
+  .vacio { color: var(--dim); font-size: 2.6vh; }
+  #fin { position: fixed; inset: 0; background: #070606; display: none; flex-direction: column; align-items: center;
+    justify-content: center; gap: 3vh; text-align: center; }
+  #fin.on { display: flex; }
+  #fin .a { font-size: 5vh; letter-spacing: .4em; color: var(--dim); }
+  #fin .b { font-size: 26vh; line-height: 1; color: var(--txt); font-variant-numeric: tabular-nums; }
+  #fin .c { font-size: 8vh; color: var(--amb); }
+  #fin .d { font-size: 4vh; color: var(--dim); }
+  #fin.abort .b { color: var(--red); }
+  #off { position: fixed; right: 1.5vw; bottom: 1vh; font-size: 1.8vh; color: var(--red); display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="izq">
+    <div>
+      <h1>Recuerdos Rotos</h1>
+      <div class="estado" id="estado">&nbsp;</div>
+    </div>
+    <div>
+      <div class="nombre" id="nombre">&nbsp;</div>
+      <div class="crono" id="crono">00:00.0</div>
+      <div class="parte" id="parte">&nbsp;</div>
+    </div>
+    <div class="parciales" id="parciales"></div>
+  </div>
+  <div class="der">
+    <div>
+      <h1 class="titulo">Los diez mejores</h1>
+      <table id="top"></table>
+    </div>
+    <div>
+      <h1 class="titulo">Récord por parte</h1>
+      <div class="rec" id="rec"></div>
+    </div>
+  </div>
+</div>
+<div id="fin"><div class="a" id="finA">FIN</div><div class="b" id="finB"></div><div class="c" id="finC"></div><div class="d" id="finD"></div></div>
+<div id="off">sin conexión con el operador</div>
+<script>
+const $ = id => document.getElementById(id);
+let st = null, hb = { tiempo: 0, activa: false, congelado: false, at: 0 };
+let skew = 0;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function fmt(t) {
+  t = Math.max(0, t); const m = Math.floor(t / 60); const s = t - m * 60;
+  return String(m).padStart(2, '0') + ':' + (s < 10 ? '0' : '') + s.toFixed(1);
+}
+function fmtCorto(t) { const m = Math.floor(t / 60), s = Math.round(t - m * 60); return m + ':' + String(s).padStart(2, '0'); }
+function nombreParte(e) { const m = e.match(/^Parte (\d+) - (.*)$/); return m ? 'Parte ' + m[1] + ' · ' + m[2] : e; }
+
+function pintarEstatico() {
+  if (!st) return;
+  const p = st.partida;
+  $('estado').textContent = p ? (p.congelado ? 'cargando…' : 'en juego') + (p.conSalto ? ' · con salto (no entra al ranking)' : '') : 'esperando jugador';
+  $('nombre').textContent = p ? (p.nombre || 'Jugador') : (st.nombreProximo ? 'Próximo: ' + st.nombreProximo : '');
+  $('parte').textContent = p && p.escena ? nombreParte(p.escena) : '';
+  const rec = st.records || {};
+  let html = '';
+  if (p) for (const s of p.splits) {
+    const r = rec[s.escena]; const esRec = r && s.parcial <= r.parcial;
+    html += '<div class="n">' + esc(nombreParte(s.escena)) + '</div><div class="v' + (esRec ? ' r' : '') + '">' + fmtCorto(s.parcial) + '</div>';
+  }
+  $('parciales').innerHTML = html;
+  const top = st.top || [];
+  $('top').innerHTML = top.length ? top.map(e => '<tr class="' + (e.puesto === 1 ? 'top1' : '') + '"><td class="p">' + e.puesto + '.</td><td class="nm">' +
+    esc(e.nombre) + '</td><td class="t">' + fmtCorto(e.tiempo) + '</td></tr>').join('') : '<tr><td class="vacio">Todavía nadie terminó.</td></tr>';
+  const rr = (st.escenas || []).filter(x => rec[x]).map(x => '<div>' + esc(nombreParte(x)) + '</div><div class="v">' + fmtCorto(rec[x].parcial) + ' · ' + esc(rec[x].nombre) + '</div>').join('');
+  $('rec').innerHTML = rr || '<div class="vacio">Sin récords todavía.</div>';
+}
+function tiempoLocal() {
+  if (!hb.activa) return 0;
+  if (hb.congelado) return hb.tiempo;
+  return hb.tiempo + (performance.now() - hb.at) / 1000;
+}
+function pintarFin() {
+  const f = st && st.ultimoFin; const el = $('fin');
+  if (!f) return el.classList.remove('on');
+  const ahora = Date.now() + skew;
+  const restan = st.finSegundos - (ahora - f.at) / 1000;
+  if (restan <= 0 || (st.partida)) return el.classList.remove('on');
+  el.classList.toggle('abort', !!f.abortada);
+  if (f.abortada) { $('finA').textContent = 'PARTIDA INTERRUMPIDA'; $('finB').textContent = ''; $('finC').textContent = ''; $('finD').textContent = ''; }
+  else if (f.conSalto) {
+    $('finA').textContent = 'FIN · CON SALTO'; $('finB').textContent = fmtCorto(f.tiempo);
+    $('finC').textContent = 'No entra al ranking'; $('finD').textContent = f.nombre;
+  } else {
+    $('finA').textContent = 'FIN';
+    $('finB').textContent = fmtCorto(f.tiempo);
+    $('finC').textContent = 'Puesto ' + f.puesto;
+    $('finD').textContent = f.nombre;
+  }
+  el.classList.add('on');
+}
+function loop() {
+  const p = st && st.partida;
+  const t = p ? tiempoLocal() : 0;
+  $('crono').textContent = fmt(t);
+  $('crono').classList.toggle('congelado', !!(p && p.congelado));
+  pintarFin();
+  requestAnimationFrame(loop);
+}
+const es = new EventSource('/events');
+es.addEventListener('state', e => {
+  st = JSON.parse(e.data); skew = st.serverNow - Date.now();
+  const p = st.partida;
+  hb = { tiempo: p ? p.tiempo : 0, activa: !!p, congelado: p ? p.congelado : false, at: performance.now() };
+  $('off').style.display = 'none';
+  pintarEstatico();
+});
+es.addEventListener('hb', e => {
+  const d = JSON.parse(e.data);
+  hb = { tiempo: d.tiempo, activa: d.activa, congelado: d.congelado, at: performance.now() };
+  $('off').style.display = 'none';
+});
+es.onerror = () => { $('off').style.display = 'block'; };
+loop();
+</script>
+</body>
+</html>

@@ -1044,6 +1044,9 @@ Toning, White Balance y Vignette corren en el mismo pase final.
   haz. Usa el material `Assets/Materials/Polvo_Linterna.mat` y la textura
   `Assets/Texturas/Polvo_Particula.png`. `FlashlightDust` corta la emisión
   cuando la linterna está apagada; en Parte 1 eso pasa hasta que se la agarra.
+  **Sacado el 2026-11-07 (Omar: "las bolitas sobre la vista"):** se borró
+  `Polvo (linterna)` de las 3 escenas. `FlashlightDust.cs`, el material y la
+  textura quedan en el proyecto, marcados como sin uso.
 - **Parte 4, vueltas del loop:** `tp1.On Loop` llama a `LoopDecay.Step`. Cada
   vuelta suma 0.2 de peso al Volume de encierro (viñeta 0.55, menos color,
   más oscuro) y multiplica las 17 `Luces Tetricas` por 0.85, con un mínimo de
@@ -1068,6 +1071,177 @@ Se modificaron `FlickeringLight` (multiplicador) y `VolumePulse`
 - Capturas antes y después de Parte 1, Parte 4 y Final.
 - En Play, en Parte 4: 2 vueltas dieron peso 0.4 y luces ×0.72, y el polvo
   tenía 39 partículas. Sin errores.
+
+### Issues de la feria: pistas, portales y transmisión (2026-11-05, sin commitear)
+
+Pedido de Omar: avanzar con los issues #21–#45 usando subagentes. Las decisiones de Omar fueron estas:
+- Pistas a los 30/60/90 s de estar trabado, sin castigo.
+- **Modo feria prendido por defecto**: mirada en 1,2 s y pistas ×0,6, o sea 18/36/54 s.
+- Portales nuevos en todos los niveles.
+- App del operador en Node + web.
+- El tiempo se ve solo en el proyector.
+- El ranking se guarda entre días.
+
+El plan completo está en `~/.claude/plans/polished-zooming-moore.md`. #46 (modo espectador) queda afuera.
+
+**Contrato común:** `Assets/Scripts/Feria/FeriaEvents.cs`, una clase estática con:
+- `RequestHint()` → `HintRequested`
+- `ReportHint(escena, escalón)` → `HintGiven`
+- `NotifyPortalVisibility(bool)`
+
+**Pistas (#31–39):**
+- **`Puzzles/HintDirector`:** uno por escena, en el objeto `Pistas (HintDirector)`. Tiene una lista de objetivos y cada objetivo tiene `onAmbient`/`onVoice`/`onDirect`/`onCleared` + `voiceText`, que se muestra con el `VRHintText` de `Main Camera/Hint (VR)`.
+  - Métodos: `Progress()`, `NextObjective()`, `SetObjective(int)`, `GiveDirectHint()` (lo pide el operador) y `Stop()`.
+  - El reloj se pausa durante desmayos y mientras la mirada está bloqueada.
+  - Loguea `[HintDirector] ...`.
+- **`Puzzles/HintGlow`:** brillo emisivo con `MaterialPropertyBlock`, pulso de 0,5 Hz. **Se suma a la emisión original y la restaura al apagarse**: antes del arreglo dejaba la emisión en negro.
+- **`CodeDigit` (#32):** el primer paso usa la selección normal; después avanza 1 número cada 0,6 s mientras se lo mira, con una pausa extra de 0,8 s en el número correcto. `CodeLock` ganó `GetDigitIndex`/`GetTargetSymbol`.
+- **`GameSettings`:** `FairMode`, `PortalsVisible`, `HintTimeScale` y `SetFairMode` / `SetPortalsVisible` (claves PlayerPrefs `cfg.fairMode` / `cfg.portalsVisible`). Con modo feria los presets de velocidad del gaze no se notan.
+- **`ConfigMenu`:** `SetFairModeOn/Off` y `SetPortalsVisible/Subtle`, con labels. En el Menú hay 4 botones nuevos en `PanelConfig`; el panel bajó de escala 0,6 a 0,42 para que entre.
+- **Cableado por escena** (hecho con el helper de Editor `Assets/Editor/FeriaWiring.cs`, que es idempotente y sirve para volver a cablear):
+
+| Escena | Objetivos de pista |
+|---|---|
+| Tutorial | llave → puerta |
+| Parte 1 | linterna → notas (resalta `tp14`; la 1ª llegada muestra "0... 6... 7. ¿Un código?") → candado |
+| Parte 2 | cinta → tele → salir. Al agarrar la cinta suena `Estatica (pista)` (#34); durante la grabación no hay pistas; `_onMovieEnd` → `SetObjective(2)`. |
+| Parte 3 | llave (con la `Rendija roja 1_3 (pista)`, un quad emisivo sin luz, #35) → puerta del fondo. Sin susurros. |
+| Parte 4 | recorrer → cuadro (1ª vuelta del loop; la 2ª vuelta muestra el texto) → pared ciega (resalta `tp pared ciega`; al enderezar dice "de espaldas") |
+| Parte 5 | fragmentos (cada uno con `Susurro (pista)` 3D en loop, 10 m) → entrega. Al juntar los 3 se ilumina el pedestal (#37). |
+| Parte Final | `GazeAttractor._delay` 30 → 12 (#38) |
+
+**Portales (#21–30):**
+- `TeleportPoint` ganó eventos C# (`GazeEntered/Exited/Progress`, `Selected`, `Arrived`, `VisibilityChanged`) y `HasExternalVisual`. Con `HasExternalVisual` el orbe o cubo viejo queda siempre apagado, pero no se borra.
+- `Locomotion/PortalVisual` arma en Play un hijo `__PortalVisual` con:
+  - marca en el piso (shader `Custom/PortalMark`);
+  - polvo de ~15 partículas;
+  - sonido 3D una vez por mirada;
+  - fundido por distancia;
+  - modo sutil;
+  - `SetHighlighted`.
+- **Estilos:**
+
+  | Escena | Estilo |
+  |---|---|
+  | Tutorial | simple |
+  | Parte 1 | huellas descalzas |
+  | Parte 2 | velita + confeti |
+  | Parte 3 | polillas |
+  | Parte 4 | rayones → huellas hacia atrás con `SetBackwardMode`. Se cableó en `Pintura al reves.On Straightened`, no en el loop: es el momento en que hay que volver de espaldas. |
+  | Parte 5 | mancha celeste |
+
+- **Herramientas de menú:**
+  - `Tools/Feria de Ciencias/Portales: generar texturas y materiales`: texturas en `Assets/Texturas/Portales/` y materiales en `Assets/Materials/Portales/`.
+  - `.../Portales: aplicar a la escena abierta` / `revertir`: mide el piso y la línea de vista con MeshColliders temporales. Los warnings de "large triangles" y "lines or points" son de esos colliders y no importan.
+  - Ya se aplicó en Tutorial y Partes 1–5. En Parte 3 se le sacó el portal a `tp pozo`. Las `Flechas` de Parte 2 se saltean a propósito.
+- Sonido al mirar: solo crujidos en Parte 3 y 4. En el resto `_gazeClips` quedó vacío, falta decidirlo.
+
+**Cronómetro y comandos (#41, #43):**
+- **`Feria/GameTimer`:** se crea solo, arranca en `MainMenuController.StartGame` y descuenta las cargas.
+  - Los eventos estáticos nuevos `FaintOverlay.FaintStarted/LoadBegin/SceneActivated/EyesOpened` también se disparan desde `SceneTransitionOverlay`.
+  - Termina con el desmayo de Parte Final al Menú.
+  - Guarda un JSON por partida en `persistentDataPath/partidas/`.
+- **Protocolo de log** `[CRONO] start|scene|split|loadstart|loadend|hint|end|abort|name|cmd|tick`. Los segundos son el tiempo activo acumulado.
+- **`Feria/OperatorCommandServer`:** TCP en 127.0.0.1:7777 (en la PC se usa `adb forward tcp:7777 tcp:7777`). Comandos: `ping`, `status`, `hint`, `skip`, `menu` y `name <txt>`.
+
+**App del operador (#42, #44, #45):** `tools/operador/` (Node puro).
+- Archivos: `server.js` (`--simular` para probar sin celular), `public/index.html` (proyector), `public/operador.html`, `iniciar-operador.bat`, `scrcpy-un-ojo.bat` y el ranking en `datos/ranking.json`.
+- Una partida con `skip` no entra al ranking.
+- La guía para la feria está en `docs/feria-transmision.md`.
+
+**Pendiente:**
+- Probar en el A54: FPS de las partículas, distancia de visión, `adb forward` real y scrcpy.
+- Sonido de portales en las escenas sin crujidos.
+- Decidir si bajar texturas CC0 de huellas o manchas (propuestas en el plan).
+
+**Optimización de código (2026-11-07, sin commitear):** se midió con el
+Profiler en Play, en el Editor, con el jugador quieto.
+- **Antes:** en Parte 2, los scripts tardan ~0,08 ms por frame y la mediana de
+  basura es 0 bytes. El costo real está en el render: ~400 draw calls y ~252k
+  triángulos por ojo.
+- **Después:** en Parte 5, los scripts tardan ~0,16 ms por frame (0,05 ms son
+  los 31 `PortalVisual`) y hay ~0,2 GC.Alloc por frame. Conclusión: el código
+  ya no es el cuello de botella.
+- **Cambios de 3 subagentes, todos chicos:**
+  - `MonsterChaser`/`MonsterController` cachean `Camera.main`.
+  - `GazeReticle` escribe solo cuando algo cambia.
+  - `PlayerFollowsCamera` no toca el Transform si la cámara no se movió.
+  - `FlickeringLight` no hace trabajo con la luz apagada.
+  - `CameraDebugLogger` solo corre en Development Build.
+- **Marcados `// SIN USO` (no se borró nada):** `GazeDebugTarget`, `TVMovie`,
+  `GameManager`, `FakeLightPool`, `FlashlightDust` y `GameOver` (este último
+  sigue en Parte 2, pero ya no se llama).
+- **Gotcha:** si se editan scripts con el Editor en Play, Unity recompila en
+  caliente y los campos privados no serializables (por ejemplo un
+  `MaterialPropertyBlock`) quedan en null. `PortalVisual` tira entonces una
+  `ArgumentNullException` por frame. No es un bug del juego: hay que salir de
+  Play y volver a entrar.
+- **Si hace falta más rendimiento en el A54:** apuntar al render (por ejemplo
+  occlusion culling en Parte 2), no a los scripts.
+
+**Código de más: limpieza (Omar, 2026-11-07, sin commitear).** Pedido: "escribir
+en menos la misma calidad". Los `.cs` de `Assets/Scripts` + `Assets/Editor`
+bajaron de **23.056 a 17.773 líneas (−23 %)**.
+- **Borrado (aprobado por Omar):**
+  - scripts sin uso: `Peephole`, `FakeLightPool` (+ shader y material),
+    `TVMovie`, `GazeDebugTarget`, `GameManager`, `GameOver` (también se sacó
+    su objeto de Parte 2), `SequenceManager`/`SequenceStep` y `FlashlightDust`
+    (+ `Polvo_Linterna.mat` y `Polvo_Particula.png`);
+  - generadores viejos del compañero: `MenuPrincipalGenerator`, `Parte2Setup`,
+    `TutorialSetup` y `TutorialNarrationSetup`.
+  
+  **Las menciones a estos archivos en el resto de este documento quedaron
+  históricas.** Si hacen falta, se recuperan con git (el último commit que los
+  tiene es `9d7ce8d`).
+- **Helpers nuevos en `Assets/Scripts/Common/`:**
+
+  | Helper | Qué hace | Lo usan |
+  |---|---|---|
+  | `GazeHighlight` | Cambia el material al mirar | 8 scripts |
+  | `TimedSign` | Muestra un cartel unos segundos | `Door`, `ExamineTrigger`, `LevelDoor`, `VCRSlot`, `FragmentDropOff` |
+  | `EmissionUtil` | Brillo con `MaterialPropertyBlock` sobre `emissiveFactor` y `_EmissionColor` | `EmissivePulse`, `HintGlow`, `GazeAttractor`, `LightsOffBehind`, `MonitorBeepDisplay` |
+  | `OverlayUtil` | Esfera alrededor de la cámara con la cadena de shaders de respaldo, y `TextMesh` | `FaintOverlay`, `ScreenBlink`, `PhotosensitivityWarning` |
+  | `CameraPivot` | Pivote temporal para inclinar o hacer caer la cámara | `AbyssFall`, `ScriptedChase` |
+
+  En el Editor, `Assets/Editor/EditorGenUtil.cs` junta la síntesis de audio,
+  la escritura de WAV y la importación de los dos generadores de sonido. Los
+  sonidos salen iguales: mismas semillas, mismo orden de llamadas al RNG.
+- **Opciones que ninguna escena usaba, sacadas** (verificado con grep en
+  escenas y prefabs):
+  - `MonsterController` (1001 → 430 líneas): sin `Stalk`, `Charge`, rastro,
+    NavMeshAgent ni Animator. Quedan `Hide`, `Appear`, `AppearAt`, `Watch`,
+    `Reveal` y `RemoveMask`. Si alguna vez se quiere un monstruo que acecha,
+    recuperar la versión vieja de git.
+  - `MonsterChaser` (447 → 310): sin Animator, meneo, snap al piso ni
+    corrección de orientación.
+  - `ChaseReveal`: sin giro forzado de cámara ni spawn "detrás del jugador";
+    usa `_monsterRevealPoint`.
+  - `SecurityFootage`: `_tvScreen` y `_screenMaterial` son obligatorios.
+  - `FlashlightPickup`: siempre arranca apagada.
+  - `UpsideDownPainting`: sin sonidos ni `ResetUpsideDown`.
+  - `PortalVisual`: sin `SetHighlightedAll` ni la lista de instancias.
+  
+  Los campos borrados que las escenas todavía serializan quedan como YAML
+  huérfano, que Unity ignora.
+- **Verificado:** compila sin errores ni warnings, las 8 escenas tienen 0
+  scripts faltantes y los 175 `UnityEvent` persistentes apuntan a métodos que
+  existen.
+- **Probado en Play con un agente Haiku**, sin errores de juego:
+  - **Parte 1:** candado `067` → persecución → desmayo → Parte 2.
+  - **Parte 2:** cinta → tele → grabación → monstruo → te alcanza → desmayo
+    → Parte 3.
+  - **Parte 5:** 3 fragmentos → entrega → apagón → máscara → final → desmayo
+    → Parte Final.
+  - **Parte 3, Parte 4, Tutorial, Menú y Parte Final:** arrancan limpias.
+  - **Arreglo:** `PhotosensitivityWarning` pasa `warnIfNoPreferred: false` a
+    `OverlayUtil` para no loguear el aviso de `Shader.Find`. Antes del refactor
+    no avisaba.
+- **Gotcha, puerto 7777 ocupado en el Editor:** si Unity recompila con el juego
+  en Play, el `OperatorCommandServer` viejo queda escuchando dentro de
+  `Unity.exe` y los siguientes Play avisan "No pude abrir el puerto 7777". Se
+  arregla reiniciando Unity. En el celular no pasa.
+- **Ojo:** varios archivos quedaron con fin de línea LF. Git los convierte a
+  CRLF y avisa al hacer diff; no afecta a Unity.
 
 ### Transiciones "desmayo" — estado al cierre de la sesión 2026-09-23
 

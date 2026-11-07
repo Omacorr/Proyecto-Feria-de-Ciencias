@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Operador · Recuerdos Rotos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @font-face { font-family: 'SE Local'; src: url('/fonts/SpecialElite-Regular.ttf') format('truetype'); }
+  :root { --bg:#0c0b0a; --txt:#e8e0cf; --dim:#8a8274; --amb:#c98a2b; --red:#8c2f27; --ok:#4f8a4a; --line:#2a2622; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 18px; background: var(--bg); color: var(--txt); font-family: 'SE Local', monospace; max-width: 900px; }
+  h1 { font-weight: normal; font-size: 20px; letter-spacing: .2em; color: var(--dim); margin: 0 0 14px; }
+  h2 { font-weight: normal; font-size: 15px; color: var(--amb); margin: 22px 0 8px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .lamp { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--line); }
+  .lamp i { width: 12px; height: 12px; border-radius: 50%; background: var(--red); display: inline-block; }
+  .lamp.ok i { background: var(--ok); }
+  input[type=text] { background: #15130f; color: var(--txt); border: 1px solid var(--line); padding: 10px; font: inherit; font-size: 18px; width: 280px; }
+  button { background: #1b1814; color: var(--txt); border: 1px solid #3a342c; padding: 12px 18px; font: inherit; font-size: 16px; cursor: pointer; }
+  button:hover { border-color: var(--amb); }
+  button.peligro { border-color: var(--red); }
+  .big { font-size: 40px; font-variant-numeric: tabular-nums; }
+  #msg { min-height: 22px; color: var(--amb); margin-top: 8px; }
+  select { background: #15130f; color: var(--txt); border: 1px solid var(--line); padding: 10px; font: inherit; max-width: 100%; }
+  pre { background: #100e0c; border: 1px solid var(--line); padding: 10px; font-size: 13px; height: 360px; overflow: auto; margin: 0; white-space: pre-wrap; }
+  .sm { color: var(--dim); font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>OPERADOR</h1>
+<div class="row">
+  <span class="lamp" id="lAdb"><i></i><span id="tAdb">adb</span></span>
+  <span class="lamp" id="lSock"><i></i><span id="tSock">juego</span></span>
+  <span class="lamp" id="lSim" style="display:none"><i style="background:var(--amb)"></i>simulación</span>
+</div>
+
+<h2>Partida actual</h2>
+<div><span class="big" id="crono">--:--.-</span> &nbsp; <span id="quien">sin partida</span></div>
+<div class="sm" id="parte"></div>
+
+<h2>Próximo jugador</h2>
+<div class="row">
+  <input type="text" id="nombre" maxlength="24" placeholder="Nombre del próximo jugador">
+  <button id="bNombre">Guardar nombre</button>
+  <span class="sm" id="nomActual"></span>
+</div>
+
+<h2>Durante la partida</h2>
+<div class="row">
+  <button id="bHint">Dar pista</button>
+  <button id="bSkip">Saltar parte</button>
+  <button id="bMenu" class="peligro">Volver al menú</button>
+</div>
+<div id="msg"></div>
+
+<h2>Ranking</h2>
+<div class="row">
+  <select id="selBorrar" size="1"></select>
+  <button id="bBorrar" class="peligro">Borrar este tiempo</button>
+</div>
+<div class="row" style="margin-top:10px"><button id="bReiniciar" class="peligro">Reiniciar ranking</button>
+  <span class="sm">Hace un backup antes de borrar.</span></div>
+
+<h2>Últimas líneas [CRONO]</h2>
+<pre id="log"></pre>
+
+<script>
+const $ = id => document.getElementById(id);
+let st = null, hb = { tiempo: 0, activa: false, congelado: false, at: 0 };
+const fmt = t => { t = Math.max(0, t); const m = Math.floor(t / 60), s = t - m * 60; return String(m).padStart(2, '0') + ':' + (s < 10 ? '0' : '') + s.toFixed(1); };
+const fmtC = t => { const m = Math.floor(t / 60), s = Math.round(t - m * 60); return m + ':' + String(s).padStart(2, '0'); };
+const msg = t => { $('msg').textContent = t; };
+
+async function post(url, body) {
+  try {
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+    return await r.json();
+  } catch (e) { return { ok: false, error: 'no hay conexión con el servidor' }; }
+}
+async function cmd(c, arg) {
+  const r = await post('/api/cmd', { cmd: c, arg });
+  msg(r.ok ? c + ': ' + (r.respuesta || 'ok') : 'Error: ' + (r.error || r.respuesta));
+}
+function lamp(id, tid, ok, texto) { $(id).classList.toggle('ok', !!ok); $(tid).textContent = texto; }
+
+function pintar() {
+  if (!st) return;
+  lamp('lAdb', 'tAdb', st.adb.ok, 'adb: ' + st.adb.msg);
+  lamp('lSock', 'tSock', st.socket.ok, 'juego: ' + st.socket.msg);
+  $('lSim').style.display = st.simulado ? 'inline-flex' : 'none';
+  const p = st.partida;
+  $('quien').textContent = p ? (p.nombre || 'Jugador') + (p.congelado ? ' (cargando)' : '') : 'sin partida';
+  $('parte').textContent = p ? (p.escena + ' · pistas: ' + p.pistas) : '';
+  $('nomActual').textContent = st.nombreProximo ? 'Guardado: ' + st.nombreProximo : '';
+  const sel = $('selBorrar'); const prev = sel.value;
+  sel.innerHTML = (st.lista || []).map(e => '<option value="' + e.id + '">' + e.puesto + '. ' + e.nombre.replace(/</g, '&lt;') + ' · ' + fmtC(e.tiempo) + ' · ' + new Date(e.fecha).toLocaleString('es-AR') + '</option>').join('') || '<option value="">(ranking vacío)</option>';
+  if (prev) sel.value = prev;
+  const lg = $('log'); const abajo = lg.scrollTop + lg.clientHeight >= lg.scrollHeight - 20;
+  lg.textContent = st.log.map(l => l.t + '  ' + l.txt).join('\n');
+  if (abajo) lg.scrollTop = lg.scrollHeight;
+}
+function loop() {
+  let t = 0;
+  if (hb.activa) t = hb.congelado ? hb.tiempo : hb.tiempo + (performance.now() - hb.at) / 1000;
+  $('crono').textContent = hb.activa ? fmt(t) : '--:--.-';
+  requestAnimationFrame(loop);
+}
+const es = new EventSource('/events');
+es.addEventListener('state', e => { st = JSON.parse(e.data); const p = st.partida; hb = { tiempo: p ? p.tiempo : 0, activa: !!p, congelado: p ? p.congelado : false, at: performance.now() }; pintar(); });
+es.addEventListener('hb', e => { const d = JSON.parse(e.data); hb = { tiempo: d.tiempo, activa: d.activa, congelado: d.congelado, at: performance.now() }; });
+es.onerror = () => { lamp('lAdb', 'tAdb', false, 'sin conexión con el servidor'); };
+
+$('bNombre').onclick = async () => { const r = await post('/api/nombre', { nombre: $('nombre').value }); msg(r.ok ? 'Nombre guardado. ' + (r.respuesta || '') : 'Error: ' + r.error); };
+$('nombre').addEventListener('keydown', e => { if (e.key === 'Enter') $('bNombre').click(); });
+$('bHint').onclick = () => cmd('hint');
+$('bSkip').onclick = () => { if (confirm('¿Saltar a la parte siguiente?')) cmd('skip'); };
+$('bMenu').onclick = () => { if (confirm('¿Cortar la partida y volver al menú? La partida no entra al ranking.')) cmd('menu'); };
+$('bBorrar').onclick = async () => {
+  const id = $('selBorrar').value; if (!id) return;
+  if (!confirm('¿Borrar este tiempo del ranking?\n' + $('selBorrar').selectedOptions[0].textContent)) return;
+  const r = await post('/api/ranking/borrar', { id }); msg(r.ok ? 'Tiempo borrado.' : 'Error: ' + r.error);
+};
+$('bReiniciar').onclick = async () => {
+  if (!confirm('¿Reiniciar TODO el ranking?')) return;
+  if (prompt('Para confirmar escribí BORRAR') !== 'BORRAR') return msg('Cancelado.');
+  const r = await post('/api/ranking/reiniciar'); msg(r.ok ? 'Ranking reiniciado. Backup: ' + (r.backup || 'no hacía falta') : 'Error: ' + r.error);
+};
+loop();
+</script>
+</body>
+</html>
