@@ -2755,7 +2755,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3204008b5b94bbc448f0d240c638d100, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GazeAttractor
-  _delay: 30
+  _delay: 12
   _rampSeconds: 20
   _armOnStart: 1
   _light: {fileID: 936337958}

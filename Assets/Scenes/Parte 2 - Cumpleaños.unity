@@ -4464,6 +4464,7 @@ GameObject:
   - component: {fileID: 126185101}
   - component: {fileID: 126185100}
   - component: {fileID: 126185099}
+  - component: {fileID: 126185103}
   m_Layer: 9
   m_Name: Tp 1 (13)
   m_TagString: Untagged
@@ -4515,6 +4516,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &126185100
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4593,6 +4595,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 126185097}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &126185103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126185097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.05503273
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 107.93684
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &127479108
 GameObject:
   m_ObjectHideFlags: 0
@@ -5251,6 +5295,7 @@ GameObject:
   - component: {fileID: 154909062}
   - component: {fileID: 154909061}
   - component: {fileID: 154909060}
+  - component: {fileID: 154909064}
   m_Layer: 9
   m_Name: Tp 1 (12)
   m_TagString: Untagged
@@ -5302,6 +5347,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &154909061
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5380,6 +5426,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 154909058}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &154909064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 154909058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055028915
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 107.76653
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &155597825
 GameObject:
   m_ObjectHideFlags: 0
@@ -6511,6 +6599,7 @@ GameObject:
   - component: {fileID: 173064244}
   - component: {fileID: 173064243}
   - component: {fileID: 173064242}
+  - component: {fileID: 173064246}
   m_Layer: 9
   m_Name: Tp 1 (1)
   m_TagString: Untagged
@@ -6562,6 +6651,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &173064243
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6640,6 +6730,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 173064240}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &173064246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 173064240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055013657
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 270.52048
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &173687885
 GameObject:
   m_ObjectHideFlags: 0
@@ -6820,6 +6952,29 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 184057197}
   m_Mesh: {fileID: 4300000, guid: ca40527d7ff2fc54da00c2af62579d6f, type: 2}
+--- !u!1 &191263589 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5337478795612616488, guid: ca5164b248d2a314aaa701ad89584140, type: 3}
+  m_PrefabInstance: {fileID: 1826643977}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &191263590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 191263589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e2ddd50853664043b328bca38019452, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HintGlow
+  _color: {r: 1, g: 0.85, b: 0.5, a: 1}
+  _strength: 0.9
+  _minFraction: 0.35
+  _pulseHz: 0.5
+  _fadeSeconds: 0.6
+  _startOn: 0
 --- !u!1 &191631467
 GameObject:
   m_ObjectHideFlags: 0
@@ -10652,6 +10807,7 @@ GameObject:
   - component: {fileID: 358089069}
   - component: {fileID: 358089068}
   - component: {fileID: 358089067}
+  - component: {fileID: 358089071}
   m_Layer: 9
   m_Name: Tp 1 (6)
   m_TagString: Untagged
@@ -10703,6 +10859,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &358089068
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10781,6 +10938,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 358089065}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &358089071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 358089065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055027008
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 271.37195
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &367065154
 GameObject:
   m_ObjectHideFlags: 0
@@ -11471,6 +11670,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 0
 --- !u!114 &387807902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15822,6 +16022,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 0
 --- !u!1 &555373061
 GameObject:
   m_ObjectHideFlags: 0
@@ -16527,6 +16728,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &565736861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565736855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e2ddd50853664043b328bca38019452, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HintGlow
+  _color: {r: 1, g: 0.8, b: 0.5, a: 1}
+  _strength: 0.7
+  _minFraction: 0.35
+  _pulseHz: 0.5
+  _fadeSeconds: 0.6
+  _startOn: 0
 --- !u!1 &567224698
 GameObject:
   m_ObjectHideFlags: 0
@@ -21631,53 +21850,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 725342467}
   m_Mesh: {fileID: 4300000, guid: 330ce3753d408e54092066895af3301d, type: 2}
---- !u!1 &725399974
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 725399976}
-  - component: {fileID: 725399975}
-  m_Layer: 0
-  m_Name: GameOver
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &725399975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 725399974}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab072b2dcf950ba4fb2c9ea96e52589e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameOver
-  _bigText: TE ATRAPARON
-  _subText: reintentando...
-  _delayBeforeFade: 0.3
---- !u!4 &725399976
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 725399974}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &725420152
 GameObject:
   m_ObjectHideFlags: 0
@@ -23625,6 +23797,7 @@ GameObject:
   - component: {fileID: 776746506}
   - component: {fileID: 776746505}
   - component: {fileID: 776746504}
+  - component: {fileID: 776746508}
   m_Layer: 9
   m_Name: Tp 1 (2)
   m_TagString: Untagged
@@ -23676,6 +23849,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &776746505
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -23754,6 +23928,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 776746502}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &776746508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 776746502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055015564
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 270.69077
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &785058103
 GameObject:
   m_ObjectHideFlags: 0
@@ -24217,6 +24433,7 @@ GameObject:
   - component: {fileID: 794913592}
   - component: {fileID: 794913591}
   - component: {fileID: 794913590}
+  - component: {fileID: 794913594}
   m_Layer: 9
   m_Name: Tp 1 (5)
   m_TagString: Untagged
@@ -24268,6 +24485,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &794913591
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -24346,6 +24564,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 794913588}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &794913594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 794913588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055027008
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 271.20166
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &796753828
 GameObject:
   m_ObjectHideFlags: 0
@@ -25439,6 +25699,7 @@ GameObject:
   - component: {fileID: 842580457}
   - component: {fileID: 842580456}
   - component: {fileID: 842580455}
+  - component: {fileID: 842580459}
   m_Layer: 9
   m_Name: Tp 1 (8)
   m_TagString: Untagged
@@ -25490,6 +25751,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &842580456
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -25568,6 +25830,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 842580453}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &842580459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 842580453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055026054
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 271.71252
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &845631986
 GameObject:
   m_ObjectHideFlags: 0
@@ -32388,6 +32692,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 0
 --- !u!1 &1084098203
 GameObject:
   m_ObjectHideFlags: 0
@@ -32851,6 +33156,7 @@ GameObject:
   - component: {fileID: 1101026124}
   - component: {fileID: 1101026123}
   - component: {fileID: 1101026122}
+  - component: {fileID: 1101026126}
   m_Layer: 9
   m_Name: Tp 1 (17)
   m_TagString: Untagged
@@ -32902,6 +33208,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1101026123
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -32980,6 +33287,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1101026120}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1101026126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1101026120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.092954636
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 108.61799
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1102569639
 GameObject:
   m_ObjectHideFlags: 0
@@ -35282,6 +35631,7 @@ GameObject:
   - component: {fileID: 1153070530}
   - component: {fileID: 1153070529}
   - component: {fileID: 1153070528}
+  - component: {fileID: 1153070532}
   m_Layer: 9
   m_Name: Tp 1
   m_TagString: Untagged
@@ -35333,6 +35683,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1153070529
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -35411,6 +35762,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153070526}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1153070532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153070526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.05501747
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 145.18654
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1157390157
 GameObject:
   m_ObjectHideFlags: 0
@@ -35424,6 +35817,7 @@ GameObject:
   - component: {fileID: 1157390161}
   - component: {fileID: 1157390160}
   - component: {fileID: 1157390159}
+  - component: {fileID: 1157390163}
   m_Layer: 9
   m_Name: Tp 1 (14)
   m_TagString: Untagged
@@ -35475,6 +35869,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1157390160
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -35553,6 +35948,189 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157390157}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1157390163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157390157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.05502987
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 108.107124
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
+--- !u!1 &1160350567
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1160350569}
+  - component: {fileID: 1160350568}
+  m_Layer: 0
+  m_Name: Pistas (HintDirector)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1160350568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1160350567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dee79eb9cacefc4cb162e4038dc41aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HintDirector
+  _objectives:
+  - label: Cinta
+    voiceText: Esa cinta... tengo que agarrarla.
+    onAmbient:
+      m_PersistentCalls:
+        m_Calls: []
+    onVoice:
+      m_PersistentCalls:
+        m_Calls: []
+    onDirect:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 191263590}
+          m_TargetAssemblyTypeName: HintGlow, Assembly-CSharp
+          m_MethodName: On
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: 
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    onCleared:
+      m_PersistentCalls:
+        m_Calls: []
+  - label: Tele
+    voiceText: "La tele... ah\xED tiene que ir la cinta."
+    onAmbient:
+      m_PersistentCalls:
+        m_Calls: []
+    onVoice:
+      m_PersistentCalls:
+        m_Calls: []
+    onDirect:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1566972498}
+          m_TargetAssemblyTypeName: HintGlow, Assembly-CSharp
+          m_MethodName: On
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: 
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    onCleared:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1566972498}
+          m_TargetAssemblyTypeName: HintGlow, Assembly-CSharp
+          m_MethodName: Off
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: 
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - label: Salir
+    voiceText: "\xA1La puerta! Tengo que salir de ac\xE1."
+    onAmbient:
+      m_PersistentCalls:
+        m_Calls: []
+    onVoice:
+      m_PersistentCalls:
+        m_Calls: []
+    onDirect:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 565736861}
+          m_TargetAssemblyTypeName: HintGlow, Assembly-CSharp
+          m_MethodName: On
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: 
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    onCleared:
+      m_PersistentCalls:
+        m_Calls: []
+  _startObjective: 0
+  _autoStart: 1
+  _ambientSeconds: 30
+  _voiceSeconds: 60
+  _directSeconds: 90
+  _hint: {fileID: 63869778}
+--- !u!4 &1160350569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1160350567}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1161334746
 GameObject:
   m_ObjectHideFlags: 0
@@ -37302,6 +37880,7 @@ GameObject:
   - component: {fileID: 1246125550}
   - component: {fileID: 1246125549}
   - component: {fileID: 1246125548}
+  - component: {fileID: 1246125552}
   m_Layer: 9
   m_Name: Tp 1 (10)
   m_TagString: Untagged
@@ -37353,6 +37932,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1246125549
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -37431,6 +38011,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1246125546}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1246125552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246125546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055027008
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 107.42596
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1246624275
 GameObject:
   m_ObjectHideFlags: 0
@@ -37581,6 +38203,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 0
 --- !u!114 &1247010590
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37792,6 +38415,7 @@ GameObject:
   - component: {fileID: 1250465552}
   - component: {fileID: 1250465551}
   - component: {fileID: 1250465550}
+  - component: {fileID: 1250465554}
   m_Layer: 9
   m_Name: Tp 1 (16)
   m_TagString: Untagged
@@ -37843,6 +38467,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1250465551
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -37921,6 +38546,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1250465548}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1250465554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1250465548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.092954636
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 108.4477
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1251189551
 GameObject:
   m_ObjectHideFlags: 0
@@ -39344,6 +40011,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 0
 --- !u!1 &1309645293
 GameObject:
   m_ObjectHideFlags: 0
@@ -39880,6 +40548,7 @@ GameObject:
   - component: {fileID: 1324078657}
   - component: {fileID: 1324078656}
   - component: {fileID: 1324078655}
+  - component: {fileID: 1324078659}
   m_Layer: 9
   m_Name: Tp 1 (18)
   m_TagString: Untagged
@@ -39931,6 +40600,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1324078656
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -40009,6 +40679,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1324078653}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1324078659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324078653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.092954636
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 108.788284
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1326271453
 GameObject:
   m_ObjectHideFlags: 0
@@ -42612,6 +43324,7 @@ GameObject:
   - component: {fileID: 1412837836}
   - component: {fileID: 1412837835}
   - component: {fileID: 1412837834}
+  - component: {fileID: 1412837838}
   m_Layer: 9
   m_Name: Tp 1 (15)
   m_TagString: Untagged
@@ -42663,6 +43376,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1412837835
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -42741,6 +43455,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1412837832}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1412837838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1412837832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.05502987
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 108.27741
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1416174292
 GameObject:
   m_ObjectHideFlags: 0
@@ -44302,6 +45058,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 0
 --- !u!114 &1462959063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -45528,6 +46285,7 @@ GameObject:
   - component: {fileID: 1529000152}
   - component: {fileID: 1529000151}
   - component: {fileID: 1529000150}
+  - component: {fileID: 1529000154}
   m_Layer: 9
   m_Name: Tp 1 (4)
   m_TagString: Untagged
@@ -45579,6 +46337,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1529000151
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -45657,6 +46416,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1529000148}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1529000154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1529000148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.0550251
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 271.03137
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1530565527
 GameObject:
   m_ObjectHideFlags: 0
@@ -46627,7 +47428,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2774220344278030320, guid: 7d11c8240f973fe4abb505de09822467, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1955988887}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: -6689036041284674117, guid: 7d11c8240f973fe4abb505de09822467, type: 3}
       insertIndex: -1
@@ -46641,6 +47445,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -6689036041284674117, guid: 7d11c8240f973fe4abb505de09822467, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1566972497}
+    - targetCorrespondingSourceObject: {fileID: -6689036041284674117, guid: 7d11c8240f973fe4abb505de09822467, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1566972498}
   m_SourcePrefab: {fileID: -5645937942226959685, guid: 7d11c8240f973fe4abb505de09822467, type: 3}
 --- !u!1 &1566972492 stripped
 GameObject:
@@ -46748,6 +47555,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1160350568}
+        m_TargetAssemblyTypeName: HintDirector, Assembly-CSharp
+        m_MethodName: SetObjective
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1566972494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46795,6 +47614,42 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+      - m_Target: {fileID: 1955988886}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Stop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1160350568}
+        m_TargetAssemblyTypeName: HintDirector, Assembly-CSharp
+        m_MethodName: NextObjective
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1160350568}
+        m_TargetAssemblyTypeName: HintDirector, Assembly-CSharp
+        m_MethodName: Stop
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!65 &1566972495
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -46816,6 +47671,11 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 46.80003, y: 38.7051, z: 45.236122}
   m_Center: {x: -0.00000071525596, y: 18.285727, z: 22.618063}
+--- !u!4 &1566972496 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2774220344278030320, guid: 7d11c8240f973fe4abb505de09822467, type: 3}
+  m_PrefabInstance: {fileID: 1566972491}
+  m_PrefabAsset: {fileID: 0}
 --- !u!82 &1566972497
 AudioSource:
   m_ObjectHideFlags: 0
@@ -46913,6 +47773,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1566972498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1566972492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e2ddd50853664043b328bca38019452, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HintGlow
+  _color: {r: 0.7, g: 0.85, b: 1, a: 1}
+  _strength: 0.7
+  _minFraction: 0.35
+  _pulseHz: 0.5
+  _fadeSeconds: 0.6
+  _startOn: 0
 --- !u!1 &1569815632
 GameObject:
   m_ObjectHideFlags: 0
@@ -51262,6 +52140,7 @@ GameObject:
   - component: {fileID: 1713083153}
   - component: {fileID: 1713083152}
   - component: {fileID: 1713083151}
+  - component: {fileID: 1713083155}
   m_Layer: 9
   m_Name: Tp 1 (9)
   m_TagString: Untagged
@@ -51313,6 +52192,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1713083152
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -51391,6 +52271,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1713083149}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1713083155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1713083149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055026054
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 271.8828
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1716118976
 GameObject:
   m_ObjectHideFlags: 0
@@ -54726,6 +55648,7 @@ GameObject:
   - component: {fileID: 1818652960}
   - component: {fileID: 1818652959}
   - component: {fileID: 1818652958}
+  - component: {fileID: 1818652962}
   m_Layer: 9
   m_Name: Tp 1 (11)
   m_TagString: Untagged
@@ -54777,6 +55700,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1818652959
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -54855,6 +55779,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1818652956}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1818652962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1818652956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.055027008
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 107.596245
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1818835177
 GameObject:
   m_ObjectHideFlags: 0
@@ -55389,6 +56355,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -4113940484588538235, guid: ca5164b248d2a314aaa701ad89584140, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1826643983}
+    - targetCorrespondingSourceObject: {fileID: -5337478795612616488, guid: ca5164b248d2a314aaa701ad89584140, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 191263590}
   m_SourcePrefab: {fileID: -5645937942226959685, guid: ca5164b248d2a314aaa701ad89584140, type: 3}
 --- !u!1 &1826643978 stripped
 GameObject:
@@ -55467,6 +56436,30 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: "Una cinta VHS... Quiz\xE1s la tele funcione."
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1160350568}
+        m_TargetAssemblyTypeName: HintDirector, Assembly-CSharp
+        m_MethodName: NextObjective
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1955988886}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
   _audioSource: {fileID: 0}
@@ -55692,6 +56685,7 @@ GameObject:
   - component: {fileID: 1829349427}
   - component: {fileID: 1829349426}
   - component: {fileID: 1829349425}
+  - component: {fileID: 1829349429}
   m_Layer: 9
   m_Name: Tp 1 (7)
   m_TagString: Untagged
@@ -55743,6 +56737,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &1829349426
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -55821,6 +56816,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1829349423}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1829349429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1829349423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.0550251
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 271.54224
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &1832803741
 GameObject:
   m_ObjectHideFlags: 0
@@ -78871,6 +79908,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6988596538864887902, guid: 27e18951f55f38040a11459aa1e04c19, type: 3}
       insertIndex: -1
       addedObject: {fileID: 565736860}
+    - targetCorrespondingSourceObject: {fileID: 6988596538864887902, guid: 27e18951f55f38040a11459aa1e04c19, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 565736861}
   m_SourcePrefab: {fileID: -5645937942226959685, guid: 27e18951f55f38040a11459aa1e04c19, type: 3}
 --- !u!1 &1922624498
 GameObject:
@@ -79834,6 +80874,135 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1954305012}
   m_Mesh: {fileID: 4300000, guid: 5553a06f4bf97ac49b94ce0c5da4b79f, type: 2}
+--- !u!1 &1955988885
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1955988887}
+  - component: {fileID: 1955988886}
+  m_Layer: 0
+  m_Name: Estatica (pista)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &1955988886
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1955988885}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: c925c6e33d600f84391ffbcbd8d024f2, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 0.3
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 1.5
+  MaxDistance: 14
+  Pan2D: 0
+  rolloffMode: 1
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &1955988887
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1955988885}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1566972496}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1956464764
 GameObject:
   m_ObjectHideFlags: 0
@@ -83308,6 +84477,7 @@ GameObject:
   - component: {fileID: 2068456275}
   - component: {fileID: 2068456274}
   - component: {fileID: 2068456273}
+  - component: {fileID: 2068456277}
   m_Layer: 9
   m_Name: Tp 1 (3)
   m_TagString: Untagged
@@ -83359,6 +84529,7 @@ MonoBehaviour:
   _onPlayerArrived:
     m_PersistentCalls:
       m_Calls: []
+  _hasExternalVisual: 1
 --- !u!65 &2068456274
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -83437,6 +84608,48 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2068456271}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2068456277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2068456271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608982351e4b2ad468320b253587a015, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PortalVisual
+  _style: 2
+  _markMaterial: {fileID: 2100000, guid: e121f17a55846fc4c8202d57a9778e79, type: 2}
+  _backwardMarkMaterial: {fileID: 0}
+  _confettiMaterial: {fileID: 2100000, guid: 8b7a2e67e071f684c979ea4ed062f8df, type: 2}
+  _candleMaterial: {fileID: 2100000, guid: d6f0119a4be5ba844acaec96a7cbf809, type: 2}
+  _flameMaterial: {fileID: 2100000, guid: fd652d4250841344696361eebfa12d12, type: 2}
+  _mothMaterial: {fileID: 0}
+  _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
+  _floorOffset: -0.0550251
+  _raycastFloorAtRuntime: 0
+  _markSize: 0.8
+  _markYaw: 270.86108
+  _visibleDistance: 12
+  _fadeRange: 6
+  _baseIntensity: 1
+  _gazeBoost: 1.5
+  _subtleFactor: 0.35
+  _highlightBoost: 0.9
+  _highlightHz: 0.5
+  _dust: 1
+  _dustCount: 15
+  _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
+  _dustRadius: 0.35
+  _dustOrbit: 0.35
+  _dustSwirl: 2.2
+  _arrivalBurst: 10
+  _gazeClips: []
+  _volume: 0.3
+  _minDistance: 1
+  _maxDistance: 8
 --- !u!1 &2075032581
 GameObject:
   m_ObjectHideFlags: 0
@@ -86401,7 +87614,6 @@ SceneRoots:
   - {fileID: 1566972491}
   - {fileID: 479091337}
   - {fileID: 83830650}
-  - {fileID: 725399976}
   - {fileID: 1884192826}
   - {fileID: 1482215179}
   - {fileID: 1438342890}
@@ -86414,3 +87626,4 @@ SceneRoots:
   - {fileID: 1646848599}
   - {fileID: 1476941492}
   - {fileID: 1647811700}
+  - {fileID: 1160350569}
