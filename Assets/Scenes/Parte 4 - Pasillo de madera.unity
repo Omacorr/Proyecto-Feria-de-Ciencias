@@ -119,6 +119,38 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &4033199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4033200}
+  m_Layer: 0
+  m_Name: legpair2_wood_0_32
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4033200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4033199}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1817120168}
+  m_Father: {fileID: 323655443}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &14887437
 GameObject:
   m_ObjectHideFlags: 0
@@ -1048,8 +1080,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.49265653, z: 0}
 --- !u!95 &112748293
 Animator:
   serializedVersion: 7
@@ -1094,16 +1126,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.686782
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 258.298
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 24.069685
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -1480,8 +1527,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!114 &141217435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1504,16 +1551,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.6965
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 31.659996
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -1708,8 +1770,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.3008599, z: 0}
 --- !u!95 &159039762
 Animator:
   serializedVersion: 7
@@ -1754,16 +1816,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.3415475
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 357.3962
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 35.004925
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -2220,7 +2297,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 0.6
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -2334,6 +2411,9 @@ MonoBehaviour:
   _objectives:
   - label: Recorrer
     voiceText: Tengo que seguir por el pasillo...
+    voiceTextSoft: "El pasillo sigue y sigue... \xBFhay alg\xFAn final?"
+    voiceTextDirect: Sigo hacia el fondo. El pasillo siempre me devuelve al mismo
+      lugar.
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -2348,6 +2428,9 @@ MonoBehaviour:
         m_Calls: []
   - label: Cuadro
     voiceText: Ese cuadro... antes estaba derecho.
+    voiceTextSoft: "Algo raro en el fondo... \xBFese cuadro est\xE1 bien?"
+    voiceTextDirect: "El cuadro est\xE1 al rev\xE9s. Tengo que mirarlo fijo para
+      enderezarlo."
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -2386,6 +2469,9 @@ MonoBehaviour:
           m_CallState: 2
   - label: Pared ciega
     voiceText: Tengo que volver... de espaldas, sin mirar el cuadro.
+    voiceTextSoft: "Algo no cierra... \xBFqu\xE9 tengo que hacer?"
+    voiceTextDirect: "Camino de espaldas, alej\xE1ndome del cuadro, hasta la otra
+      pared."
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -2731,6 +2817,38 @@ Transform:
   m_Children:
   - {fileID: 94101504}
   m_Father: {fileID: 1920339492}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &323655442
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 323655443}
+  m_Layer: 0
+  m_Name: legpair2_33
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &323655443
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323655442}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071069, y: -0, z: -0, w: -0.70710665}
+  m_LocalPosition: {x: 250.5664, y: 32.023247, z: -178.08669}
+  m_LocalScale: {x: 12.338137, y: 8.7138405, z: 8.527028}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4033200}
+  m_Father: {fileID: 1696667208}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &333960568
 GameObject:
@@ -3417,8 +3535,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &420120634
 Animator:
   serializedVersion: 7
@@ -3463,16 +3581,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 255.09544
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 26.390383
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -4264,7 +4397,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExamineScareSounds
   _listener: {fileID: 5995292811635599941}
-  _footstepsClip: {fileID: 8300000, guid: 929dc52dfa22a2d46bb47f28e5cea9d3, type: 3}
+  _footstepsClip: {fileID: 8300000, guid: 4f06dbe4a0f8ebc4581ac6db304a193f, type: 3}
   _footstepsVolume: 0.85
   _footstepsSeconds: {x: 2.5, y: 4}
   _footstepsDistance: {x: 4, y: 7}
@@ -5509,8 +5642,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.40502974, z: 0}
 --- !u!95 &655508090
 Animator:
   serializedVersion: 7
@@ -5555,16 +5688,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.5290532
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 306.9352
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 33.460274
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -5753,8 +5901,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.23347326, z: 0}
 --- !u!95 &688698568
 Animator:
   serializedVersion: 7
@@ -5799,16 +5947,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.220252
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 107.81048
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 30.47036
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -5822,6 +5985,38 @@ MonoBehaviour:
   _volume: 0.3
   _minDistance: 1
   _maxDistance: 8
+--- !u!1 &691823687
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 691823688}
+  m_Layer: 0
+  m_Name: almirah
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &691823688
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 691823687}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 1.0566183, y: 0.03968507, z: -0.62329537}
+  m_LocalScale: {x: 0.6365968, y: 0.636597, z: 0.636597}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1013013175}
+  m_Father: {fileID: 1730825896}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &692459660
 GameObject:
   m_ObjectHideFlags: 0
@@ -5997,8 +6192,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &703370502
 Animator:
   serializedVersion: 7
@@ -6043,16 +6238,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 145.24698
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 31.586082
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -6183,8 +6393,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.3193691, z: 0}
 --- !u!95 &724933129
 Animator:
   serializedVersion: 7
@@ -6229,16 +6439,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.3748646
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 349.81552
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 20.693947
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -6369,8 +6594,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.49265653, z: 0}
 --- !u!95 &744501481
 Animator:
   serializedVersion: 7
@@ -6415,16 +6640,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867814
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 274.15152
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 35.36471
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -6978,6 +7218,80 @@ Transform:
   - {fileID: 888546058}
   m_Father: {fileID: 744501478}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &777269192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 777269194}
+  - component: {fileID: 777269193}
+  m_Layer: 0
+  m_Name: Tension (sonido)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &777269193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777269192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0e2e9afcacd1be49a8598f29f501d64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TensionAudio
+  _initialTension: 0.1
+  _secondsStillToMax: 90
+  _dropOnMove: 0.12
+  _floorAtMaxTime: 0.45
+  _minutesToMaxFloor: 8
+  _maxTension: 1
+  _moveDistance: 0.5
+  _teleportManager: {fileID: 0}
+  _listener: {fileID: 0}
+  _heartbeatClip: {fileID: 8300000, guid: 01ec86ad0b465d74da4f3f0182840af4, type: 3}
+  _heartbeatThreshold: 0.2
+  _heartbeatMaxVolume: 0.6
+  _heartbeatPitch: {x: 0.85, y: 1.35}
+  _heartbeatSmoothing: 1.5
+  _breathClips:
+  - {fileID: 8300000, guid: aa58edbcbc62ef442866bb410131f5d0, type: 3}
+  - {fileID: 8300000, guid: b992a05212fb5be4281df906b6cc4d6b, type: 3}
+  _breathVolume: 0.8
+  _breathDistance: {x: 0.6, y: 1}
+  _breathMinTension: 0.25
+  _breathMinGap: 25
+  _breathMaxGap: 70
+  _ambientSources: []
+  _silenceEvery: {x: 60, y: 110}
+  _silenceMinTension: 0.4
+  _silenceHold: {x: 2, y: 4}
+  _silenceLevel: 0.03
+  _silenceFadeOut: 0.3
+  _silenceFadeIn: 1.5
+  _stopFade: 1
+--- !u!4 &777269194
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777269192}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &792200339
 GameObject:
   m_ObjectHideFlags: 0
@@ -7063,8 +7377,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &792200343
 Animator:
   serializedVersion: 7
@@ -7109,16 +7423,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 279.43604
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 35.29667
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -7163,6 +7492,38 @@ Transform:
   m_Children:
   - {fileID: 485375981}
   m_Father: {fileID: 1760627309}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &826577292
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 826577293}
+  m_Layer: 0
+  m_Name: almirah_wood_0_26
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &826577293
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826577292}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1893018013}
+  m_Father: {fileID: 1701144481}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &835657366
 GameObject:
@@ -7298,20 +7659,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpsideDownPainting
   _flipAxis: {x: 0, y: 0, z: 1}
   _flipDegrees: 180
-  _authoredUpright: 1
   _startUpright: 1
-  _turnSound: {fileID: 0}
   _straightenDuration: 1.8
   _settleWobbleDegrees: 5
   _settleWobbleDuration: 0.9
   _gazeTrembleDegrees: 2.5
   _trembleSpeed: 18
-  _maxUseDistance: 0
-  _cameraTransform: {fileID: 5995292811635599941}
-  _disableCollidersWhenDone: 1
-  _audioSource: {fileID: 0}
-  _straightenSound: {fileID: 0}
-  _settledSound: {fileID: 0}
   _onStraightenStart:
     m_PersistentCalls:
       m_Calls: []
@@ -7792,8 +8145,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.49265653, z: 0}
 --- !u!95 &905351771
 Animator:
   serializedVersion: 7
@@ -7838,16 +8191,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867814
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 269.0318
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 35.564987
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -8039,6 +8407,38 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &941464849
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 941464850}
+  m_Layer: 0
+  m_Name: handle_CW-Nickel-matte_0_28
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &941464850
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941464849}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2103936749}
+  m_Father: {fileID: 1502292467}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &964517742
 GameObject:
   m_ObjectHideFlags: 0
@@ -8275,6 +8675,38 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 972683631}
   m_Mesh: {fileID: -7227129179611170996, guid: b03254cb974f3224a9fc7bca2c6bf5cc, type: 3}
+--- !u!1 &978482355
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 978482356}
+  m_Layer: 0
+  m_Name: handle.001_31
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &978482356
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 978482355}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071069, y: -0, z: -0, w: -0.70710665}
+  m_LocalPosition: {x: 195.30147, y: 222.9079, z: -124.43468}
+  m_LocalScale: {x: 2.1228132, y: 2.1228132, z: 2.1228132}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1448535077}
+  m_Father: {fileID: 1696667208}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &987522286
 GameObject:
   m_ObjectHideFlags: 0
@@ -8435,7 +8867,19 @@ MonoBehaviour:
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1156248020}
+        m_TargetAssemblyTypeName: FallingBlocker, Assembly-CSharp
+        m_MethodName: Trigger
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _hasExternalVisual: 1
 --- !u!65 &993655750
 BoxCollider:
@@ -8456,8 +8900,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.33602557, z: 0}
 --- !u!114 &993655751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8480,16 +8924,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.4048457
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.70749
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 26.008389
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -8534,6 +8993,38 @@ Transform:
   m_Children:
   - {fileID: 1761415237}
   m_Father: {fileID: 450037347}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1013013174
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1013013175}
+  m_Layer: 0
+  m_Name: 879d0d9ea7cc4f9482a3e808d3850fe8.fbx_35
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1013013175
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013013174}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1696667208}
+  m_Father: {fileID: 691823688}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1015172691
 Mesh:
@@ -9316,8 +9807,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!114 &1107876705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9340,16 +9831,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.74045
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 32.210026
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -9395,6 +9901,96 @@ Transform:
   - {fileID: 1640714202}
   m_Father: {fileID: 1360745874}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1122036714
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1122036715}
+  - component: {fileID: 1122036717}
+  - component: {fileID: 1122036716}
+  m_Layer: 0
+  m_Name: Object_51
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1122036715
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122036714}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1448535077}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1122036716
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122036714}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: -467326238932587711, guid: 35445021689623749a13f1162f014133, type: 3}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1122036717
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122036714}
+  m_Mesh: {fileID: 3345963989922463391, guid: 35445021689623749a13f1162f014133, type: 3}
 --- !u!1 &1127729947
 GameObject:
   m_ObjectHideFlags: 0
@@ -9426,6 +10022,172 @@ Transform:
   m_Children:
   - {fileID: 281493313}
   m_Father: {fileID: 1557098773}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1156248019
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1156248022}
+  - component: {fileID: 1156248021}
+  - component: {fileID: 1156248020}
+  m_Layer: 0
+  m_Name: Armario que se cae (bloqueo)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1156248020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1156248019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1386bd226090e3848baf72aeaa33eb6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallingBlocker
+  _fallAxis: {x: 0, y: 0, z: 1}
+  _fallAngle: 90
+  _creakLead: 0.9
+  _fallDuration: 0.65
+  _bounceAngle: 4
+  _wobbleAngle: 3
+  _audioSource: {fileID: 1156248021}
+  _creakClip: {fileID: 8300000, guid: e7043656bc601674589fec15d9f1150d, type: 3}
+  _impactClips:
+  - {fileID: 8300000, guid: 8f750ecba9278dd41ae931742164b0d4, type: 3}
+  - {fileID: 8300000, guid: 4298b6b2b8b00124ba28ab13b007152d, type: 3}
+  _impactVolume: 1
+  _cameraTransform: {fileID: 5995292811635599941}
+  _shakeAmount: 0.07
+  _shakeDuration: 0.55
+  _disableOnFall:
+  - {fileID: 112748289}
+  - {fileID: 655508086}
+  _enableOnFall: []
+  _onFallen:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!82 &1156248021
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1156248019}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 6
+  MaxDistance: 45
+  Pan2D: 0
+  rolloffMode: 1
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &1156248022
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1156248019}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -66.525986, y: 4.81, z: -165}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1730825896}
+  - {fileID: 1280554245}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1156339823
 GameObject:
@@ -9544,8 +10306,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.26241568, z: 0}
 --- !u!95 &1159388293
 Animator:
   serializedVersion: 7
@@ -9590,16 +10352,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.272348
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 284.72052
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 31.586082
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -10152,8 +10929,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &1237031461
 Animator:
   serializedVersion: 7
@@ -10198,16 +10975,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 263.5825
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 34.320126
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -10667,6 +11459,59 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1274728891}
   m_Mesh: {fileID: 654731183051977060, guid: 35445021689623749a13f1162f014133, type: 3}
+--- !u!1 &1280554244
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1280554245}
+  - component: {fileID: 1280554246}
+  m_Layer: 8
+  m_Name: Bloqueo de mirada
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1280554245
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1280554244}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1156248022}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1280554246
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1280554244}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.6759949, y: 7.785795, z: 4.0221252}
+  m_Center: {x: 1.3379898, y: 3.892898, z: 0.000015258789}
 --- !u!1 &1287494414
 GameObject:
   m_ObjectHideFlags: 0
@@ -10833,8 +11678,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &1300057460
 Animator:
   serializedVersion: 7
@@ -10879,16 +11724,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 226.23941
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 31.21
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -11141,8 +12001,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.49265704, z: 0}
 --- !u!95 &1314099923
 Animator:
   serializedVersion: 7
@@ -11187,16 +12047,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867828
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 242.85649
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 28.63
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -11295,8 +12170,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &1314804842
 Animator:
   serializedVersion: 7
@@ -11341,16 +12216,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 253.0135
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 32.698727
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -11603,8 +12493,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.2344582, z: 0}
 --- !u!114 &1324587034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11627,16 +12517,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.2220244
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.71298
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 27.518236
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -11735,8 +12640,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.49265653, z: 0}
 --- !u!95 &1325856732
 Animator:
   serializedVersion: 7
@@ -11781,16 +12686,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867814
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 20.643625
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 35.29667
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -12083,8 +13003,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.3218439, z: 0}
 --- !u!95 &1372031131
 Animator:
   serializedVersion: 7
@@ -12129,16 +13049,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.3793192
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 13.062944
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 35.36471
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -13035,6 +13970,38 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1448535076
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1448535077}
+  m_Layer: 0
+  m_Name: handle.001_CW-Nickel-matte_0_30
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1448535077
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1448535076}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1122036715}
+  m_Father: {fileID: 978482356}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1457198409
 GameObject:
   m_ObjectHideFlags: 0
@@ -13152,8 +14119,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &1462231329
 Animator:
   serializedVersion: 7
@@ -13198,16 +14165,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 145.88419
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 31.21
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -13462,6 +14444,38 @@ Transform:
   m_Children:
   - {fileID: 1929811950}
   m_Father: {fileID: 607979057}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1502292466
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1502292467}
+  m_Layer: 0
+  m_Name: handle_29
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1502292467
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1502292466}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071069, y: -0, z: -0, w: -0.70710665}
+  m_LocalPosition: {x: 195.30147, y: 222.9079, z: -88.923294}
+  m_LocalScale: {x: 2.1228132, y: 2.1228132, z: 2.1228132}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 941464850}
+  m_Father: {fileID: 1696667208}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1509084251
 GameObject:
@@ -13848,8 +14862,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.49265653, z: 0}
 --- !u!95 &1535301359
 Animator:
   serializedVersion: 7
@@ -13894,16 +14908,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867814
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 188.336
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 35.564987
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -14066,8 +15095,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.49265653, z: 0}
 --- !u!114 &1544889681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14090,16 +15119,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867814
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.72946
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 28.580002
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -14806,8 +15850,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &1640714205
 Animator:
   serializedVersion: 7
@@ -14852,16 +15896,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 280.00183
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 29.008675
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -15025,8 +16084,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &1684456016
 Animator:
   serializedVersion: 7
@@ -15071,16 +16130,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 36.315865
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 32.20755
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -15125,6 +16199,73 @@ Transform:
   m_Children:
   - {fileID: 1856243107}
   m_Father: {fileID: 1930928964}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1696667207
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1696667208}
+  m_Layer: 0
+  m_Name: RootNode.002_34
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1696667208
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696667207}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1701144481}
+  - {fileID: 1502292467}
+  - {fileID: 978482356}
+  - {fileID: 323655443}
+  m_Father: {fileID: 1013013175}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1701144480
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1701144481}
+  m_Layer: 0
+  m_Name: almirah.001_27
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1701144481
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1701144480}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.7071069, y: -0, z: -0, w: -0.70710665}
+  m_LocalPosition: {x: 275.9878, y: 113.106285, z: -109.4496}
+  m_LocalScale: {x: 22.286085, y: 37.77505, z: 60.99258}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 826577293}
+  m_Father: {fileID: 1696667208}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1705207018
 GameObject:
@@ -15307,8 +16448,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.49265704, z: 0}
 --- !u!114 &1708265420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15331,16 +16472,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867828
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.702
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 31.660004
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -15580,6 +16736,38 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1730825895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1730825896}
+  m_Layer: 0
+  m_Name: Armario (horror_room almirah)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1730825896
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730825895}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.092155, y: -0.086155415, z: 4.7114105}
+  m_LocalScale: {x: 3.6, y: 3.6, z: 3.6}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 691823688}
+  m_Father: {fileID: 1156248022}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1738982116
 GameObject:
   m_ObjectHideFlags: 0
@@ -15787,8 +16975,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.24791507, z: 0}
 --- !u!95 &1751620676
 Animator:
   serializedVersion: 7
@@ -15833,16 +17021,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.2462468
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 268.867
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 23.104393
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -16576,6 +17779,96 @@ Transform:
   - {fileID: 1770107026}
   m_Father: {fileID: 360691951}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1817120167
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1817120168}
+  - component: {fileID: 1817120170}
+  - component: {fileID: 1817120169}
+  m_Layer: 0
+  m_Name: Object_54
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1817120168
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817120167}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4033200}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1817120169
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817120167}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 8250520062897140937, guid: 35445021689623749a13f1162f014133, type: 3}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1817120170
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817120167}
+  m_Mesh: {fileID: 3349393535051458319, guid: 35445021689623749a13f1162f014133, type: 3}
 --- !u!1 &1826621304
 GameObject:
   m_ObjectHideFlags: 0
@@ -17340,6 +18633,96 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &1893018012
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1893018013}
+  - component: {fileID: 1893018015}
+  - component: {fileID: 1893018014}
+  m_Layer: 0
+  m_Name: Object_45
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1893018013
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893018012}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 826577293}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1893018014
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893018012}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 8250520062897140937, guid: 35445021689623749a13f1162f014133, type: 3}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1893018015
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893018012}
+  m_Mesh: {fileID: -3827478758199882477, guid: 35445021689623749a13f1162f014133, type: 3}
 --- !u!1 &1905888349
 GameObject:
   m_ObjectHideFlags: 0
@@ -18215,8 +19598,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.3634114, z: 0}
 --- !u!114 &1960344018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18239,16 +19622,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.4541402
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.73495
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 32.20755
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -18557,8 +19955,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.33662215, z: 0}
 --- !u!95 &1975603621
 Animator:
   serializedVersion: 7
@@ -18603,16 +20001,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.4059196
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 27.455252
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 21.503443
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -19043,8 +20456,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.2390422, z: 0}
 --- !u!95 &2003379252
 Animator:
   serializedVersion: 7
@@ -19089,16 +20502,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.230276
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 349.38702
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 32.466652
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -19262,8 +20690,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &2016856518
 Animator:
   serializedVersion: 7
@@ -19308,16 +20736,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 247.729
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 33.460274
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -19544,8 +20987,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!114 &2043838712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19568,16 +21011,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.71848
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 30.468273
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -19708,8 +21166,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!95 &2081457170
 Animator:
   serializedVersion: 7
@@ -19754,16 +21212,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 5.3119707
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 35.004925
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -20013,6 +21486,96 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1 &2103936748
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2103936749}
+  - component: {fileID: 2103936751}
+  - component: {fileID: 2103936750}
+  m_Layer: 0
+  m_Name: Object_48
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2103936749
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103936748}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 941464850}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &2103936750
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103936748}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: -467326238932587711, guid: 35445021689623749a13f1162f014133, type: 3}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &2103936751
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103936748}
+  m_Mesh: {fileID: 325039622170336656, guid: 35445021689623749a13f1162f014133, type: 3}
 --- !u!1001 &2105828900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20162,8 +21725,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.92262566, y: 0.92262584, z: 0.92262584}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.1111112, y: 2, z: 1.1111112}
+  m_Center: {x: 0, y: -0.492656, z: 0}
 --- !u!114 &2105828905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20186,16 +21749,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -2.6867805
   _raycastFloorAtRuntime: 0
-  _markSize: 0.8
+  _markSize: 2.4
   _markYaw: 173.72397
+  _backwardFromStart: 1
+  _markLift: 0.03
+  _beam: 1
+  _beamHeight: 4.2
+  _beamWidth: 1.8
+  _beamColor: {r: 1, g: 0.72, b: 0.35, a: 1}
+  _beamAlpha: 0.5
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 30.47036
   _fadeRange: 6
-  _baseIntensity: 1
+  _baseIntensity: 2.2
   _gazeBoost: 1.5
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.7, b: 0.5, a: 0.45}
   _dustRadius: 0.35
@@ -29358,6 +30936,19 @@ MonoBehaviour:
   _useWalkAnimation: 1
   _walkSpeed: 5
   _footstepsAudioSource: {fileID: 231110234}
+  _footstepClips:
+  - {fileID: 8300000, guid: 836bfd507e0bf6c45a9031569fb9bf8b, type: 3}
+  - {fileID: 8300000, guid: 28c88a63979746242bf27c5257b7e492, type: 3}
+  - {fileID: 8300000, guid: fb7a90a4915ddde4c885d38f1dc723ab, type: 3}
+  - {fileID: 8300000, guid: c88de4f6b1df6a440acbe4f56eb46b55, type: 3}
+  - {fileID: 8300000, guid: 4aa2ca77ef85376489022cce65b0bcd2, type: 3}
+  - {fileID: 8300000, guid: 1c8eb052b5c5d2d49b3643a3de1a2fe5, type: 3}
+  - {fileID: 8300000, guid: 36ae7d2559650484698b0905a4da0bed, type: 3}
+  - {fileID: 8300000, guid: 4542959d544c87a4bb422b2c9237703d, type: 3}
+  - {fileID: 8300000, guid: 896364649515de743be5de8d95eb628a, type: 3}
+  _stepInterval: 0.4
+  _stepPitchRange: {x: 0.92, y: 1.08}
+  _stepVolumeRange: {x: 0.75, y: 1}
   _fadeController: {fileID: 7937688473125288473}
 --- !u!1 &3620067035983875534
 GameObject:
@@ -44214,3 +45805,5 @@ SceneRoots:
   - {fileID: 746076602}
   - {fileID: 2003481471}
   - {fileID: 232345116}
+  - {fileID: 777269194}
+  - {fileID: 1156248022}

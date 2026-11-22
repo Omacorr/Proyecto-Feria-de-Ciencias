@@ -75,6 +75,28 @@ public class PortalVisual : MonoBehaviour
     [SerializeField, Min(0.1f)] private float _markSize = 0.9f;
     [Tooltip("Giro fijo de la marca (grados). Las huellas que miran al jugador lo ignoran.")]
     [SerializeField] private float _markYaw;
+    [Tooltip("Solo HuellasAtras. Tildado (diseno acordado): las huellas hacia atras se ven desde el principio. Destildado: arranca con la marca neutra (rayones) hasta SetBackwardMode.")]
+    [SerializeField] private bool _backwardFromStart = true;
+
+    [Tooltip("Cuanto se levanta la marca sobre el piso medido (m). Subirlo si la marca queda tapada por el piso (pisos de varias losas a distinta altura, como Parte 4).")]
+    [SerializeField, Min(0f)] private float _markLift = 0.01f;
+
+    [Header("Haz de luz (para que se vea de lejos)")]
+    [Tooltip("Haz vertical tenue que sube desde la marca. Siempre mira a la camara. Sin particulas.")]
+    [SerializeField] private bool _beam;
+    [SerializeField, Min(0.1f)] private float _beamHeight = 1.5f;
+    [SerializeField, Min(0.05f)] private float _beamWidth = 0.7f;
+    [SerializeField, ColorUsage(false, true)] private Color _beamColor = new Color(1f, 0.85f, 0.55f, 1f);
+    [Tooltip("Opacidad del haz en reposo. Sube con la mirada.")]
+    [SerializeField, Range(0f, 1f)] private float _beamAlpha = 0.45f;
+
+    [Header("Polillas")]
+    [Tooltip("Altura minima y maxima de vuelo sobre el piso (m). Tienen que quedar dentro del Collider del punto: el jugador mira donde brillan.")]
+    [SerializeField, Min(0f)] private float _mothMinHeight = 0.12f;
+    [SerializeField, Min(0f)] private float _mothMaxHeight = 0.42f;
+    [SerializeField, Min(0.02f)] private float _mothSize = 0.11f;
+    [Tooltip("Brillo de cada polilla (mas de 1 = el Bloom las agarra).")]
+    [SerializeField, Min(0f)] private float _mothIntensity = 2.5f;
 
     [Header("Fundido por distancia (#29)")]
     [Tooltip("Hasta esta distancia (horizontal, a la camara) se ve a pleno. Nunca menor que la distancia al vecino mas lejano que se ve.")]
@@ -92,6 +114,16 @@ public class PortalVisual : MonoBehaviour
     [SerializeField, Min(0f)] private float _highlightBoost = 0.9f;
     [Tooltip("Frecuencia del pulso de SetHighlighted. Menos de 1 Hz (fotosensibilidad).")]
     [SerializeField, Range(0.1f, 0.9f)] private float _highlightHz = 0.5f;
+
+    [Header("Modo discreto (para que no parezca un camino iluminado)")]
+    [Tooltip("Tildado: en reposo el portal casi no se ve y se enciende cuando el jugador acerca la mirada, como si lo barriera con una linterna. Las pistas (SetHighlighted) lo encienden igual.")]
+    [SerializeField] private bool _discreet = true;
+    [Tooltip("Brillo en reposo, como fraccion del brillo normal.")]
+    [SerializeField, Range(0f, 1f)] private float _idleFactor = 0.18f;
+    [Tooltip("A este angulo (grados) entre la mirada y el portal empieza a encenderse.")]
+    [SerializeField, Range(5f, 60f)] private float _focusStartAngle = 26f;
+    [Tooltip("A este angulo (grados) ya esta encendido del todo.")]
+    [SerializeField, Range(1f, 30f)] private float _focusFullAngle = 9f;
 
     [Header("Polvo")]
     [SerializeField] private bool _dust = true;
@@ -116,6 +148,8 @@ public class PortalVisual : MonoBehaviour
 
     private static bool s_backward;
     private static Mesh s_quad;
+    private static Material s_beamMaterial;
+    private static readonly int IdColor = Shader.PropertyToID("_Color");
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics()
@@ -158,6 +192,9 @@ public class PortalVisual : MonoBehaviour
 
     // ---------------- Estado ----------------
 
+    /// <summary>Si este portal tiene que mostrar las huellas hacia atras.</summary>
+    private bool WantsBackward => s_backward || _backwardFromStart;
+
     private static readonly int IdIntensity = Shader.PropertyToID("_Intensity");
     private static readonly int IdAlpha = Shader.PropertyToID("_Alpha");
     private static readonly int IdBaseColor = Shader.PropertyToID("_BaseColor");
@@ -180,6 +217,9 @@ public class PortalVisual : MonoBehaviour
         public float Angle, Radius, Height, Speed, Phase;
     }
     private Moth[] _moths;
+
+    private Transform _beamPivot;
+    private MeshRenderer _beamRenderer;
 
     private ParticleSystem _ps;
     private ParticleSystemRenderer _psRenderer;
@@ -206,6 +246,16 @@ public class PortalVisual : MonoBehaviour
     private float _swapK = 1f;
     private float _currentYaw;
     private float _highlightTime;
+    private float _focus = 1f;
+
+    // Pausa del polvo cuando no se ve (lejos o fuera del cono de la camara).
+    private const float CullCheckInterval = 0.25f;
+    // cos(70 grados): cono generoso (las camaras VR tienen ~90-100 de FOV total).
+    private const float CullConeCos = 0.342f;
+    // Cerca del jugador no se corta nunca por cono (el soplo al llegar se ve desde arriba).
+    private const float CullNearDistance = 2f;
+    private float _nextCullCheck = -1f;
+    private bool _psPaused;
 
     // ---------------- Ciclo de vida ----------------
 
@@ -220,7 +270,7 @@ public class PortalVisual : MonoBehaviour
 
         // Si el modo "hacia atras" ya estaba activo (grupo que se prende tarde en
         // Parte 4), arranca directo con las huellas.
-        if (_style == PortalStyle.HuellasAtras && s_backward && _mark != null && _backwardMarkMaterial != null)
+        if (_style == PortalStyle.HuellasAtras && WantsBackward && _mark != null && _backwardMarkMaterial != null)
         {
             _backwardApplied = true;
             _mark.sharedMaterial = _backwardMarkMaterial;
@@ -284,6 +334,7 @@ public class PortalVisual : MonoBehaviour
 
     private void OnArrived()
     {
+        ResumeDust(); // el soplo necesita que el sistema simule
         _flameLit = false;
         _puff = 1f;
         _progress = 0f;
@@ -337,21 +388,22 @@ public class PortalVisual : MonoBehaviour
         switch (_style)
         {
             case PortalStyle.Velita:
-                _mark = CreateQuad("Brillo", _markMaterial, _markSize, 0.012f, out _markT);
+                _mark = CreateQuad("Brillo", _markMaterial, _markSize, _markLift + 0.002f, out _markT);
                 _confetti = CreateQuad("Confeti", _confettiMaterial, _markSize * 1.25f, 0.006f, out Transform ct);
                 ct.localRotation = Quaternion.Euler(0f, Hash01(1) * 360f, 0f);
                 BuildCandle();
                 break;
             case PortalStyle.Polillas:
-                _mark = CreateQuad("Mancha", _markMaterial, _markSize, 0.01f, out _markT);
+                _mark = CreateQuad("Mancha", _markMaterial, _markSize, _markLift, out _markT);
                 BuildMoths(Hash01(2) > 0.5f ? 4 : 3);
                 break;
             default:
-                _mark = CreateQuad("Marca", _markMaterial, _markSize, 0.01f, out _markT);
+                _mark = CreateQuad("Marca", _markMaterial, _markSize, _markLift, out _markT);
                 break;
         }
         if (_markT != null) _markT.localRotation = Quaternion.Euler(0f, _currentYaw, 0f);
 
+        if (_beam) BuildBeam();
         if (_dust && _dustMaterial != null) BuildDust();
         BuildAudio();
     }
@@ -455,16 +507,63 @@ public class PortalVisual : MonoBehaviour
         _flamePivot.localScale = new Vector3(Mathf.Max(w, 0.0001f), Mathf.Max(h, 0.0001f), Mathf.Max(w, 0.0001f));
     }
 
+    /// <summary>
+    /// Material del haz: mismo shader que la marca (asi entra seguro al build,
+    /// gotcha #25) con un degrade generado por codigo. Compartido por todos.
+    /// </summary>
+    private Material GetBeamMaterial()
+    {
+        if (s_beamMaterial != null) return s_beamMaterial;
+        if (_markMaterial == null) return null;
+        const int w = 32, h = 64;
+        Texture2D tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { name = "PortalHaz", wrapMode = TextureWrapMode.Clamp, hideFlags = HideFlags.DontUnloadUnusedAsset };
+        Color32[] px = new Color32[w * h];
+        for (int y = 0; y < h; y++)
+        {
+            float v = y / (h - 1f);
+            // Fuerte abajo, se pierde hacia arriba; arranca suave en el piso.
+            float vert = Mathf.Pow(1f - v, 1.6f) * Mathf.SmoothStep(0f, 1f, v / 0.05f);
+            for (int x = 0; x < w; x++)
+            {
+                float u = (x + 0.5f) / w - 0.5f;
+                float horiz = Mathf.Exp(-(u * u) / (0.15f * 0.15f)) * Mathf.SmoothStep(0f, 1f, (0.5f - Mathf.Abs(u)) / 0.25f);
+                px[y * w + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(255f * Mathf.Clamp01(vert * horiz)));
+            }
+        }
+        tex.SetPixels32(px);
+        tex.Apply(false, true);
+        s_beamMaterial = new Material(_markMaterial.shader) { name = "PortalHaz (runtime)", hideFlags = HideFlags.DontUnloadUnusedAsset };
+        s_beamMaterial.SetTexture("_MainTex", tex);
+        s_beamMaterial.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        s_beamMaterial.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.One);
+        s_beamMaterial.SetFloat("_Cull", 0f);
+        s_beamMaterial.SetFloat("_ZWrite", 0f);
+        s_beamMaterial.renderQueue = 3100;
+        return s_beamMaterial;
+    }
+
+    private void BuildBeam()
+    {
+        Material mat = GetBeamMaterial();
+        if (mat == null) return;
+        // Pivote en el piso (gira hacia la camara) y un quad vertical encima.
+        _beamPivot = NewChild("Haz (pivote)", _root, _markLift + 0.01f);
+        _beamPivot.localScale = new Vector3(_beamWidth, _beamHeight, _beamWidth);
+        Transform bt = NewChild("Haz", _beamPivot, 0.5f);
+        bt.localRotation = Quaternion.Euler(-90f, 0f, 0f); // +Z del quad -> arriba
+        _beamRenderer = AddQuadRenderer(bt, mat);
+    }
+
     private void BuildMoths(int count)
     {
         _moths = new Moth[count];
         for (int i = 0; i < count; i++)
         {
             Moth m = new Moth();
-            m.Renderer = CreateQuad("Polilla " + (i + 1), _mothMaterial, 0.07f, 0.6f, out m.T);
+            m.Renderer = CreateQuad("Polilla " + (i + 1), _mothMaterial, _mothSize, _mothMinHeight, out m.T);
             m.Angle = Hash01(10 + i) * Mathf.PI * 2f;
             m.Radius = Mathf.Lerp(0.18f, 0.42f, Hash01(20 + i));
-            m.Height = Mathf.Lerp(0.45f, 1.0f, Hash01(30 + i));
+            m.Height = Mathf.Lerp(_mothMinHeight, Mathf.Max(_mothMinHeight, _mothMaxHeight), Hash01(30 + i));
             m.Speed = Mathf.Lerp(1.4f, 2.6f, Hash01(40 + i)) * (Hash01(50 + i) > 0.5f ? 1f : -1f);
             m.Phase = Hash01(60 + i) * 10f;
             _moths[i] = m;
@@ -602,6 +701,8 @@ public class PortalVisual : MonoBehaviour
         float dist = Mathf.Sqrt(dx * dx + dz * dz);
         float distAlpha = 1f - Mathf.SmoothStep(0f, 1f, (dist - _visibleDistance) / _fadeRange);
 
+        UpdateDustCulling(dx, dz, dist);
+
         _progressSmooth = Mathf.MoveTowards(_progressSmooth, _gazed ? _progress : 0f, dt * 2.5f);
 
         float subtle = (_portalsVisible || _highlighted) ? 1f : _subtleFactor;
@@ -616,6 +717,24 @@ public class PortalVisual : MonoBehaviour
             _highlightTime = 0f;
         }
 
+        // Modo discreto: cuanto "apunta" la mirada a este portal (0 lejos, 1 encima).
+        float lit = 1f;
+        if (_discreet && !_highlighted)
+        {
+            Vector3 toPortal = new Vector3(pos.x - camPos.x, pos.y + 0.5f * _beamHeight - camPos.y, pos.z - camPos.z);
+            float d3 = toPortal.magnitude;
+            float target = 1f;
+            if (d3 > 1.5f)
+            {
+                float ang = Mathf.Acos(Mathf.Clamp(Vector3.Dot(_cam.forward, toPortal) / d3, -1f, 1f)) * Mathf.Rad2Deg;
+                target = 1f - Mathf.SmoothStep(0f, 1f, (ang - _focusFullAngle) / Mathf.Max(1f, _focusStartAngle - _focusFullAngle));
+            }
+            if (_gazed) target = 1f;
+            // Se enciende rapido y se apaga despacio (sin parpadeos al barrer la vista).
+            _focus = Mathf.MoveTowards(_focus, target, dt * (target > _focus ? 4f : 1.2f));
+            lit = Mathf.Lerp(_idleFactor, 1f, _focus);
+        }
+
         float alpha = _vis * distAlpha;
         bool show = alpha > 0.003f;
         SetRenderers(show);
@@ -625,7 +744,7 @@ public class PortalVisual : MonoBehaviour
 
         if (show)
         {
-            float markIntensity = _baseIntensity * (1f + _gazeBoost * _progressSmooth) * subtle * pulse;
+            float markIntensity = _baseIntensity * (1f + _gazeBoost * _progressSmooth) * subtle * pulse * lit;
             ApplyBlock(_mark, markIntensity, alpha * _swapK);
             ApplyBlock(_confetti, subtle, alpha);
             ApplyBlock(_candle, 1f, alpha);
@@ -641,7 +760,18 @@ public class PortalVisual : MonoBehaviour
                 ApplyBlock(_flame, subtle * (1f + 0.5f * _progressSmooth), alpha);
             }
 
-            if (_moths != null) UpdateMoths(alpha, subtle);
+            if (_moths != null) UpdateMoths(alpha, subtle * Mathf.Lerp(0.45f, 1f, (lit - _idleFactor) / Mathf.Max(0.01f, 1f - _idleFactor)));
+
+            if (_beamRenderer != null)
+            {
+                Vector3 toCamBeam = new Vector3(dx, 0f, dz);
+                if (toCamBeam.sqrMagnitude > 1e-4f) _beamPivot.rotation = Quaternion.LookRotation(toCamBeam);
+                _beamRenderer.GetPropertyBlock(_mpb);
+                _mpb.SetColor(IdColor, _beamColor);
+                _mpb.SetFloat(IdIntensity, 1f);
+                _mpb.SetFloat(IdAlpha, Mathf.Clamp01(alpha * _beamAlpha * subtle * pulse * lit * (1f + 0.9f * _progressSmooth)));
+                _beamRenderer.SetPropertyBlock(_mpb);
+            }
         }
 
         // Polvo: emision solo con el punto visible; el soplo se ve aunque el
@@ -673,6 +803,47 @@ public class PortalVisual : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Pausa el polvo (Pause, conserva las particulas) cuando no aporta nada:
+    /// mas lejos que Visible Distance + Fade Range (donde el fundido ya lo deja
+    /// invisible) o fuera de un cono de ~70 grados de la camara. Chequeo cada
+    /// 0.25 s, escalonado por instancia, sin alocar.
+    /// </summary>
+    private void UpdateDustCulling(float dx, float dz, float dist)
+    {
+        if (_ps == null) return;
+        float now = Time.time;
+        if (now < _nextCullCheck) return;
+        // Escalonado: el primer chequeo de cada portal cae en un momento distinto.
+        _nextCullCheck = now + CullCheckInterval + (_nextCullCheck < 0f ? Hash01(7) * CullCheckInterval : 0f);
+
+        bool cull = dist > _visibleDistance + _fadeRange;
+        if (!cull && dist > CullNearDistance)
+        {
+            // Producto punto entre el forward de la camara y la direccion 3D al portal.
+            Vector3 toPortal = _root.position - _cam.position;
+            float d3 = Mathf.Max(0.01f, toPortal.magnitude);
+            cull = Vector3.Dot(_cam.forward, toPortal) / d3 < CullConeCos;
+        }
+
+        if (cull) PauseDust();
+        else ResumeDust();
+    }
+
+    private void PauseDust()
+    {
+        if (_ps == null || _psPaused) return;
+        _psPaused = true;
+        _ps.Pause(false);
+    }
+
+    private void ResumeDust()
+    {
+        if (_ps == null || !_psPaused) return;
+        _psPaused = false;
+        _ps.Play(false);
+    }
+
     private void ApplyBlock(Renderer r, float intensity, float alpha)
     {
         if (r == null || r.sharedMaterial == null) return;
@@ -690,6 +861,7 @@ public class PortalVisual : MonoBehaviour
         SetOn(_confetti, on);
         SetOn(_candle, on);
         SetOn(_flame, on);
+        SetOn(_beamRenderer, on);
         if (_moths != null)
         {
             foreach (Moth m in _moths) SetOn(m.Renderer, on);
@@ -713,13 +885,13 @@ public class PortalVisual : MonoBehaviour
     private void UpdateBackward(float dt)
     {
         if (_style != PortalStyle.HuellasAtras || _mark == null) return;
-        if (s_backward != _backwardApplied)
+        if (WantsBackward != _backwardApplied)
         {
             // Fundido corto: baja, cambia la textura, vuelve a subir.
             _swapK = Mathf.MoveTowards(_swapK, 0f, dt * 2f);
             if (_swapK <= 0f)
             {
-                _backwardApplied = s_backward;
+                _backwardApplied = WantsBackward;
                 Material m = _backwardApplied ? _backwardMarkMaterial : _markMaterial;
                 if (m != null) _mark.sharedMaterial = m;
             }
@@ -766,7 +938,7 @@ public class PortalVisual : MonoBehaviour
             float a = m.Angle;
             float wob = Mathf.PerlinNoise(t * 0.9f + m.Phase, m.Phase) - 0.5f;
             float r = m.Radius * radiusMul * (1f + 0.4f * wob);
-            float h = m.Height + 0.12f * Mathf.Sin(t * 1.3f + m.Phase);
+            float h = Mathf.Max(0.04f, m.Height + 0.05f * Mathf.Sin(t * 1.3f + m.Phase));
             m.T.localPosition = new Vector3(Mathf.Cos(a) * r, h, Mathf.Sin(a) * r);
             // Cuerpo (arriba en la textura = +Z) en la tangente de la orbita, un poco inclinado.
             float sign = m.Speed >= 0f ? 1f : -1f;
@@ -774,8 +946,8 @@ public class PortalVisual : MonoBehaviour
             m.T.localRotation = Quaternion.LookRotation(tangent) * Quaternion.Euler(-25f, 0f, 20f * sign);
             // Aleteo por escala en X (alas), sin cambiar el brillo.
             float flap = 0.35f + 0.65f * Mathf.Abs(Mathf.Sin(t * 7f * Mathf.PI + m.Phase));
-            m.T.localScale = new Vector3(0.07f * flap, 1f, 0.07f);
-            ApplyBlock(m.Renderer, subtle, alpha);
+            m.T.localScale = new Vector3(_mothSize * flap, 1f, _mothSize);
+            ApplyBlock(m.Renderer, subtle * _mothIntensity, alpha);
         }
     }
 }

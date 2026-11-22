@@ -1243,6 +1243,232 @@ bajaron de **23.056 a 17.773 líneas (−23 %)**.
 - **Ojo:** varios archivos quedaron con fin de línea LF. Git los convierte a
   CRLF y avisa al hacer diff; no afecta a Unity.
 
+### Optimización en el A54 (2026-11-08, sin commitear)
+
+Medido en el celular con `PerfMeter` (FPS por escena, con `goto` desde el
+panel). Hallazgos:
+- **No es la geometría:** Parte 3, con ~1 M de triángulos, era de las más
+  rápidas. La escala de render no hace nada en XR. Vulkan rompe Cardboard (un
+  solo ojo) y es más lento: el proyecto queda en GLES3.
+- **Bloom del perfil por defecto:** `Mobile_RPAsset` usa `SampleSceneProfile`
+  como perfil por defecto (Bloom HQ, media resolución, 6 pasadas), que se
+  aplicaba en toda escena sin un Volume que lo pise (el Menú).
+  `GraphicsQuality` ahora crea un Volume global base (`Calidad (volume base)`,
+  prioridad -1000, DontDestroyOnLoad) que en modo `low` lo baja a un cuarto de
+  resolución, 3 pasadas y sin HQ. **Menú: de ~19 a ~43 FPS.**
+- **Occlusion culling horneado en Parte 2** (las 623 mallas de
+  `__Combinadas` ya estaban marcadas; datos en
+  `Assets/Scenes/Parte 2 - Cumpleaños/OcclusionCullingData.asset`). Junto con lo
+  anterior, **Parte 2 pasó de ~30 a ~44 FPS.** Si se vuelve a combinar el mapa,
+  re-hornear (`StaticOcclusionCulling.Compute()`). Las demás escenas no tienen
+  objetos marcados como Occluder/Occludee.
+- **Tutorial:** `house_interior/.../BackSide_3` era una malla de 16.776
+  triángulos que envuelve la casa, transparente y con textura de opacidad 0
+  (invisible) pero pintada con PBR en cada píxel. Se apagó su renderer.
+  **Tutorial: de ~16 a ~27 FPS.** Quedan otras superficies transparentes reales
+  (vidrios/cortinas, `FrontSide_74`/`BackSide_6`).
+- Resto (sin cambios): Parte 1 ~43, Parte 3 ~40–44, Parte 5 ~35, Parte 4 ~27–32,
+  Final ~30 (con el celular ya caliente).
+- **Diagnóstico nuevo:** comando `fx <dither|vignette|tonemap|color|grain|nrp>
+  <on|off>` y `fx inter <auto|always>` (`Assets/Scripts/Settings/PostFxDebug.cs`,
+  no se guarda). Ninguna de esas piezas cambió el FPS de forma clara en el Menú.
+- Otros ajustes de la sesión: LUT 16, Swappy, `enableFrameTimingStats`,
+  partículas de `PortalVisual` pausadas fuera de vista. Para medir sin el panel:
+  `POST http://localhost:8080/api/cmd {cmd,arg}` y leer `[CRONO] perf` del
+  logcat.
+
+### Portales rehechos y pistas solo del operador (Omar, 2026-11-11, sin commitear)
+
+Feedback de Omar con el build nuevo: en Parte 3 las polillas brillaban más
+arriba que el portal y poco; en Parte 4 no se veía ningún portal; no quiere
+"bolas que flotan" (ni el orbe viejo ni las partículas de polvo) en Parte 4 y
+5; y las pistas las manda solo el operador.
+
+- **Causa de Parte 4:** la marca estaba bien ubicada (2,5 cm sobre el piso,
+  medido), pero medía 0,8 m y eran rayones oscuros en una escena donde los
+  ojos están a ~6 m del piso: no se veía.
+- **`PortalVisual` (campos nuevos):** `_beam` + `_beamHeight/_beamWidth/
+  _beamColor/_beamAlpha` (haz de luz vertical que mira a la cámara; material
+  creado por código con el shader de la marca y un degradé generado, sin
+  assets nuevos), `_markLift`, y para las polillas `_mothMinHeight` 0,12,
+  `_mothMaxHeight` 0,42, `_mothSize` 0,11 y `_mothIntensity` 2,5 (antes volaban
+  a 0,45–1 m, tamaño 0,07, brillo 1).
+- **Valores por escena** (aplicados con Unity MCP, escenas guardadas):
+
+  | Escena | Marca | Brillo | Haz (alto × ancho, opacidad) | Collider (alto × ancho) |
+  |---|---|---|---|---|
+  | Parte 3 | 1,0 m | 1,8 | 0,8 × 0,6 m, cálido, 0,35 | 0,85 × 0,95 m |
+  | Parte 4 | 2,4 m | 2,2 | 4,2 × 1,8 m, ámbar, 0,5 | 3,6 × 2,0 m |
+  | Parte 5 | 1,4 m | 1,6 | 1,5 × 0,9 m, celeste, 0,85 | 1,5 × 0,95 m |
+
+  En las tres `_dust` quedó apagado (sin partículas). Los `BoxCollider` de los
+  portales ahora van del piso hacia arriba y coinciden con lo que brilla (en
+  Parte 3 se saltearon los 5 portales-puerta con Destination Override).
+- **Verificado en Play en el Editor** con capturas desde la cámara del jugador
+  en las tres escenas. **Falta probarlo en el A54.**
+- **Pistas:** `HintDirector.AutoHints` (estático, PlayerPrefs `cfg.autoHints`,
+  apagado por defecto): con eso el reloj no da ninguna pista. Cada pedido del
+  operador (`hint`) avanza un escalón del objetivo actual: 1º ambiente, 2º
+  texto, 3º directa; del 4º en adelante repite texto + directa. Al cambiar de
+  objetivo vuelve a cero. Ojo: si un objetivo no tiene nada en `onAmbient`, el
+  primer pedido no se nota.
+
+### Tensión: portales discretos y sonido (Omar, 2026-11-11, sin commitear)
+
+Omar: con los portales nuevos "ya no luce aterrador"; causas que eligió: los
+portales brillan mucho y se ve todo muy claro. Quiere poner nervioso al
+jugador con: portales discretos, presencia del monstruo, sonido de tensión y
+fallas del entorno. **Hecho (tanda 1):**
+
+- **Portales discretos** (`PortalVisual._discreet`, prendido por defecto;
+  `_idleFactor` 0,18, `_focusStartAngle` 26°, `_focusFullAngle` 9°): en reposo
+  la marca, el haz y las polillas quedan tenues y se encienden cuando la mirada
+  se acerca al portal (rápido al encender, lento al apagar). `SetHighlighted`
+  (pistas) los enciende igual. En el **Tutorial** quedó apagado (portales
+  siempre visibles).
+- **Parte 4:** las huellas hacia atrás se ven desde el inicio
+  (`_backwardFromStart`, prendido por defecto), como en la tabla acordada.
+- **`Audio/TensionAudio`** (objeto `Tension (sonido)` en Partes 1 a 5): tensión
+  0..1 que sube con el tiempo quieto y en el nivel; latidos 2D cuyo volumen y
+  pitch siguen la tensión, respiración 3D detrás del jugador (mínimo cada 25 s)
+  y silencios repentinos del ambiente. `AddTension`, `SetTension`, `Stop`,
+  `Resume`. Sin gritos ni susurros. Ambiente asignado: `sonido_ambiental` (P1 y
+  P3), `Sonidos` y `Musica cumple (cajita)` (P2); en P4 y P5 ninguno.
+- Probado en Play en el Editor (sin errores; latidos al máximo con tensión 1).
+  APK compilado (`Builds/feria-dev.apk`). **Falta probar en el A54.**
+
+**Pendiente (tanda 2):** apariciones del monstruo (`DistantWatcher`) y fallas
+del entorno (`LightsOffBehind`, `OpenWhenUnseen`) en los niveles que no las
+tienen; hay que ubicarlas escena por escena. Si sigue viéndose "muy claro",
+revisar la iluminación por nivel.
+
+### Portales de Parte 3 más sutiles y sin marca en el candado (Omar, 2026-11-12, sin commitear)
+
+- **Parte 3:** los 25 `PortalVisual` quedaron con `_baseIntensity` 1,8 → 0,6,
+  `_gazeBoost` 1,5 → 0,8, `_idleFactor` 0,18 → 0,1, `_beamAlpha` 0,35 → 0,12,
+  `_mothIntensity` 2,5 → 0,8 y `_highlightBoost` 0,9 → 0,5. Si no se ven en el
+  A54, subir primero `_baseIntensity`.
+- **Parte 1, `VistaCandado`:** se le borró el `PortalVisual`. Se mantiene
+  `HasExternalVisual` tildado, así que no se dibuja nada en el lugar del tp. Al
+  candado se sigue llegando con `ExamineTrigger`.
+- **Conexión inalámbrica probada** con `tools/operador/conectar-wifi.bat`, primero
+  por la red de la casa (~28 FPS en scrcpy) y después por la zona con cobertura
+  de la notebook, `ROG-OMAR` (30 FPS). La placa Intel AX211 no soporta "hosted
+  network", pero sí la zona de Windows 11. Ver `docs/feria-transmision.md`,
+  sección 4.
+- **Compilar sin Unity MCP:** nuevo `Assets/Editor/ReleaseBuilder.cs`. Tiene
+  el menú `Tools/Feria de Ciencias/Compilar APK release` y además compila
+  solo si existe `Builds/build-request.txt` cuando el Editor recarga los
+  scripts. El resultado queda en `Builds/build-status.txt`. Así se compiló
+  `Builds/RecuerdosRotos.apk` el 2026-11-12 con estos cambios, se instaló
+  por wifi y arrancó sin errores.
+
+### Panel del operador completo y armario que se cae en Parte 4 (Omar, 2026-11-13, sin commitear)
+
+Pedido de Omar: un panel del operador más completo (más pistas y mejores, y tirar él los sustos y sonidos), un mueble que se caiga en el pasillo infinito para que no se pueda volver, y buscar monstruos y sonidos nuevos. Todo se hizo con subagentes Haiku. **Decisión de Omar:** desde el panel, los sustos **ya no siguen las reglas de antes**: se puede mandar cualquier susto en cualquier nivel, incluida Parte 3. El juego solo, sin el operador, sigue igual que antes.
+
+- **Comandos nuevos del celular** (`OperatorCommandServer`):
+  - `scare <screamer|whisper|steps|distant|knock|blackout|heartbeat>`, con 1,5 s de espera entre sustos.
+  - `tension <0..1>`.
+  - `sfx <clip>`, de una lista fija de 21 clips.
+  - `hintlvl <1|2|3>`.
+  - `say <texto>`, de hasta 120 caracteres; se muestra con `VRHintText`.
+  - `status` agrega al final `obj=<objetivo> hint=<n>`.
+  - Probado por TCP en Play: todos responden `ok`, y los argumentos inválidos devuelven `err`.
+- **`Feria/OperatorScares`:** se crea solo y sobrevive a los cambios de escena. Usa lo que ya tiene cada escena (`ExamineScareSounds`, `TensionAudio`, `FlickeringLight`, `Screamer`). Si algo falta, lo arma: con fuentes de audio propias o con un screamer instanciado de `Monstruo_Rig` (probado en Parte 3).
+  - El apagón es un solo corte de 2,5 s, sin parpadeo, por la fotosensibilidad.
+  - `Screamer` ganó `TriggerForced()`, que ignora `_playOnce`, y `Setup(...)`.
+  - La biblioteca es `Assets/Resources/OperatorSfxLibrary.asset` (21 clips + `Monstruo_Rig` + grito). Se arma con **Tools/Feria de Ciencias/Operador: armar biblioteca de sonidos**. Como está en Resources, todo eso entra al APK.
+- **Pistas de 3 niveles:**
+  - `HintDirector.Objective` ganó `voiceTextSoft` y `voiceTextDirect`; `voiceText` queda como nivel medio.
+  - `GiveHintLevel(int)`, `CurrentObjectiveName` y `CurrentStep`.
+  - "Dar pista" usa el texto suave en el escalón 1 y el directo en el 3.
+  - Los textos se cargan con **Tools/Feria de Ciencias/Pistas: cargar textos de 3 niveles** (`Assets/Editor/HintTextsWiring.cs`), que ya se corrió: 15 objetivos en 6 escenas.
+- **Panel** (`tools/operador/`): secciones nuevas **Pistas** (objetivo actual, Suave/Media/Directa, Dar pista y texto libre "Mostrar en el visor"), **Sustos** (7 botones y una barra de tensión) y **Sonidos** (21 botones). `server.js` valida cada comando. Probado con `--simular`.
+- **Parte 4, armario que se cae** (`Ambient/FallingBlocker.cs`): el objeto es `Armario que se cae (bloqueo)`.
+  - **Dónde:** a z -165, apoyado en la pared este del tramo que baja de la dona al pasillo (x -63.85). Es el almirah de `horror_room` a escala 3,6, o sea 7,8 m de alto.
+  - **Cómo cae:** la bisagra está en el borde de abajo del frente. Cae hacia el oeste (eje Z, 90°) y queda cruzado sobre el camino (x -66.5 a -74.3).
+  - **Cuándo:** lo dispara `tp3.On Player Arrived`.
+  - **La caída:** cruje y se tambalea, cae acelerando, golpea con `golpe_seco` + `derrumbe_madera`, rebota y sacude la cámara con `CameraPivot`.
+  - **Al caer** apaga `tp3-4` y `tp tp3-4~tp3 (2)`. Tiene un hijo `Bloqueo de mirada` (`BoxCollider` en el layer Environment).
+  - Probado en Play con capturas antes y después.
+- **Assets buscados (no se bajó nada, falta el OK de Omar):**
+  - Monstruos CC BY de Sketchfab de menos de 25k triángulos: "Slender Man (low poly)" de DragonSlayer99 (~5,3k) y "Manequin Low Poly" de mathieudubris (~8,3k, con rig). Hay que bajarlos con la cuenta de Omar.
+  - Sonidos: la única licencia CC0 verificada es "Running On Wood Floor" de lotsofsounds. Probablemente CC0, pero sin verificar (varios sitios bloquearon la consulta): "100 CC0 metal and wood SFX" (OpenGameArt), "Horror Hit Soundpack 1" y "Abandoned passages" (loop de ambiente). Freesound pide login.
+  - Los términos de Mixamo no se pudieron verificar.
+
+### Parte 2: primer portal que brilla (Omar, 2026-11-16, sin commitear)
+
+Mucha gente moría en la persecución sin saber para dónde ir. `TP/Tp 1` (el
+portal más cerca de la tele, el primero del camino a la puerta) ahora tiene
+haz de luz cálido (`_beam`, 1,8 × 0,8 m, opacidad 0,55), `_highlightBoost`
+1,6 y `_visibleDistance` 20. `SecurityFootage._onMovieEnd` llama a
+`PortalVisual.SetHighlighted(true)` (al final de la lista, después de prender
+`TP`) y `Tp 1._onPlayerArrived` a `SetHighlighted(false)`. Probado en Play con
+captura. **Falta compilar el APK.**
+
+### Pasos distintos por nivel (Omar, 2026-11-16, sin commitear)
+
+Antes sonaban siempre `pasos_concreto` y `pasos_madera`. Ahora cada nivel
+tiene su piso y los sustos no usan el mismo sonido que el jugador. Todo en
+`Assets/Audios/Pasos/`.
+
+- **Descargados (CC0, licencias al lado):** Kenney "Impact Sounds"
+  (`kenney_carpet_01..05`, `kenney_wood_01..05`) y bobkingg "Footstep SFX
+  Pack" (`bobkingg_wood_01..04`). Créditos en `tools/itchio/descripcion.md`.
+- **Generados por código** (`Assets/Editor/FootstepGenerator.cs`, menú
+  **Herramientas > Generar pasos (por piso y sustos)**, semillas fijas):
+  `paso_baldosa_01..05`, `paso_moquette_01..05`, `paso_salon_01..05` y las
+  secuencias `pasos_descalzo`, `pasos_arrastrando`, `pasos_corriendo_lejos`
+  y `pasos_monstruo_pesado`.
+- **`TeleportManager`:** campos nuevos `_footstepClips`, `_stepInterval`,
+  `_stepPitchRange` (0,92–1,08) y `_stepVolumeRange` (0,75–1). Con clips toca
+  un paso al azar, sin repetir el anterior, en vez del loop. Vacío = loop viejo.
+  Intervalo por escena = 0,69 − 0,058 × velocidad (0,58 a 0,40 s).
+
+| Escena | Pasos del jugador | Pasos de los sustos |
+|---|---|---|
+| Tutorial | bobkingg madera (fuente `Pasos` nueva) | — |
+| Parte 1 | baldosa (generado) | descalzo |
+| Parte 2 | salón (generado, fuente `Pasos` nueva) | — (el monstruo sigue con `monstruo_pasos`) |
+| Parte 3 | alfombra Kenney | arrastrando |
+| Parte 4 | madera Kenney + bobkingg (9) | corriendo lejos |
+| Parte 5 | moquette húmeda (generado) | `pasos_concreto`; el monstruo, `pasos_monstruo_pesado` |
+
+`ScriptedChase` de Parte 1 sigue con `pasos_concreto`. La biblioteca del
+operador (`sfx`) no tiene los clips nuevos todavía. Probado en Play (Parte 5,
+suenan al caminar, sin errores). **Falta compilar el APK y escucharlos en el A54.**
+
+### QA de Parte 4 e itch.io (2026-11-11, sin commitear)
+
+**Prueba de portales de Parte 4** (subagente Haiku, en Play en el Editor): **no
+se reprodujo ninguna falla.**
+- 8 saltos por mirada OK.
+- Loop con screamer OK, pintura que se da vuelta y se endereza OK, pared ciega
+  → Parte 5 OK.
+- Llegando desde Parte 3 por el desmayo, también OK.
+
+Los saltos "bloqueados" fueron por el oclusor de paredes, que es lo esperado.
+Posibles causas de "a veces no anda" en el celular (hipótesis):
+1. El gaze vuelve a seleccionar cada ~1,2 s lo que quede en el rayo, así que
+   mirando adelante el jugador encadena saltos.
+2. Los intermedios "roban" la mirada a un portal lejano.
+3. `RequestTeleport` ignora pedidos mientras camina, sin aviso al jugador.
+4. La pintura se puede enderezar mirándola desde hasta 35 m.
+
+No se cambió nada por esto.
+
+**Gotcha para pruebas por código:** el `TrackedPoseDriver` de la Main Camera es
+`UnityEngine.InputSystem.XR.TrackedPoseDriver`, no el de `SpatialTracking`.
+Si se apaga el equivocado, sigue pisando la rotación.
+
+**itch.io:**
+- **Página:** https://omarcorrea.itch.io/recuerdos-rotos, cuenta `Omarcorrea`, en **borrador** hasta que Omar dé el OK para pasarla a pública.
+- **Material:** `tools/itchio/` (portada de 630×500, capturas y `descripcion.md` con los créditos de los 23 modelos, sacados del `asset.extras` de cada glTF).
+- **Precio: "No payments"**, porque varios assets son CC BY-NC.
+- **Declaración de IA:** "Sí: código y textos".
+- **APK release:** `Builds/RecuerdosRotos.apk`.
+
 ### Transiciones "desmayo" — estado al cierre de la sesión 2026-09-23
 
 Código en `Assets/Scripts/Transitions/` (compila sin errores ni warnings):

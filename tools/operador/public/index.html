@@ -41,6 +41,15 @@
   #fin .d { font-size: 4vh; color: var(--dim); }
   #fin.abort .b { color: var(--red); }
   #off { position: fixed; right: 1.5vw; bottom: 1vh; font-size: 1.8vh; color: var(--red); display: none; }
+  /* Pantalla angosta (p. ej. la mitad de 1920x1080 en OBS): crono arriba, ranking abajo. */
+  @media (max-aspect-ratio: 4/3) {
+    .wrap { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 3vh; padding: 4vh 5vw; }
+    .izq { gap: 2vh; }
+    .nombre { font-size: min(7vh, 8vw); }
+    .crono { font-size: min(21vh, 17vw); }
+    .parciales { display: none; }
+    #fin .b { font-size: min(26vh, 18vw); }
+  }
 </style>
 </head>
 <body>
@@ -76,16 +85,16 @@ let st = null, hb = { tiempo: 0, activa: false, congelado: false, at: 0 };
 let skew = 0;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function fmt(t) {
-  t = Math.max(0, t); const m = Math.floor(t / 60); const s = t - m * 60;
+  t = Math.round(Math.max(0, t) * 10) / 10; const m = Math.floor(t / 60); const s = t - m * 60;
   return String(m).padStart(2, '0') + ':' + (s < 10 ? '0' : '') + s.toFixed(1);
 }
-function fmtCorto(t) { const m = Math.floor(t / 60), s = Math.round(t - m * 60); return m + ':' + String(s).padStart(2, '0'); }
+function fmtCorto(t) { t = Math.round(Math.max(0, t)); const m = Math.floor(t / 60), s = t - m * 60; return m + ':' + String(s).padStart(2, '0'); }
 function nombreParte(e) { const m = e.match(/^Parte (\d+) - (.*)$/); return m ? 'Parte ' + m[1] + ' · ' + m[2] : e; }
 
 function pintarEstatico() {
   if (!st) return;
   const p = st.partida;
-  $('estado').textContent = p ? (p.congelado ? 'cargando…' : 'en juego') + (p.conSalto ? ' · con salto (no entra al ranking)' : '') : 'esperando jugador';
+  $('estado').textContent = p ? ((p.desconectado || p.pausado) ? 'en pausa' : p.congelado ? 'cargando…' : 'en juego') + (p.conSalto ? ' · con salto (no entra al ranking)' : '') : 'esperando jugador';
   $('nombre').textContent = p ? (p.nombre || 'Jugador') : (st.nombreProximo ? 'Próximo: ' + st.nombreProximo : '');
   $('parte').textContent = p && p.escena ? nombreParte(p.escena) : '';
   const rec = st.records || {};

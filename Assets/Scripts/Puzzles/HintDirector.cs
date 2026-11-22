@@ -18,6 +18,9 @@ using UnityEngine.SceneManagement;
 ///   3. Directa (90 s): lo obvio (HintGlow sobre el objeto, una flecha...).
 /// Los tiempos se multiplican por GameSettings.HintTimeScale (0.6 con modo
 /// feria: en la feria cada visitante tiene pocos minutos).
+/// IMPORTANTE: por defecto el reloj esta APAGADO (HintDirector.AutoHints =
+/// false): las pistas solo salen cuando el operador las pide, un escalon por
+/// pedido.
 ///
 /// Por que escalones y no un cartel fijo: el guion es de terror, y un cartel
 /// desde el arranque rompe el clima. Asi el que explora no ve ninguna pista,
@@ -46,6 +49,14 @@ public class HintDirector : MonoBehaviour
         [TextArea(2, 4)]
         public string voiceText = "";
 
+        [Tooltip("Pista suave (nivel 1 del operador, y escalon 1 si no esta vacia): una pista sutil, sin decir el objeto. Si esta vacia se usa Voice Text.")]
+        [TextArea(2, 4)]
+        public string voiceTextSoft = "";
+
+        [Tooltip("Pista directa (nivel 3 del operador, y escalon 3 si no esta vacia): dice que hacer. Si esta vacia se usa Voice Text.")]
+        [TextArea(2, 4)]
+        public string voiceTextDirect = "";
+
         [Tooltip("Escalon 1 (ambiente): algo sutil del mundo. Por ejemplo FlickeringLight.Burst o un AudioSource.Play cerca del objetivo.")]
         public UnityEvent onAmbient = new UnityEvent();
 
@@ -61,6 +72,19 @@ public class HintDirector : MonoBehaviour
 
     /// <summary>El HintDirector de la escena activa (null si no hay).</summary>
     public static HintDirector Current { get; private set; }
+
+    private const string AutoHintsKey = "cfg.autoHints";
+
+    /// <summary>
+    /// Pistas automaticas por tiempo (30/60/90 s x HintTimeScale). APAGADO por
+    /// defecto: las pistas solo las da el operador. Se guarda en PlayerPrefs
+    /// (clave cfg.autoHints, default 0).
+    /// </summary>
+    public static bool AutoHints
+    {
+        get => PlayerPrefs.GetInt(AutoHintsKey, 0) != 0;
+        set => PlayerPrefs.SetInt(AutoHintsKey, value ? 1 : 0);
+    }
 
     [Header("Objetivos (en orden)")]
     [SerializeField] private List<Objective> _objectives = new List<Objective>();
@@ -113,7 +137,8 @@ public class HintDirector : MonoBehaviour
 
     private void Update()
     {
-        if (!_running || _stepsGiven >= 3 || !HasObjective(_index))
+        // Sin pistas automaticas: solo las da el operador (GiveDirectHint).
+        if (!AutoHints || !_running || _stepsGiven >= 3 || !HasObjective(_index))
         {
             return;
         }
@@ -181,10 +206,11 @@ public class HintDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// Pista directa YA (la pide el operador con FeriaEvents.RequestHint, o
-    /// un boton). Da la voz (si faltaba) y la directa del objetivo actual. Si
-    /// la directa ya se habia dado, la repite (vuelve a mostrar el texto y a
-    /// disparar onDirect).
+    /// Pista pedida por el operador (FeriaEvents.RequestHint, o un boton).
+    /// Escala UN escalon por pedido en el objetivo actual: 1ª vez ambiente,
+    /// 2ª voz (+ Voice Text), 3ª directa. A partir de la 4ª repite la directa
+    /// (vuelve a mostrar el texto y a disparar onDirect). Al cambiar de
+    /// objetivo (o con Progress) el conteo vuelve a cero.
     /// </summary>
     public void GiveDirectHint()
     {
@@ -196,15 +222,58 @@ public class HintDirector : MonoBehaviour
 
         if (_stepsGiven >= 3)
         {
-            ShowVoice(_objectives[_index]);
+            Objective o = _objectives[_index];
+            ShowText(FirstNonEmpty(o.voiceTextDirect, o.voiceText));
             Fire(3);
             return;
         }
-        if (_stepsGiven < 2)
+        GiveStep(_stepsGiven + 1);
+    }
+
+    /// <summary>
+    /// Pista de un nivel fijo pedida por el operador (1 suave, 2 media, 3
+    /// directa). Nivel 1: ambiente + voiceTextSoft. Nivel 2: ambiente + voz +
+    /// voiceText. Nivel 3: ambiente + voz + directa + voiceTextDirect. Los
+    /// textos vacios caen en voiceText. Actualiza el conteo de escalones.
+    /// </summary>
+    public void GiveHintLevel(int level)
+    {
+        if (!HasObjective(_index))
         {
-            GiveStep(2);
+            Debug.Log("[HintDirector] Pista de nivel pedida, pero no hay objetivo actual.");
+            return;
         }
-        GiveStep(3);
+
+        level = Mathf.Clamp(level, 1, 3);
+        Objective o = _objectives[_index];
+
+        o.onAmbient?.Invoke();
+        if (level >= 2)
+        {
+            o.onVoice?.Invoke();
+        }
+        if (level == 3)
+        {
+            o.onDirect?.Invoke();
+        }
+
+        if (level == 1)
+        {
+            ShowText(FirstNonEmpty(o.voiceTextSoft, o.voiceText));
+        }
+        else if (level == 2)
+        {
+            ShowText(o.voiceText);
+        }
+        else
+        {
+            ShowText(FirstNonEmpty(o.voiceTextDirect, o.voiceText));
+        }
+
+        _stepsGiven = Mathf.Max(_stepsGiven, level);
+        string scene = SceneManager.GetActiveScene().name;
+        Debug.Log($"[HintDirector] {scene} / objetivo {_index} ({o.label}): nivel {level} (operador)");
+        FeriaEvents.ReportHint(scene, level);
     }
 
     /// <summary>Detiene el reloj (no dispara onCleared).</summary>
@@ -212,6 +281,12 @@ public class HintDirector : MonoBehaviour
     {
         _running = false;
     }
+
+    /// <summary>Nombre del objetivo actual ("" si no hay).</summary>
+    public string CurrentObjectiveName => HasObjective(_index) ? _objectives[_index].label : string.Empty;
+
+    /// <summary>Escalon de pista ya dado para el objetivo actual (0 = ninguno, 3 = la directa).</summary>
+    public int CurrentStep => _stepsGiven;
 
     // ------------------------------------------------------------------
 
@@ -240,9 +315,19 @@ public class HintDirector : MonoBehaviour
     // Da el escalon n (1..3) y deja anotado que ya se dio.
     private void GiveStep(int step)
     {
-        if (step == 2)
+        Objective o = _objectives[_index];
+        if (step == 1)
         {
-            ShowVoice(_objectives[_index]);
+            // Solo si hay texto suave: sin el, el escalon 1 es solo ambiente.
+            ShowText(o.voiceTextSoft);
+        }
+        else if (step == 2)
+        {
+            ShowVoice(o);
+        }
+        else if (step == 3)
+        {
+            ShowText(o.voiceTextDirect);
         }
         Fire(step);
         _stepsGiven = Mathf.Max(_stepsGiven, step);
@@ -265,10 +350,21 @@ public class HintDirector : MonoBehaviour
 
     private void ShowVoice(Objective o)
     {
-        if (_hint != null && !string.IsNullOrEmpty(o.voiceText))
+        ShowText(o.voiceText);
+    }
+
+    // Muestra un texto en VR (VRHintText de la escena) si hay texto y hay visor.
+    private void ShowText(string text)
+    {
+        if (_hint != null && !string.IsNullOrEmpty(text))
         {
-            _hint.Show(o.voiceText);
+            _hint.Show(text);
         }
+    }
+
+    private static string FirstNonEmpty(string a, string b)
+    {
+        return !string.IsNullOrEmpty(a) ? a : b;
     }
 
     // Los escalones nunca se adelantan al anterior aunque se configuren al reves.

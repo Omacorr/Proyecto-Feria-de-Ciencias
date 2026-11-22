@@ -30,6 +30,13 @@ public class TeleportManager : MonoBehaviour
     [Tooltip("Opcional. AudioSource que reproduce el sonido de pasos en loop mientras camina.")]
     [SerializeField] private AudioSource _footstepsAudioSource;
 
+    [Tooltip("Opcional. Pasos sueltos: si hay clips, en vez del loop se toca un paso al azar (sin repetir el anterior) cada 'Step Interval', con pitch y volumen un poco distintos. Vacio = loop del AudioSource como antes.")]
+    [SerializeField] private AudioClip[] _footstepClips;
+    [Tooltip("Segundos entre pasos (con los clips sueltos).")]
+    [SerializeField, Min(0.15f)] private float _stepInterval = 0.5f;
+    [SerializeField] private Vector2 _stepPitchRange = new Vector2(0.92f, 1.08f);
+    [SerializeField] private Vector2 _stepVolumeRange = new Vector2(0.75f, 1f);
+
     [Header("Fade (alternativa)")]
     [Tooltip("Opcional. Se usa solo si 'Use Walk Animation' esta destildado.")]
     [SerializeField] private VRFadeController _fadeController;
@@ -188,6 +195,28 @@ public class TeleportManager : MonoBehaviour
         StartCoroutine(useFade ? DoFadeTeleport(destination, sourcePoint) : DoWalk(destination, sourcePoint));
     }
 
+    private int _lastStep = -1;
+
+    // Un paso suelto al azar (sin repetir el anterior), con pitch y volumen variados.
+    private void PlayStep()
+    {
+        int n = _footstepClips.Length;
+        int i = Random.Range(0, n);
+        if (n > 1 && i == _lastStep)
+        {
+            i = (i + 1 + Random.Range(0, n - 1)) % n;
+        }
+        _lastStep = i;
+        AudioClip clip = _footstepClips[i];
+        if (clip == null)
+        {
+            return;
+        }
+        _footstepsAudioSource.loop = false;
+        _footstepsAudioSource.pitch = Random.Range(_stepPitchRange.x, _stepPitchRange.y);
+        _footstepsAudioSource.PlayOneShot(clip, Random.Range(_stepVolumeRange.x, _stepVolumeRange.y));
+    }
+
     private IEnumerator DoWalk(Vector3 destination, TeleportPoint sourcePoint)
     {
         IsTeleporting = true;
@@ -210,15 +239,23 @@ public class TeleportManager : MonoBehaviour
         float distance = Vector3.Distance(startPos, targetPos);
         float duration = _walkSpeed > 0f ? distance / _walkSpeed : 0f;
 
-        if (_footstepsAudioSource != null && duration > 0f)
+        bool stepMode = _footstepsAudioSource != null && _footstepClips != null && _footstepClips.Length > 0;
+        if (_footstepsAudioSource != null && duration > 0f && !stepMode)
         {
             _footstepsAudioSource.loop = true;
             _footstepsAudioSource.Play();
         }
 
         float elapsed = 0f;
+        float nextStep = 0f;
         while (elapsed < duration)
         {
+            if (stepMode && elapsed >= nextStep)
+            {
+                PlayStep();
+                nextStep += _stepInterval;
+            }
+
             if (_movementLocked)
             {
                 // Otro sistema (caida, persecucion) tomo el control de la camara:
@@ -240,7 +277,8 @@ public class TeleportManager : MonoBehaviour
 
         _cameraTransform.position = targetPos;
 
-        if (_footstepsAudioSource != null)
+        // Con pasos sueltos se deja sonar el ultimo (no se corta la cola).
+        if (_footstepsAudioSource != null && !stepMode)
         {
             _footstepsAudioSource.Stop();
         }

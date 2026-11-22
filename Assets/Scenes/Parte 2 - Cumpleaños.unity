@@ -5,11 +5,11 @@ OcclusionCullingSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_OcclusionBakeSettings:
-    smallestOccluder: 5
+    smallestOccluder: 3
     smallestHole: 0.25
     backfaceThreshold: 100
-  m_SceneGUID: 00000000000000000000000000000000
-  m_OcclusionCullingData: {fileID: 0}
+  m_SceneGUID: 000857ded0ea0fe4f8b3d0e0a9656b88
+  m_OcclusionCullingData: {fileID: 36300000, guid: 1fb3eeebf57430f498a83aca561bc146, type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -3031,34 +3031,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonsterChaser
   _target: {fileID: 3053776759888146568}
   _speed: 0.7
-  _adaptToPlayerSpeed: 1
   _matchFactor: 0.85
   _maxSpeed: 0
   _rubberBandStartDistance: 5
   _rubberBandPerMeter: 0.25
   _playerSpeedWindow: 2
   _minSpeed: 0.5
-  _teleportManager: {fileID: 0}
   _catchDistance: 1.4
-  _keepYFixed: 1
-  _fixedY: 13
-  _faceTarget: 1
-  _followTrail: 1
   _trailSpacing: 1.2
   _directChaseRange: 3
   _holdBeforeWalk: 1
-  _snapFeetToGround: 0
-  _visualRoot: {fileID: 218473592}
-  _visualLocalEuler: {x: 0, y: 0, z: 0}
-  _animator: {fileID: 0}
-  _animSpeedParam: Speed
-  _animWalkParam: Walking
-  _legacyAnimation: {fileID: 0}
-  _walkClipName: 
-  _bobWhileWalking: 0
-  _bobAmplitude: 0.05
-  _bobFrequency: 6
-  _hiddenUntilChase: 1
   _chaseLoop: {fileID: 83830655}
   _appearAudioSource: {fileID: 83830654}
   _appearSound: {fileID: 8300000, guid: aa58edbcbc62ef442866bb410131f5d0, type: 3}
@@ -4619,6 +4601,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 107.93684
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -4626,6 +4619,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -5450,6 +5447,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 107.76653
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -5457,6 +5465,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -6754,6 +6766,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 270.52048
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -6761,6 +6784,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -9543,9 +9570,41 @@ PrefabInstance:
       value: Player 1
       objectReference: {fileID: 0}
     - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      propertyPath: _stepInterval
+      value: 0.51600003
+      objectReference: {fileID: 0}
+    - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
       propertyPath: _cameraTransform
       value: 
       objectReference: {fileID: 3053776759888146568}
+    - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      propertyPath: _footstepsAudioSource
+      value: 
+      objectReference: {fileID: 1945718557}
+    - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      propertyPath: _footstepClips.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      propertyPath: '_footstepClips.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 377d66accae6e9b4fa7fc75e640acf7a, type: 3}
+    - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      propertyPath: '_footstepClips.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 457608ceb6a341442a7d4118e3ef3874, type: 3}
+    - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      propertyPath: '_footstepClips.Array.data[2]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 2c23c914898b8bd4fbae2308f2f2a50c, type: 3}
+    - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      propertyPath: '_footstepClips.Array.data[3]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 7a8a5f471c9049d4eaf0fa943fbe0af0, type: 3}
+    - target: {fileID: 6449880793230472322, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      propertyPath: '_footstepClips.Array.data[4]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 445ba7915357d1c44a6c95dfa52510db, type: 3}
     - target: {fileID: 7627910848060077335, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
       propertyPath: m_LocalScale.y
       value: 1
@@ -9600,7 +9659,10 @@ PrefabInstance:
       objectReference: {fileID: 458751581146178328}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1393831533768083441, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1945718556}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3796337890227414173, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
       insertIndex: -1
@@ -9624,6 +9686,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFollowsCamera
   _mainCamera: {fileID: 3053776759888146568}
+--- !u!4 &299453979 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1393831533768083441, guid: d26448513b9c07f4c96bb95209c7978d, type: 3}
+  m_PrefabInstance: {fileID: 299453976}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &305440872
 GameObject:
   m_ObjectHideFlags: 0
@@ -10962,6 +11029,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 271.37195
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -10969,6 +11047,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -23952,6 +24034,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 270.69077
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -23959,6 +24052,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -24588,6 +24685,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 271.20166
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -24595,6 +24703,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -25854,6 +25966,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 271.71252
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -25861,6 +25984,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -26502,6 +26629,82 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881097708}
   m_Mesh: {fileID: 4300000, guid: 29ed967d62f11f648a98dcc54d6961e8, type: 2}
+--- !u!1 &890882123
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 890882125}
+  - component: {fileID: 890882124}
+  m_Layer: 0
+  m_Name: Tension (sonido)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &890882124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890882123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0e2e9afcacd1be49a8598f29f501d64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TensionAudio
+  _initialTension: 0.1
+  _secondsStillToMax: 90
+  _dropOnMove: 0.12
+  _floorAtMaxTime: 0.45
+  _minutesToMaxFloor: 8
+  _maxTension: 1
+  _moveDistance: 0.5
+  _teleportManager: {fileID: 0}
+  _listener: {fileID: 0}
+  _heartbeatClip: {fileID: 8300000, guid: 01ec86ad0b465d74da4f3f0182840af4, type: 3}
+  _heartbeatThreshold: 0.2
+  _heartbeatMaxVolume: 0.6
+  _heartbeatPitch: {x: 0.85, y: 1.35}
+  _heartbeatSmoothing: 1.5
+  _breathClips:
+  - {fileID: 8300000, guid: aa58edbcbc62ef442866bb410131f5d0, type: 3}
+  - {fileID: 8300000, guid: b992a05212fb5be4281df906b6cc4d6b, type: 3}
+  _breathVolume: 0.8
+  _breathDistance: {x: 0.6, y: 1}
+  _breathMinTension: 0.25
+  _breathMinGap: 25
+  _breathMaxGap: 70
+  _ambientSources:
+  - {fileID: 2008623567}
+  - {fileID: 122940887}
+  _silenceEvery: {x: 60, y: 110}
+  _silenceMinTension: 0.4
+  _silenceHold: {x: 2, y: 4}
+  _silenceLevel: 0.03
+  _silenceFadeOut: 0.3
+  _silenceFadeIn: 1.5
+  _stopFade: 1
+--- !u!4 &890882125
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890882123}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &897426572
 GameObject:
   m_ObjectHideFlags: 0
@@ -33311,6 +33514,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 108.61799
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -33318,6 +33532,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -35682,7 +35900,19 @@ MonoBehaviour:
   _teleportSound: {fileID: 0}
   _onPlayerArrived:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1153070532}
+        m_TargetAssemblyTypeName: PortalVisual, Assembly-CSharp
+        m_MethodName: SetHighlighted
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _hasExternalVisual: 1
 --- !u!65 &1153070529
 BoxCollider:
@@ -35786,13 +36016,28 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 145.18654
-  _visibleDistance: 12
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 1.8
+  _beamWidth: 0.8
+  _beamColor: {r: 1, g: 0.8, b: 0.45, a: 1}
+  _beamAlpha: 0.55
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
+  _visibleDistance: 20
   _fadeRange: 6
   _baseIntensity: 1
   _gazeBoost: 1.5
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 1.6
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -35972,6 +36217,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 108.107124
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -35979,6 +36235,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -36021,7 +36281,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HintDirector
   _objectives:
   - label: Cinta
-    voiceText: Esa cinta... tengo que agarrarla.
+    voiceText: Esa cinta sobre la mesa... tengo que agarrarla.
+    voiceTextSoft: "Algo brilla sobre la mesa... \xBFqu\xE9 ser\xE1?"
+    voiceTextDirect: Es una cinta VHS. Tengo que mirarla fijo para agarrarla.
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -36048,6 +36310,8 @@ MonoBehaviour:
         m_Calls: []
   - label: Tele
     voiceText: "La tele... ah\xED tiene que ir la cinta."
+    voiceTextSoft: "Ese televisor... \xBFpara qu\xE9 servir\xE1?"
+    voiceTextDirect: Con la cinta en la mano, tengo que mirar la tele para meterla.
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -36086,6 +36350,8 @@ MonoBehaviour:
           m_CallState: 2
   - label: Salir
     voiceText: "\xA1La puerta! Tengo que salir de ac\xE1."
+    voiceTextSoft: "Algo se mueve al fondo... tengo que irme de ac\xE1."
+    voiceTextDirect: Sigo las flechas brillantes del piso. Me llevan a la puerta.
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -38035,6 +38301,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 107.42596
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -38042,6 +38319,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -38570,6 +38851,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 108.4477
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -38577,6 +38869,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -40703,6 +40999,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 108.788284
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -40710,6 +41017,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -43479,6 +43790,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 108.27741
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -43486,6 +43808,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -44158,21 +44484,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChaseReveal
   _chaser: {fileID: 83830652}
   _fade: {fileID: 2103275276}
-  _blink: 1
   _delayBeforeChase: 0.5
   _monsterRevealPoint: {fileID: 1363883143}
-  _spawnBehindDistance: 6
-  _eyeHeight: 1.6
-  _monsterYOffset: 0
-  _playerCamera: {fileID: 3053776759888146568}
   _stingerSource: {fileID: 1326389917}
   _stingerClip: {fileID: 8300000, guid: 49269eed061ef774882b546caed2fcd7, type: 3}
-  _forceCameraTurn: 0
-  _cameraToTurn: {fileID: 3053776759888146568}
-  _turnDuration: 1.2
-  _onRevealFinished:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!4 &1438342890
 Transform:
   m_ObjectHideFlags: 0
@@ -46440,6 +46755,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 271.03137
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -46447,6 +46773,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -47472,12 +47802,10 @@ MonoBehaviour:
   _textureWidth: 640
   _textureHeight: 480
   _monster: {fileID: 550010197}
-  _monsterLocalEuler: {x: 0, y: 0, z: 0}
   _flickerLight: {fileID: 223251045}
   _duration: 16
   _staticTail: 1.6
   _audioSource: {fileID: 1566972497}
-  _ambienceLoop: {fileID: 0}
   _screamClip: {fileID: 8300000, guid: 49269eed061ef774882b546caed2fcd7, type: 3}
   _staticClip: {fileID: 8300000, guid: c925c6e33d600f84391ffbcbd8d024f2, type: 3}
   _onMovieEnd:
@@ -47566,6 +47894,18 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1153070532}
+        m_TargetAssemblyTypeName: PortalVisual, Assembly-CSharp
+        m_MethodName: SetHighlighted
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1566972494
 MonoBehaviour:
@@ -52295,6 +52635,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 271.8828
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -52302,6 +52653,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -55803,6 +56158,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 107.596245
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -55810,6 +56176,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -56840,6 +57210,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 271.54224
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -56847,6 +57228,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -80514,6 +80899,135 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1940639845}
   m_Mesh: {fileID: 4300000, guid: fdef79260c029e146ad919563c53075e, type: 2}
+--- !u!1 &1945718555
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1945718556}
+  - component: {fileID: 1945718557}
+  m_Layer: 0
+  m_Name: Pasos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1945718556
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1945718555}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 299453979}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1945718557
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1945718555}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.7
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1946782403
 GameObject:
   m_ObjectHideFlags: 0
@@ -84632,6 +85146,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.8
   _markYaw: 270.86108
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -84639,6 +85164,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 1
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 1, g: 0.85, b: 0.6, a: 0.5}
@@ -87627,3 +88156,4 @@ SceneRoots:
   - {fileID: 1476941492}
   - {fileID: 1647811700}
   - {fileID: 1160350569}
+  - {fileID: 890882125}

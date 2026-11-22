@@ -150,7 +150,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HintDirector
   _objectives:
   - label: Llave
-    voiceText: "Hay una llave en alg\xFAn lado... mirala fijo para agarrarla."
+    voiceText: "Hay una llave en alg\xFAn lado... tengo que mirarla fijo para agarrarla."
+    voiceTextSoft: "Hay algo brillando en este cuarto... \xBFser\xE1 \xFAtil?"
+    voiceTextDirect: "La llave est\xE1 a la vista. Tengo que mirarla fijo para agarrarla."
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -177,6 +179,8 @@ MonoBehaviour:
         m_Calls: []
   - label: Puerta
     voiceText: Ya tengo la llave. Ahora la puerta.
+    voiceTextSoft: "Esta puerta no se abre sola... \xBFqu\xE9 necesito?"
+    voiceTextDirect: Tengo que mirar la puerta de salida para abrirla con la llave.
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -566,6 +570,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.9
   _markYaw: 230.26598
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -573,6 +588,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 0
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.82, b: 0.75, a: 0.5}
@@ -1622,6 +1641,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9196867875134714840, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8937852759566019895, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8669563227529310790, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: -7876580245099810494, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -1641,6 +1672,10 @@ PrefabInstance:
     - target: {fileID: -6689036041284674117, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
       propertyPath: m_Name
       value: house_interior
+      objectReference: {fileID: 0}
+    - target: {fileID: -2639221754061438768, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -2078071526103297354, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1718,6 +1753,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3277334895759766900, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4469350684362143865, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.2923486
@@ -1781,6 +1820,14 @@ PrefabInstance:
     - target: {fileID: 7043372603030634180, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 179.319
+      objectReference: {fileID: 0}
+    - target: {fileID: 7613595373442089534, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9055628633023295446, guid: d13dd42510b7dc44e9163511f93977bc, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -2707,6 +2754,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.9
   _markYaw: 230.09569
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -2714,6 +2772,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 0
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.82, b: 0.75, a: 0.5}
@@ -2774,6 +2836,135 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1498478990
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1498478991}
+  - component: {fileID: 1498478992}
+  m_Layer: 0
+  m_Name: Pasos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1498478991
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498478990}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7325061492661708891}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1498478992
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1498478990}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.7
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1542976122
 GameObject:
   m_ObjectHideFlags: 0
@@ -2942,6 +3133,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.9
   _markYaw: 229.5848
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -2949,6 +3151,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 0
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.82, b: 0.75, a: 0.5}
@@ -3318,6 +3524,17 @@ MonoBehaviour:
   _raycastFloorAtRuntime: 0
   _markSize: 0.9
   _markYaw: 229.75508
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 0
+  _beamHeight: 1.5
+  _beamWidth: 0.7
+  _beamColor: {r: 1, g: 0.85, b: 0.55, a: 1}
+  _beamAlpha: 0.45
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 2.5
   _visibleDistance: 12
   _fadeRange: 6
   _baseIntensity: 1
@@ -3325,6 +3542,10 @@ MonoBehaviour:
   _subtleFactor: 0.35
   _highlightBoost: 0.9
   _highlightHz: 0.5
+  _discreet: 0
+  _idleFactor: 0.18
+  _focusStartAngle: 26
+  _focusFullAngle: 9
   _dust: 1
   _dustCount: 15
   _dustColor: {r: 0.85, g: 0.82, b: 0.75, a: 0.5}
@@ -3939,7 +4160,15 @@ MonoBehaviour:
   _cameraTransform: {fileID: 4213043971076017242}
   _useWalkAnimation: 1
   _walkSpeed: 2
-  _footstepsAudioSource: {fileID: 0}
+  _footstepsAudioSource: {fileID: 1498478992}
+  _footstepClips:
+  - {fileID: 8300000, guid: 1c8eb052b5c5d2d49b3643a3de1a2fe5, type: 3}
+  - {fileID: 8300000, guid: 36ae7d2559650484698b0905a4da0bed, type: 3}
+  - {fileID: 8300000, guid: 4542959d544c87a4bb422b2c9237703d, type: 3}
+  - {fileID: 8300000, guid: 896364649515de743be5de8d95eb628a, type: 3}
+  _stepInterval: 0.574
+  _stepPitchRange: {x: 0.92, y: 1.08}
+  _stepVolumeRange: {x: 0.75, y: 1}
   _fadeController: {fileID: 534916512577756166}
 --- !u!114 &6792004093927298542
 MonoBehaviour:
@@ -4190,7 +4419,8 @@ Transform:
   m_LocalPosition: {x: -2.1693726, y: -2, z: 3.5651398}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1498478991}
   m_Father: {fileID: 3877634913224908238}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7337829643158226500

@@ -318,8 +318,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &52760672
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -414,16 +414,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.70749
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -926,8 +941,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &185185159
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1007,16 +1022,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 346.07462
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -1242,8 +1272,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &229046749
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1323,16 +1353,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 345.90433
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -1521,8 +1566,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &289841917
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1602,16 +1647,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 345.22314
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -2044,7 +2104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExamineScareSounds
   _listener: {fileID: 4027177054120031210}
-  _footstepsClip: {fileID: 8300000, guid: 87c9d0e94bf352147905ce126af95bbf, type: 3}
+  _footstepsClip: {fileID: 8300000, guid: 582ce8a7ee967dd448a12bfabf9f0e61, type: 3}
   _footstepsVolume: 0.85
   _footstepsSeconds: {x: 2.5, y: 4}
   _footstepsDistance: {x: 4, y: 7}
@@ -2864,8 +2924,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95000005, y: 4.2500005, z: 0.95}
+  m_Center: {x: -0.0000001245108, y: 2.0949998, z: 0}
 --- !u!23 &604762054
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2945,16 +3005,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.006000042
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 96.19776
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -3150,8 +3225,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &629506246
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3231,16 +3306,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.74045
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -3429,8 +3519,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &722796151
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3510,16 +3600,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 345.39346
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -3732,8 +3837,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &737625840
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3828,16 +3933,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.6965
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -3936,8 +4056,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 2.3805945, y: 4.2500005, z: 0.95}
+  m_Center: {x: 0, y: 2.0949996, z: 0}
 --- !u!23 &757778545
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4017,16 +4137,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.0060001016
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 252.29938
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -4197,6 +4332,81 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 766742058}
   m_Mesh: {fileID: 1011116336110342839, guid: 758c51c4823c60d4994053ae6f18396a, type: 3}
+--- !u!1 &777269192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 777269194}
+  - component: {fileID: 777269193}
+  m_Layer: 0
+  m_Name: Tension (sonido)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &777269193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777269192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0e2e9afcacd1be49a8598f29f501d64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TensionAudio
+  _initialTension: 0.1
+  _secondsStillToMax: 90
+  _dropOnMove: 0.12
+  _floorAtMaxTime: 0.45
+  _minutesToMaxFloor: 8
+  _maxTension: 1
+  _moveDistance: 0.5
+  _teleportManager: {fileID: 0}
+  _listener: {fileID: 0}
+  _heartbeatClip: {fileID: 8300000, guid: 01ec86ad0b465d74da4f3f0182840af4, type: 3}
+  _heartbeatThreshold: 0.2
+  _heartbeatMaxVolume: 0.6
+  _heartbeatPitch: {x: 0.85, y: 1.35}
+  _heartbeatSmoothing: 1.5
+  _breathClips:
+  - {fileID: 8300000, guid: aa58edbcbc62ef442866bb410131f5d0, type: 3}
+  - {fileID: 8300000, guid: b992a05212fb5be4281df906b6cc4d6b, type: 3}
+  _breathVolume: 0.8
+  _breathDistance: {x: 0.6, y: 1}
+  _breathMinTension: 0.25
+  _breathMinGap: 25
+  _breathMaxGap: 70
+  _ambientSources:
+  - {fileID: 1398340662}
+  _silenceEvery: {x: 60, y: 110}
+  _silenceMinTension: 0.4
+  _silenceHold: {x: 2, y: 4}
+  _silenceLevel: 0.03
+  _silenceFadeOut: 0.3
+  _silenceFadeIn: 1.5
+  _stopFade: 1
+--- !u!4 &777269194
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777269192}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &797689988
 GameObject:
   m_ObjectHideFlags: 0
@@ -4363,16 +4573,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.042291537
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 0.598764
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -4702,8 +4927,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &913565258
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4783,16 +5008,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 344.7782
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -4888,8 +5128,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &938497767
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4984,16 +5224,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.71298
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -5395,8 +5650,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &998180951
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5491,16 +5746,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.73495
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -5830,16 +6100,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: 0.0000014305115
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 252.30487
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -5938,8 +6223,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95000005, y: 4.2500005, z: 0.95}
+  m_Center: {x: 0.0000002490216, y: 2.0949996, z: 0}
 --- !u!23 &1142411920
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6019,16 +6304,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.0060001016
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 48.395515
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -6082,8 +6382,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95000005, y: 4.606797, z: 0.95}
+  m_Center: {x: -0.0000000622554, y: 1.8880991, z: 0}
 --- !u!23 &1172343454
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6208,16 +6508,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.0766269
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 281.11148
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -6462,8 +6777,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &1230157792
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6543,16 +6858,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 345.73404
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -6962,16 +7292,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.054920778
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 96.203255
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -7145,8 +7490,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &1483194922
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7241,16 +7586,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.72397
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -7430,16 +7790,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.07931973
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 48.40101
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -7533,8 +7908,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &1617592697
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7629,16 +8004,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.72946
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -7683,7 +8073,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HintDirector
   _objectives:
   - label: Llave
-    voiceText: Esa puerta... sale una luz roja por abajo.
+    voiceText: Esa puerta... sale una luz roja por abajo. Tiene que haber algo.
+    voiceTextSoft: Una luz roja se filtra por debajo de una puerta...
+    voiceTextDirect: "La llave est\xE1 en la habitaci\xF3n de la luz roja. Tengo
+      que entrar."
     onAmbient:
       m_PersistentCalls:
         m_Calls:
@@ -7758,6 +8151,8 @@ MonoBehaviour:
           m_CallState: 2
   - label: Puerta del fondo
     voiceText: Ya tengo la llave. La puerta del fondo...
+    voiceTextSoft: "Este pasillo no termina nunca... \xBFy al fondo?"
+    voiceTextDirect: Tengo que ir al fondo del pasillo y abrir la puerta con la llave.
     onAmbient:
       m_PersistentCalls:
         m_Calls: []
@@ -7874,8 +8269,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &1698012391
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7972,16 +8367,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.702
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -8161,16 +8571,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.15404435
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 204.50262
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -8269,8 +8694,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &1833426423
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8350,16 +8775,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 345.56375
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -8691,8 +9131,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.95, y: 4.25, z: 0.95}
+  m_Center: {x: 0, y: 1.6250002, z: 0}
 --- !u!23 &1947127196
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8787,16 +9227,31 @@ MonoBehaviour:
   _dustMaterial: {fileID: 2100000, guid: 44b1261906376f7409702770128897a8, type: 2}
   _floorOffset: -0.099999994
   _raycastFloorAtRuntime: 0
-  _markSize: 0.9
+  _markSize: 1
   _markYaw: 173.71848
+  _backwardFromStart: 1
+  _markLift: 0.01
+  _beam: 1
+  _beamHeight: 0.8
+  _beamWidth: 0.6
+  _beamColor: {r: 1, g: 0.74, b: 0.4, a: 1}
+  _beamAlpha: 0.12
+  _mothMinHeight: 0.12
+  _mothMaxHeight: 0.42
+  _mothSize: 0.11
+  _mothIntensity: 0.8
   _visibleDistance: 12
   _fadeRange: 6
-  _baseIntensity: 1
-  _gazeBoost: 1.5
+  _baseIntensity: 0.6
+  _gazeBoost: 0.8
   _subtleFactor: 0.35
-  _highlightBoost: 0.9
+  _highlightBoost: 0.5
   _highlightHz: 0.5
-  _dust: 1
+  _discreet: 1
+  _idleFactor: 0.1
+  _focusStartAngle: 26
+  _focusFullAngle: 9
+  _dust: 0
   _dustCount: 15
   _dustColor: {r: 0.7, g: 0.65, b: 0.55, a: 0.45}
   _dustRadius: 0.35
@@ -21682,6 +22137,15 @@ MonoBehaviour:
   _useWalkAnimation: 1
   _walkSpeed: 2
   _footstepsAudioSource: {fileID: 528467626}
+  _footstepClips:
+  - {fileID: 8300000, guid: ff72ba9fa06be4c4296d018883d1d2eb, type: 3}
+  - {fileID: 8300000, guid: 4b04fc7fbf7887f4b94ebd9f235d99c0, type: 3}
+  - {fileID: 8300000, guid: 8fa790f25ee3e6d45b8abcff4ce3b013, type: 3}
+  - {fileID: 8300000, guid: 2d19fa6827b272f439c19146a9257714, type: 3}
+  - {fileID: 8300000, guid: c987c8f36e832fe4f84113301fa4fba4, type: 3}
+  _stepInterval: 0.574
+  _stepPitchRange: {x: 0.92, y: 1.08}
+  _stepVolumeRange: {x: 0.75, y: 1}
   _fadeController: {fileID: 790578143286780854}
 --- !u!33 &6143129744284552502
 MeshFilter:
@@ -27749,3 +28213,4 @@ SceneRoots:
   - {fileID: 85133979}
   - {fileID: 1312253944}
   - {fileID: 1664292291}
+  - {fileID: 777269194}

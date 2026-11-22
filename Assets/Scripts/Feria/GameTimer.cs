@@ -41,7 +41,10 @@ public class GameTimer : MonoBehaviour
     private float _startReal;
     private float _pausedTotal;      // segundos congelados por cargas
     private bool _frozen;
+    private bool _pauseFrozen;       // el congelado actual lo causo la pausa de la app, no una carga
     private float _frozenSince;
+    private bool _opPaused;          // el operador paro el tiempo (independiente de cargas y pausas de la app)
+    private float _opPausedValue;    // tiempo mostrado mientras esta parado
     private float _finalElapsed;     // valor fijo despues de end/abort
     private float _lastSplitAt;      // segundos acumulados en el ultimo parcial
     private float _nextTickReal;
@@ -102,6 +105,15 @@ public class GameTimer : MonoBehaviour
 
     /// <summary>Cancela la partida (no cuenta para el ranking) y guarda el JSON.</summary>
     public static void AbortRun() => GetOrCreate().DoAbort();
+
+    /// <summary>True si el operador paro el tiempo con el comando "pause".</summary>
+    public static bool IsOperatorPaused => s_instance != null && s_instance._opPaused;
+
+    /// <summary>
+    /// Para o reanuda el cronometro (el juego sigue corriendo). Loguea
+    /// [CRONO] pause/resume. Devuelve false si no hay partida o ya estaba asi.
+    /// </summary>
+    public static bool SetOperatorPaused(bool paused) => GetOrCreate().DoOperatorPause(paused);
 
     /// <summary>Nombre del jugador actual (se puede cargar antes o durante la partida).</summary>
     public static void SetPlayerName(string playerName)
@@ -192,9 +204,53 @@ public class GameTimer : MonoBehaviour
         }
     }
 
+    // Pausa de la app (celular bloqueado, visor sacado): congela el reloj igual
+    // que una carga. Si ya habia una carga en curso (_frozen) no se toca: la
+    // descongela la activacion de la escena, no la pausa.
+    private void OnApplicationPause(bool paused)
+    {
+        if (!_running)
+        {
+            return;
+        }
+        if (paused)
+        {
+            if (_frozen)
+            {
+                return;
+            }
+            _frozen = true;
+            _pauseFrozen = true;
+            _frozenSince = Time.realtimeSinceStartup;
+            Log("loadstart " + Fmt(Elapsed()));
+        }
+        else if (_pauseFrozen && _frozen)
+        {
+            _pausedTotal += Time.realtimeSinceStartup - _frozenSince;
+            _frozen = false;
+            _pauseFrozen = false;
+            Log("loadend " + Fmt(Elapsed()));
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        DoAbort();
+    }
+
     // ---------------- Tiempo ----------------
 
     private float Elapsed()
+    {
+        if (_running && _opPaused)
+        {
+            return _opPausedValue;
+        }
+        return RawElapsed();
+    }
+
+    // Tiempo sin contar la pausa del operador (solo cargas y pausas de la app).
+    private float RawElapsed()
     {
         if (!_running)
         {
@@ -202,6 +258,28 @@ public class GameTimer : MonoBehaviour
         }
         float now = _frozen ? _frozenSince : Time.realtimeSinceStartup;
         return Mathf.Max(0f, now - _startReal - _pausedTotal);
+    }
+
+    private bool DoOperatorPause(bool paused)
+    {
+        if (!_running || paused == _opPaused)
+        {
+            return false;
+        }
+        if (paused)
+        {
+            _opPausedValue = RawElapsed();
+            _opPaused = true;
+            Log("pause " + Fmt(_opPausedValue));
+        }
+        else
+        {
+            // Lo que corrio mientras estaba parado se descuenta como una carga.
+            _pausedTotal += Mathf.Max(0f, RawElapsed() - _opPausedValue);
+            _opPaused = false;
+            Log("resume " + Fmt(Elapsed()));
+        }
+        return true;
     }
 
     private void DoStart()
@@ -214,6 +292,8 @@ public class GameTimer : MonoBehaviour
         _startReal = Time.realtimeSinceStartup;
         _pausedTotal = 0f;
         _frozen = false;
+        _pauseFrozen = false;
+        _opPaused = false;
         _finalElapsed = 0f;
         _lastSplitAt = 0f;
         _expectingScene = false;
@@ -256,6 +336,7 @@ public class GameTimer : MonoBehaviour
         _finalElapsed = t;
         _running = false;
         _frozen = false;
+        _opPaused = false;
         if (_record != null)
         {
             _record.finished = !aborted;
@@ -338,6 +419,7 @@ public class GameTimer : MonoBehaviour
         {
             _pausedTotal += Time.realtimeSinceStartup - _frozenSince;
             _frozen = false;
+            _pauseFrozen = false;
             if (_running)
             {
                 Log("loadend " + Fmt(Elapsed()));

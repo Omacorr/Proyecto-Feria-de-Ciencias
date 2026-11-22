@@ -22,7 +22,19 @@ using UnityEngine.SceneManagement;
 ///   skip          -> ok | err <motivo> (dispara el desmayo de la escena)
 ///   menu          -> ok | err <motivo> (cancela la partida y vuelve al Menu)
 ///   name <texto>  -> ok | err <motivo>
-///   status        -> status <running 0/1> <segundos F2> <escena>
+///   goto <escena> -> ok | err busy|no-scene   (salta a la escena; marca "con salto")
+///   restart       -> ok | err <motivo>        (recarga la escena activa)
+///   fair on|off   -> ok | err <motivo>
+///   portals visible|subtle -> ok | err <motivo>
+///   fps 30|60     -> ok | err <motivo>
+///   bloom off|low|full, post on|off, hdr on|off, scale 0.5..1 -> ok | err bad-arg
+///   status        -> status <activa 0/1> <segundos F2> fps=<n.n> target=<30|60> fair=<0|1> portals=<visible|subtle> paused=<0|1> gfx=bloom:<m>,post:<0|1>,hdr:<0|1>,scale:<f> <escena> obj=<objetivo, espacios como _ o -> hint=<escalon 0..3>
+///   pause / resume -> para o reanuda el cronometro (el juego sigue)
+///   scare screamer|whisper|steps|distant|knock|blackout|heartbeat -> ok | err <motivo> (cooldown 1.5 s)
+///   tension 0..1  -> ok | err <motivo>
+///   sfx <nombre>  -> ok | err <motivo>  (clip de la biblioteca, 2D)
+///   hintlvl 1|2|3 -> ok | err <motivo>  (pista de nivel fijo del objetivo actual)
+///   say <texto>   -> ok | err <motivo>  (texto en VR, hasta 120 caracteres)
 ///
 /// Un hilo de fondo acepta UN cliente a la vez y encola las lineas; Update las
 /// procesa en el hilo principal (la API de Unity no se puede tocar desde otro
@@ -274,15 +286,175 @@ public class OperatorCommandServer : MonoBehaviour
                 GameTimer.SetPlayerName(rest);
                 return Ok(cmd);
 
+            case "goto":
+                return GoTo(rest);
+
+            case "restart":
+                return Restart();
+
+            case "fair":
+                if (rest == "on" || rest == "off")
+                {
+                    GameSettings.GetOrCreate().SetFairMode(rest == "on");
+                    return Ok(cmd);
+                }
+                return Err(cmd, "bad-arg");
+
+            case "portals":
+                if (rest == "visible" || rest == "subtle")
+                {
+                    GameSettings.GetOrCreate().SetPortalsVisible(rest == "visible");
+                    return Ok(cmd);
+                }
+                return Err(cmd, "bad-arg");
+
+            case "fps":
+                if (rest == "30" || rest == "60")
+                {
+                    GameSettings.GetOrCreate().SetTargetFps(rest == "30" ? 30 : 60);
+                    return Ok(cmd);
+                }
+                return Err(cmd, "bad-arg");
+
+            case "bloom":
+            case "post":
+            case "hdr":
+            case "scale":
+                return SetGraphics(cmd, rest);
+
+            case "fx":
+            {
+                // Diagnóstico, no se guarda: "fx <pieza> <on|off>" (ver PostFxDebug).
+                string what = FirstToken(rest, out string val);
+                return PostFxDebug.Set(what, val.Trim().ToLowerInvariant()) ? Ok(cmd + " " + what + " " + val.Trim()) : Err(cmd, "bad-arg");
+            }
+
+            case "pause":
+            case "resume":
+                if (!GameTimer.IsRunning)
+                {
+                    return Err(cmd, "no-run");
+                }
+                GameTimer.SetOperatorPaused(cmd == "pause");
+                return Ok(cmd);
+
             case "status":
+                GameSettings gs = GameSettings.GetOrCreate();
+                // obj= y hint= van al final: el panel busca esos campos en cualquier posicion.
+                string objective = HintDirector.Current != null ? HintDirector.Current.CurrentObjectiveName : string.Empty;
+                objective = string.IsNullOrWhiteSpace(objective) ? "-" : objective.Trim().Replace(' ', '_');
+                int hintStep = HintDirector.Current != null ? HintDirector.Current.CurrentStep : 0;
                 string status = "status " + (GameTimer.IsRunning ? "1" : "0") + " " +
-                                GameTimer.Fmt(GameTimer.ElapsedSeconds) + " " +
-                                SceneManager.GetActiveScene().name;
+                                GameTimer.Fmt(GameTimer.ElapsedSeconds) +
+                                " fps=" + PerfMeter.CurrentFps.ToString("F1", System.Globalization.CultureInfo.InvariantCulture) +
+                                " target=" + gs.TargetFps +
+                                " fair=" + (gs.FairMode ? "1" : "0") +
+                                " portals=" + (gs.PortalsVisible ? "visible" : "subtle") +
+                                " paused=" + (GameTimer.IsOperatorPaused ? "1" : "0") +
+                                " gfx=" + GfxString(gs) + " " +
+                                SceneManager.GetActiveScene().name +
+                                " obj=" + objective + " hint=" + hintStep;
                 return Ok(cmd, status);
+
+            case "scare":
+            {
+                string kind = rest.Trim().ToLowerInvariant();
+                string scareResult = OperatorScares.Scare(kind);
+                return scareResult == "ok" ? Ok(cmd + " " + kind) : Err(cmd, scareResult);
+            }
+
+            case "tension":
+                if (!float.TryParse(rest, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float tension))
+                {
+                    return Err(cmd, "bad-arg");
+                }
+                string tensionResult = OperatorScares.Tension(tension);
+                return tensionResult == "ok" ? Ok(cmd + " " + tension.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)) : Err(cmd, tensionResult);
+
+            case "sfx":
+            {
+                if (rest.Length == 0)
+                {
+                    return Err(cmd, "bad-arg");
+                }
+                string sfxResult = OperatorScares.Sfx(rest);
+                return sfxResult == "ok" ? Ok(cmd + " " + rest) : Err(cmd, sfxResult);
+            }
+
+            case "hintlvl":
+                if (HintDirector.Current == null)
+                {
+                    return Err(cmd, "no hints");
+                }
+                if (!int.TryParse(rest, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int hintLevel) ||
+                    hintLevel < 1 || hintLevel > 3)
+                {
+                    return Err(cmd, "bad-arg");
+                }
+                HintDirector.Current.GiveHintLevel(hintLevel);
+                return Ok(cmd + " " + hintLevel);
+
+            case "say":
+            {
+                // El texto es el resto de la linea (conserva espacios), maximo 120 caracteres.
+                string text = rest.Trim();
+                if (text.Length == 0)
+                {
+                    return Err(cmd, "empty-text");
+                }
+                if (text.Length > 120)
+                {
+                    text = text.Substring(0, 120).TrimEnd();
+                }
+                string sayResult = OperatorScares.Say(text);
+                return sayResult == "ok" ? Ok(cmd) : Err(cmd, sayResult);
+            }
 
             default:
                 return Err(cmd.Length > 0 ? cmd : "?", "unknown");
         }
+    }
+
+    private static string GfxString(GameSettings gs)
+    {
+        return "bloom:" + gs.Bloom.ToString().ToLowerInvariant() +
+               ",post:" + (gs.PostProcessing ? "1" : "0") +
+               ",hdr:" + (gs.Hdr ? "1" : "0") +
+               ",scale:" + gs.RenderScale.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) +
+               ",eye:" + UnityEngine.XR.XRSettings.eyeTextureWidth + "x" + UnityEngine.XR.XRSettings.eyeTextureHeight +
+               ",api:" + SystemInfo.graphicsDeviceType;
+    }
+
+    /// <summary>bloom off|low|full, post on|off, hdr on|off, scale 0.5..1.</summary>
+    private static string SetGraphics(string cmd, string arg)
+    {
+        GameSettings gs = GameSettings.GetOrCreate();
+        GraphicsQuality.BloomMode bloom = gs.Bloom;
+        bool post = gs.PostProcessing, hdr = gs.Hdr;
+        float scale = gs.RenderScale;
+        switch (cmd)
+        {
+            case "bloom":
+                if (arg == "off") bloom = GraphicsQuality.BloomMode.Off;
+                else if (arg == "low") bloom = GraphicsQuality.BloomMode.Low;
+                else if (arg == "full") bloom = GraphicsQuality.BloomMode.Full;
+                else return Err(cmd, "bad-arg");
+                break;
+            case "post":
+            case "hdr":
+                if (arg != "on" && arg != "off") return Err(cmd, "bad-arg");
+                if (cmd == "post") post = arg == "on"; else hdr = arg == "on";
+                break;
+            default:
+                if (!float.TryParse(arg, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out scale) ||
+                    scale < 0.5f || scale > 1f)
+                {
+                    return Err(cmd, "bad-arg");
+                }
+                break;
+        }
+        gs.SetGraphics(bloom, post, hdr, scale);
+        return Ok(cmd);
     }
 
     private static string Ok(string cmd, string reply = "ok")
@@ -356,6 +528,65 @@ public class OperatorCommandServer : MonoBehaviour
         }
         string path = SceneUtility.GetScenePathByBuildIndex(idx + 1);
         return string.IsNullOrEmpty(path) ? string.Empty : Path.GetFileNameWithoutExtension(path);
+    }
+
+    // goto: salta a una escena por nombre exacto (puede tener espacios y tildes).
+    // Si no hay partida y la escena no es el Menu, arranca una (como Empezar).
+    private string GoTo(string scene)
+    {
+        const string cmd = "goto";
+        if (scene.Length == 0 || !Application.CanStreamedLevelBeLoaded(scene))
+        {
+            return Err(cmd, "no-scene");
+        }
+        if (FaintOverlay.IsRunning)
+        {
+            return Err(cmd, "busy");
+        }
+        if (!GameTimer.IsRunning && scene != GameTimer.MenuSceneName)
+        {
+            GameTimer.StartRun();
+        }
+        // El servidor del operador marca "con salto" al ver esta linea.
+        GameTimer.Log("cmd goto ok " + scene);
+        LoadScene(scene);
+        return "ok";
+    }
+
+    // restart: recarga la escena activa (sin marcar salto). No sirve en el Menu.
+    private string Restart()
+    {
+        const string cmd = "restart";
+        string scene = SceneManager.GetActiveScene().name;
+        if (scene == GameTimer.MenuSceneName)
+        {
+            return Err(cmd, "in-menu");
+        }
+        if (FaintOverlay.IsRunning)
+        {
+            return Err(cmd, "busy");
+        }
+        GameTimer.Log("cmd restart ok");
+        LoadScene(scene);
+        return "ok";
+    }
+
+    // Prefiere un desmayo (VR-safe); sin ninguno disponible, carga directa.
+    private static void LoadScene(string scene)
+    {
+        foreach (FaintTransition ft in FindObjectsByType<FaintTransition>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+        {
+            if (ft != null && ft.isActiveAndEnabled && !ft.HasTriggered)
+            {
+                ft.TriggerToScene(scene);
+                if (FaintOverlay.IsRunning)
+                {
+                    return;
+                }
+            }
+        }
+        FaintOverlay.NotifyLoadBegin(scene);
+        SceneManager.LoadScene(scene);
     }
 
     // menu: cancela la partida y vuelve al Menu con un desmayo (VR-safe); si la

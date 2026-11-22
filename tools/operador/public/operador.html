@@ -24,6 +24,27 @@
   select { background: #15130f; color: var(--txt); border: 1px solid var(--line); padding: 10px; font: inherit; max-width: 100%; }
   pre { background: #100e0c; border: 1px solid var(--line); padding: 10px; font-size: 13px; height: 360px; overflow: auto; margin: 0; white-space: pre-wrap; }
   .sm { color: var(--dim); font-size: 13px; }
+  .lamp.warn i { background: var(--amb); }
+  button.sel { border-color: var(--amb); color: var(--amb); }
+  button.activo { border-color: var(--amb); color: #111; background: var(--amb); }
+  button.sm2 { padding: 8px 12px; font-size: 14px; }
+  .fps { font-size: 64px; font-variant-numeric: tabular-nums; line-height: 1; }
+  .fps.g { color: #6fbf69; } .fps.y { color: #d6a93a; } .fps.r { color: #c4493d; }
+  table { border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  th, td { text-align: right; padding: 4px 12px; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--dim); font-weight: normal; }
+  td.g { color: #6fbf69; } td.y { color: #d6a93a; } td.r { color: #c4493d; }
+  #aviso { display: none; margin-top: 10px; padding: 8px 12px; border: 1px solid var(--red); color: #d98a80; }
+  button.grande { min-height: 60px; min-width: 120px; font-size: 18px; padding: 12px 16px; }
+  button:disabled { opacity: .35; cursor: default; border-color: #3a342c; }
+  button.susto { border-color: #6b2a24; color: #e6b3ab; }
+  button.susto.warn { background: var(--red); border-color: #c4493d; color: #fff; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .grid button { width: 100%; }
+  input[type=range] { flex: 1; max-width: 420px; height: 34px; accent-color: var(--amb); }
+  input.say { flex: 1; min-width: 200px; width: auto; max-width: 100%; }
+  .pistas b { font-weight: normal; color: var(--txt); }
 </style>
 </head>
 <body>
@@ -31,8 +52,10 @@
 <div class="row">
   <span class="lamp" id="lAdb"><i></i><span id="tAdb">adb</span></span>
   <span class="lamp" id="lSock"><i></i><span id="tSock">juego</span></span>
+  <span class="lamp" id="lProc"><i></i><span id="tProc">proceso del juego</span></span>
   <span class="lamp" id="lSim" style="display:none"><i style="background:var(--amb)"></i>simulación</span>
 </div>
+<div id="aviso"></div>
 
 <h2>Partida actual</h2>
 <div><span class="big" id="crono">--:--.-</span> &nbsp; <span id="quien">sin partida</span></div>
@@ -47,11 +70,78 @@
 
 <h2>Durante la partida</h2>
 <div class="row">
-  <button id="bHint">Dar pista</button>
+  <button id="bPausa">Parar tiempo</button>
   <button id="bSkip">Saltar parte</button>
   <button id="bMenu" class="peligro">Volver al menú</button>
 </div>
 <div id="msg"></div>
+
+<h2>Pistas</h2>
+<div class="pistas">
+  <div class="row"><span class="sm" style="width:110px">Objetivo</span><b id="pObj">—</b></div>
+  <div class="row" style="margin-top:6px"><span class="sm" style="width:110px">Nivel de pista</span><b id="pNivel">—</b></div>
+</div>
+<div class="row" style="margin-top:12px">
+  <button class="grande" data-lvl="1">Suave</button>
+  <button class="grande" data-lvl="2">Media</button>
+  <button class="grande" data-lvl="3">Directa</button>
+</div>
+<div class="row" style="margin-top:10px">
+  <button id="bHint" class="grande">Dar pista</button>
+  <span class="sm">Suave, media y directa suben el nivel del objetivo actual; "Dar pista" avanza un escalón.</span>
+</div>
+<div class="row" style="margin-top:14px">
+  <input type="text" id="decir" class="say" maxlength="120" placeholder="Texto para el visor (máx. 120)">
+  <button id="bDecir" class="grande">Mostrar en el visor</button>
+</div>
+
+<h2>Sustos</h2>
+<div class="grid" id="gSustos"></div>
+<div class="row" style="margin-top:14px"><span class="sm" style="width:110px">Tensión</span>
+  <input type="range" id="tension" min="0" max="1" step="0.1" value="0"><b id="tensionVal" style="width:40px">0.0</b></div>
+<div class="sm" style="margin-top:6px">Después de cada susto los botones quedan apagados 1,5 s (pausa del visor).</div>
+
+<h2>Sonidos</h2>
+<div class="grid" id="gSfx"></div>
+
+<h2>Ir a nivel</h2>
+<div class="row" id="niveles"></div>
+<div class="row" style="margin-top:10px"><button id="bRestart" class="peligro">Reiniciar nivel</button>
+  <span class="sm">Saltar de nivel marca la partida "con salto" (no entra al ranking).</span></div>
+
+<h2>Juego</h2>
+<div class="row">
+  <button id="bAbrir">Abrir juego</button>
+  <button id="bCerrar" class="peligro">Cerrar juego</button>
+  <span class="sm" id="juegoTxt"></span>
+</div>
+
+<h2>Opciones en vivo</h2>
+<div class="row"><span class="sm" style="width:110px">Modo feria</span>
+  <button class="sm2" data-opt="fair" data-v="on">Sí</button><button class="sm2" data-opt="fair" data-v="off">No</button></div>
+<div class="row" style="margin-top:8px"><span class="sm" style="width:110px">Portales</span>
+  <button class="sm2" data-opt="portals" data-v="visible">Visibles</button><button class="sm2" data-opt="portals" data-v="subtle">Sutiles</button></div>
+<div class="row" style="margin-top:8px"><span class="sm" style="width:110px">FPS objetivo</span>
+  <button class="sm2" data-opt="fps" data-v="30">30</button><button class="sm2" data-opt="fps" data-v="60">60</button></div>
+<div class="row" style="margin-top:8px"><span class="sm" style="width:110px">Bloom</span>
+  <button class="sm2" data-opt="bloom" data-v="off">Apagado</button><button class="sm2" data-opt="bloom" data-v="low">Liviano</button><button class="sm2" data-opt="bloom" data-v="full">Completo</button></div>
+<div class="row" style="margin-top:8px"><span class="sm" style="width:110px">Post-procesado</span>
+  <button class="sm2" data-opt="post" data-v="on">Sí</button><button class="sm2" data-opt="post" data-v="off">No</button></div>
+<div class="row" style="margin-top:8px"><span class="sm" style="width:110px">HDR</span>
+  <button class="sm2" data-opt="hdr" data-v="on">Sí</button><button class="sm2" data-opt="hdr" data-v="off">No</button></div>
+<div class="row" style="margin-top:8px"><span class="sm" style="width:110px">Resolución</span>
+  <button class="sm2" data-opt="scale" data-v="0.5">50%</button><button class="sm2" data-opt="scale" data-v="0.6">60%</button><button class="sm2" data-opt="scale" data-v="0.7">70%</button><button class="sm2" data-opt="scale" data-v="0.8">80%</button><button class="sm2" data-opt="scale" data-v="1">100%</button></div>
+<div class="sm" id="optTxt" style="margin-top:6px"></div>
+
+<h2>Rendimiento</h2>
+<div class="row" style="align-items:flex-end;gap:28px">
+  <div><div class="fps" id="pFps">--</div><div class="sm">FPS promedio (últimos 5 s)</div></div>
+  <div><div class="big" id="pMin" style="font-size:28px">--</div><div class="sm">1% bajo</div></div>
+  <div><div id="pEsc">--</div><div class="sm" id="pAge"></div></div>
+</div>
+<table id="tPerf"></table>
+<div class="row" style="margin-top:10px"><button id="bPerfBorrar" class="sm2">Borrar tabla</button>
+  <span class="sm">Promedio por escena de esta sesión.</span></div>
 
 <h2>Ranking</h2>
 <div class="row">
@@ -77,27 +167,121 @@ async function post(url, body) {
     return await r.json();
   } catch (e) { return { ok: false, error: 'no hay conexión con el servidor' }; }
 }
+const opLog = [];   // acciones del operador (respuesta del juego), se muestran al final del registro
 async function cmd(c, arg) {
   const r = await post('/api/cmd', { cmd: c, arg });
   msg(r.ok ? c + ': ' + (r.respuesta || 'ok') : 'Error: ' + (r.error || r.respuesta));
+  opLog.push({ t: new Date().toLocaleTimeString('es-AR'), txt: '> ' + c + (arg ? ' ' + arg : '') + ' → ' + (r.ok ? (r.respuesta || 'ok') : 'ERROR: ' + (r.error || r.respuesta)) });
+  if (opLog.length > 15) opLog.shift();
+  pintarLog();
+  return r;
+}
+const SUSTOS = [['screamer', 'Screamer'], ['whisper', 'Susurro'], ['steps', 'Pasos'], ['distant', 'Ruido lejano'], ['knock', 'Golpes'], ['blackout', 'Apagón'], ['heartbeat', 'Latidos']];
+const SFX = [['susurro_01', 'Susurro 1'], ['susurro_02', 'Susurro 2'], ['susurro_03', 'Susurro 3'], ['susurro_04', 'Susurro 4'], ['susurro_05', 'Susurro 5'],
+  ['respiracion_01', 'Respiración'], ['pasos_concreto', 'Pasos (concreto)'], ['pasos_madera', 'Pasos (madera)'], ['golpes_madera', 'Golpes en madera'],
+  ['crujido_madera_01', 'Crujido 1'], ['crujido_madera_02', 'Crujido 2'], ['crujido_madera_03', 'Crujido 3'], ['golpe_seco', 'Golpe seco'],
+  ['monstruo_rugido', 'Rugido del monstruo'], ['monstruo_respiracion', 'Respiración del monstruo'], ['latidos_despertar', 'Latidos (despertar)'],
+  ['tv_estatica', 'Estática de TV'], ['grito_screamer', 'Grito'], ['derrumbe_madera', 'Derrumbe'], ['caida_viento', 'Caída (viento)'], ['zumbido_grave', 'Zumbido grave']];
+function armarBotones() {
+  const gS = $('gSustos');
+  SUSTOS.forEach(([k, label]) => {
+    const b = document.createElement('button');
+    b.className = 'grande susto' + (k === 'screamer' ? ' warn' : '');
+    b.textContent = label;
+    b.onclick = () => susto(k);
+    gS.appendChild(b);
+  });
+  const gF = $('gSfx');
+  SFX.forEach(([k, label]) => {
+    const b = document.createElement('button');
+    b.className = 'grande';
+    b.textContent = label;
+    b.onclick = () => cmd('sfx', k);
+    gF.appendChild(b);
+  });
+}
+// Enfriamiento del visor: 1,5 s entre sustos.
+async function susto(k) {
+  const btns = document.querySelectorAll('.susto');
+  btns.forEach(b => { b.disabled = true; });
+  setTimeout(() => btns.forEach(b => { b.disabled = false; }), 1500);
+  await cmd('scare', k);
+}
+function pintarPistas() {
+  const o = st && st.opciones;
+  $('pObj').textContent = o && o.objetivo ? o.objetivo : '—';
+  $('pNivel').textContent = o && o.pista != null ? o.pista : '—';
+}
+function pintarLog() {
+  const lg = $('log'); const abajo = lg.scrollTop + lg.clientHeight >= lg.scrollHeight - 20;
+  const lineas = st ? st.log.map(l => l.t + '  ' + l.txt) : [];
+  opLog.forEach(l => lineas.push(l.t + '  ' + l.txt));
+  lg.textContent = lineas.join('\n');
+  if (abajo) lg.scrollTop = lg.scrollHeight;
 }
 function lamp(id, tid, ok, texto) { $(id).classList.toggle('ok', !!ok); $(tid).textContent = texto; }
 
 function pintar() {
   if (!st) return;
+  { const p = st.partida; const b = $('bPausa'); b.disabled = !p; b.textContent = p && p.pausado ? 'Reanudar tiempo' : 'Parar tiempo'; b.classList.toggle('activo', !!(p && p.pausado)); }
   lamp('lAdb', 'tAdb', st.adb.ok, 'adb: ' + st.adb.msg);
   lamp('lSock', 'tSock', st.socket.ok, 'juego: ' + st.socket.msg);
   $('lSim').style.display = st.simulado ? 'inline-flex' : 'none';
+  const j = st.juego || {};
+  const lp = $('lProc'); lp.classList.toggle('ok', j.vivo === true); lp.classList.toggle('warn', j.vivo === null);
+  $('tProc').textContent = j.vivo === true ? 'juego: en marcha' : (j.msg || 'juego: sin datos');
+  $('juegoTxt').textContent = j.vivo === true ? 'En marcha.' : (j.msg || '');
   const p = st.partida;
-  $('quien').textContent = p ? (p.nombre || 'Jugador') + (p.congelado ? ' (cargando)' : '') : 'sin partida';
+  const av = $('aviso');
+  if (p && p.desconectado) { av.style.display = 'block'; av.textContent = 'JUEGO DESCONECTADO: el cronómetro está en pausa. Si vuelve, sigue solo; si se cerró, la partida se corta.'; }
+  else if (!p && st.ultimoFin && st.ultimoFin.abortada && st.ultimoFin.motivo && Date.now() + (st.serverNow - Date.now()) - st.ultimoFin.at < 60000) { av.style.display = 'block'; av.textContent = 'Partida cortada: ' + st.ultimoFin.motivo + ' (no entra al ranking).'; }
+  else av.style.display = 'none';
+  armarNiveles();
+  pintarOpciones(); pintarPerf();
+  $('quien').textContent = p ? (p.nombre || 'Jugador') + (p.desconectado ? ' (desconectado)' : p.pausado ? ' (tiempo parado)' : p.congelado ? ' (cargando)' : '') : 'sin partida';
   $('parte').textContent = p ? (p.escena + ' · pistas: ' + p.pistas) : '';
   $('nomActual').textContent = st.nombreProximo ? 'Guardado: ' + st.nombreProximo : '';
   const sel = $('selBorrar'); const prev = sel.value;
   sel.innerHTML = (st.lista || []).map(e => '<option value="' + e.id + '">' + e.puesto + '. ' + e.nombre.replace(/</g, '&lt;') + ' · ' + fmtC(e.tiempo) + ' · ' + new Date(e.fecha).toLocaleString('es-AR') + '</option>').join('') || '<option value="">(ranking vacío)</option>';
   if (prev) sel.value = prev;
-  const lg = $('log'); const abajo = lg.scrollTop + lg.clientHeight >= lg.scrollHeight - 20;
-  lg.textContent = st.log.map(l => l.t + '  ' + l.txt).join('\n');
-  if (abajo) lg.scrollTop = lg.scrollHeight;
+  pintarPistas();
+  pintarLog();
+}
+let nivelesArmados = false;
+function armarNiveles() {
+  if (nivelesArmados || !st.escenasGoto) return;
+  nivelesArmados = true;
+  $('niveles').innerHTML = '';
+  st.escenasGoto.forEach(e => {
+    const b = document.createElement('button'); b.className = 'sm2'; b.textContent = e;
+    b.onclick = () => {
+      const aviso = st.partida ? '\nHay una partida en curso: se marca "con salto" y no entra al ranking.' : '';
+      if (confirm('¿Ir a "' + e + '"?' + aviso)) cmd('goto', e);
+    };
+    $('niveles').appendChild(b);
+  });
+}
+function pintarOpciones() {
+  const o = st.opciones;
+  document.querySelectorAll('[data-opt]').forEach(b => {
+    const k = b.dataset.opt; let cur = null;
+    if (o) cur = k === 'fair' ? (o.fair ? 'on' : 'off') : k === 'portals' ? o.portals : k === 'fps' ? String(o.target) : (o.gfx ? o.gfx[k] : null);
+    b.classList.toggle('sel', cur === b.dataset.v);
+  });
+  $('optTxt').textContent = o ? 'Valores leídos del juego hace ' + Math.round((Date.now() + (st.serverNow - Date.now()) - o.at) / 1000) + ' s.' : 'Sin lectura del juego todavía.';
+}
+const colFps = v => v >= 55 ? 'g' : v >= 28 ? 'y' : 'r';
+function pintarPerf() {
+  const f = st.perf;
+  const el = $('pFps');
+  el.className = 'fps' + (f ? ' ' + colFps(f.fps) : '');
+  el.textContent = f ? f.fps.toFixed(0) : '--';
+  $('pMin').textContent = f ? f.min.toFixed(0) + ' fps · peor frame ' + f.peorMs.toFixed(0) + ' ms' + (f.gpuMs != null ? ' · CPU ' + f.cpuMs.toFixed(1) + ' ms · GPU ' + f.gpuMs.toFixed(1) + ' ms' : '') : '--';
+  $('pEsc').textContent = f ? f.escena : '--';
+  const viejo = f ? (Date.now() + (st.serverNow - Date.now()) - f.at) / 1000 : 0;
+  $('pAge').textContent = f ? (viejo > 12 ? 'sin datos hace ' + Math.round(viejo) + ' s' : 'en vivo') : 'sin datos';
+  const rows = (st.perfTabla || []).map(t => '<tr><td>' + t.escena.replace(/</g, '&lt;') + '</td><td class="' + colFps(t.fps) + '">' + t.fps + '</td><td class="' + colFps(t.min) + '">' + t.min + '</td><td>' + t.peorMs + '</td><td>' + (t.gpu != null ? t.cpu + ' / ' + t.gpu : '-') + '</td><td>' + t.n + '</td></tr>').join('');
+  $('tPerf').innerHTML = rows ? '<tr><th>Escena</th><th>FPS prom.</th><th>1% bajo</th><th>Peor ms</th><th>CPU / GPU ms</th><th>Muestras</th></tr>' + rows : '';
 }
 function loop() {
   let t = 0;
@@ -113,8 +297,32 @@ es.onerror = () => { lamp('lAdb', 'tAdb', false, 'sin conexión con el servidor'
 $('bNombre').onclick = async () => { const r = await post('/api/nombre', { nombre: $('nombre').value }); msg(r.ok ? 'Nombre guardado. ' + (r.respuesta || '') : 'Error: ' + r.error); };
 $('nombre').addEventListener('keydown', e => { if (e.key === 'Enter') $('bNombre').click(); });
 $('bHint').onclick = () => cmd('hint');
+document.querySelectorAll('[data-lvl]').forEach(b => { b.onclick = () => cmd('hintlvl', b.dataset.lvl); });
+async function decir() {
+  const inp = $('decir'); const t = inp.value.trim(); if (!t) return;
+  const r = await cmd('say', t);
+  if (r.ok) inp.value = '';
+}
+$('bDecir').onclick = decir;
+$('decir').addEventListener('keydown', e => { if (e.key === 'Enter') decir(); });
+const sl = $('tension');
+sl.oninput = () => { $('tensionVal').textContent = Number(sl.value).toFixed(1); };
+sl.onchange = () => cmd('tension', sl.value);
+armarBotones();
+$('bPausa').onclick = () => { const p = st && st.partida; cmd(p && p.pausado ? 'resume' : 'pause'); };
 $('bSkip').onclick = () => { if (confirm('¿Saltar a la parte siguiente?')) cmd('skip'); };
-$('bMenu').onclick = () => { if (confirm('¿Cortar la partida y volver al menú? La partida no entra al ranking.')) cmd('menu'); };
+$('bMenu').onclick = () => {
+  const msgc = st && st.partida ? '¿Cortar la partida en curso y volver al menú? La partida no entra al ranking.' : '¿Volver al menú?';
+  if (confirm(msgc)) cmd('menu');
+};
+$('bRestart').onclick = () => { if (confirm('¿Reiniciar el nivel actual?')) cmd('restart'); };
+document.querySelectorAll('[data-opt]').forEach(b => { b.onclick = () => cmd(b.dataset.opt, b.dataset.v); });
+$('bAbrir').onclick = async () => { const r = await post('/api/app/abrir'); msg(r.ok ? 'Abriendo el juego…' : 'Error: ' + r.error); };
+$('bCerrar').onclick = async () => {
+  if (!confirm('¿Cerrar el juego en el celular?' + (st && st.partida ? '\nLa partida en curso se corta y no entra al ranking.' : ''))) return;
+  const r = await post('/api/app/cerrar'); msg(r.ok ? 'Juego cerrado.' : 'Error: ' + r.error);
+};
+$('bPerfBorrar').onclick = async () => { if (!confirm('¿Borrar la tabla de rendimiento?')) return; await post('/api/perf/borrar'); msg('Tabla borrada.'); };
 $('bBorrar').onclick = async () => {
   const id = $('selBorrar').value; if (!id) return;
   if (!confirm('¿Borrar este tiempo del ranking?\n' + $('selBorrar').selectedOptions[0].textContent)) return;

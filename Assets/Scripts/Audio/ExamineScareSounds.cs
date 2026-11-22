@@ -83,6 +83,11 @@ public class ExamineScareSounds : MonoBehaviour
 
     public bool IsRunning => _loop != null;
 
+    // Para el operador de la feria: saber si el PlayXNow va a sonar de verdad.
+    public bool HasWhisperClips => _whisperClips != null && _whisperClips.Length > 0;
+    public bool HasFootstepsClip => _footstepsClip != null;
+    public bool HasDistantClips => _distantClips != null && _distantClips.Length > 0;
+
     private void Awake()
     {
         _steps = CreateSource("Pasos (susto)", 1f, 25f, AudioRolloffMode.Logarithmic);

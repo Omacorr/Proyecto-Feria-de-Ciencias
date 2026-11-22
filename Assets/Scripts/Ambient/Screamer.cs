@@ -83,23 +83,54 @@ public class Screamer : MonoBehaviour
     /// <summary>Dispara el susto. Si ya esta corriendo, o ya se jugo y 'Play Once', no hace nada.</summary>
     public void Trigger()
     {
-        if (_running || (_playOnce && _played))
+        if (_playOnce && _played)
         {
             return;
+        }
+        StartRun();
+    }
+
+    /// <summary>
+    /// Dispara el susto ignorando 'Play Once' (lo usa el operador de la feria).
+    /// Devuelve false si ya esta corriendo o no se pudo arrancar (sin visual o sin camara).
+    /// </summary>
+    public bool TriggerForced()
+    {
+        return StartRun();
+    }
+
+    /// <summary>
+    /// Configura el susto por codigo (instancia creada en runtime): monstruo a
+    /// mostrar (inactivo al arrancar), punto de la cara y clip del grito.
+    /// </summary>
+    public void Setup(GameObject visual, Transform faceAnchor, AudioClip scream)
+    {
+        _visual = visual;
+        _faceAnchor = faceAnchor;
+        _screamClip = scream;
+        _played = false;
+    }
+
+    private bool StartRun()
+    {
+        if (_running)
+        {
+            return false;
         }
         if (_visual == null)
         {
             Debug.LogWarning("[Screamer] Falta asignar 'Visual'.", this);
-            return;
+            return false;
         }
         Transform cam = OverlayUtil.CameraOr(_camera);
         if (cam == null)
         {
             Debug.LogWarning("[Screamer] No hay camara.", this);
-            return;
+            return false;
         }
         _played = true;
         _routine = StartCoroutine(Run(cam));
+        return true;
     }
 
     [ContextMenu("Probar screamer (solo en Play)")]
