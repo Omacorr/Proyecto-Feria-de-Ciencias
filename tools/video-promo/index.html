@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Recuerdos Rotos - promo</title>
+<style>
+  @font-face { font-family: "Special Elite"; src: url("SpecialElite-Regular.ttf"); }
+  html, body { margin: 0; background: #000; height: 100%; overflow: hidden; }
+  canvas { display: block; height: 100vh; margin: 0 auto; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// Video promocional de "Recuerdos Rotos" (motion graphics, vertical 1080x1920).
+// Todo se dibuja en un canvas en función del tiempo: drawAt(segundos).
+// Así render.js puede pedir cada frame por separado y el resultado es exacto.
+// Para cambiar un texto, buscalo acá abajo y volvé a correr "node render.js".
+// Regla del proyecto: nada parpadea más de 3 veces por segundo.
+
+const W = 1080, H = 1920, FPS = 30, DUR = 52;
+const c = document.getElementById('c'), g = c.getContext('2d');
+
+const BG = '#0b0a09', BONE = '#e8e0cf', RED = '#c2261c', DIM = '#8a8376';
+const TW = '"Special Elite", monospace';
+const SANS = 'Bahnschrift, "Arial Narrow", Arial, sans-serif';
+
+// Los cinco recuerdos. "img" se busca en capturas/; si falta, queda un fondo de color.
+const CHAPTERS = [
+  { n: '01', title: 'EL DESPERTAR',   hook: 'Un código. Una puerta cerrada.',     col: '#6fa89a', img: 'p1.jpg' },
+  { n: '02', title: 'EL CUMPLEAÑOS',  hook: 'Una cinta que no deberías ver.',     col: '#c2457f', img: 'p2.jpg' },
+  { n: '03', title: 'LA PERSECUCIÓN', hook: 'Un pasillo. Demasiadas puertas.',    col: '#c2261c', img: 'p3.jpg' },
+  { n: '04', title: 'CLAUSTROFOBIA',  hook: 'Caminás. Volvés al mismo lugar.',    col: '#d18a2c', img: 'p4.jpg' },
+  { n: '05', title: 'LA REVELACIÓN',  hook: 'Juntá los pedazos de la nota.',      col: '#d9c341', img: 'p5.jpg' },
+];
+const CH_START = 14, CH_LEN = 4;
+
+// ---------- utilidades ----------
+const cl = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const pr = (t, a, b) => cl((t - a) / (b - a));
+const eo = x => 1 - Math.pow(1 - x, 3);
+const eoe = x => x >= 1 ? 1 : 1 - Math.pow(2, -10 * x);
+const eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const back = x => { const a = 1.70158, b = a + 1; return 1 + b * Math.pow(x - 1, 3) + a * Math.pow(x - 1, 2); };
+function rng(seed) { let s = seed >>> 0; return () => { s += 0x6D2B79F5; let t = s; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+function sans(size, weight = 700) { g.font = `${weight} ${size}px ${SANS}`; try { g.fontStretch = 'condensed'; } catch (e) {} }
+function tw(size) { g.font = `${size}px ${TW}`; try { g.fontStretch = 'normal'; } catch (e) {} }
+function fitSans(txt, maxW, maxSize) { sans(100); const w = g.measureText(txt).width; return Math.min(maxSize, 100 * maxW / w); }
+
+// Palabra que sube desde atrás de una máscara.
+function slam(txt, x, y, size, p, col, align = 'left') {
+  if (p <= 0) return;
+  g.save(); sans(size); g.textAlign = align; g.textBaseline = 'alphabetic';
+  const w = g.measureText(txt).width, x0 = align === 'center' ? x - w / 2 : align === 'right' ? x - w : x;
+  g.beginPath(); g.rect(x0 - 30, y - size * 0.92, w + 60, size * 1.1); g.clip();
+  g.fillStyle = col; g.fillText(txt, x, y + (1 - eoe(p)) * size * 1.1);
+  g.restore();
+}
+// Texto que se escribe letra por letra, con cursor.
+function typed(txt, x, y, size, p, col = BONE, align = 'left', t = 0) {
+  if (p <= 0) return;
+  g.save(); tw(size); g.textBaseline = 'alphabetic'; g.fillStyle = col;
+  const n = Math.floor(txt.length * cl(p)), s = txt.slice(0, n);
+  const full = g.measureText(txt).width, x0 = align === 'center' ? x - full / 2 : x;
+  g.textAlign = 'left'; g.fillText(s, x0, y);
+  if (p < 1 || Math.floor(t * 2) % 2 === 0) { const w = g.measureText(s).width; g.fillRect(x0 + w + 4, y - size * 0.78, size * 0.5, size * 0.9); }
+  g.restore();
+}
+function label(txt, x, y, size, col, alpha = 1, align = 'left', spacing = 8) {
+  if (alpha <= 0) return;
+  g.save(); g.globalAlpha = alpha; sans(size, 600); try { g.letterSpacing = spacing + 'px'; } catch (e) {}
+  g.textAlign = align; g.fillStyle = col; g.fillText(txt, x, y); g.restore();
+}
+function coverImage(img, x, y, w, h, scale = 1, ox = 0, oy = 0) {
+  const r = Math.max(w / img.width, h / img.height) * scale, iw = img.width * r, ih = img.height * r;
+  g.drawImage(img, x + (w - iw) / 2 + ox, y + (h - ih) / 2 + oy, iw, ih);
+}
+// Cortina de color que tapa y destapa alrededor de t0.
+function wipe(t, t0, col) {
+  const p = pr(t, t0 - .32, t0 + .32); if (p <= 0 || p >= 1) return;
+  g.fillStyle = col;
+  if (p < .5) { const y = H * (1 - eio(p * 2)); g.fillRect(0, y, W, H - y); }
+  else g.fillRect(0, 0, W, H * (1 - eio((p - .5) * 2)));
+}
+
+// Grano de película (determinista).
+const noise = document.createElement('canvas'); noise.width = noise.height = 256;
+{ const ng = noise.getContext('2d'), d = ng.createImageData(256, 256), r = rng(7);
+  for (let i = 0; i < d.data.length; i += 4) { const v = r() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  ng.putImageData(d, 0, 0); }
+function finish(t) {
+  const v = g.createRadialGradient(W / 2, H / 2, H * .25, W / 2, H / 2, H * .75);
+  v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.6)');
+  g.fillStyle = v; g.fillRect(0, 0, W, H);
+  const f = Math.floor(t * 12), r = rng(f + 1), ox = Math.floor(r() * 256), oy = Math.floor(r() * 256);
+  g.save(); g.globalAlpha = .07; g.globalCompositeOperation = 'overlay';
+  g.translate(-ox, -oy); g.fillStyle = g.createPattern(noise, 'repeat'); g.fillRect(0, 0, W + 256, H + 256); g.restore();
+}
+
+// ---------- escenas ----------
+// 0 - 4,5 s: latidos, "Despertás."
+function sceneWake(t) {
+  g.fillStyle = '#050505'; g.fillRect(0, 0, W, H);
+  const beats = [0.4, 1.3, 2.2, 3.1, 4.0]; let pulse = 0;
+  for (const b of beats) for (const d of [0, .2]) {
+    const p = pr(t, b + d, b + d + .5); if (p > 0 && p < 1) {
+      pulse = Math.max(pulse, 1 - p);
+      g.save(); g.globalAlpha = (1 - p) * .5; g.strokeStyle = RED; g.lineWidth = 4;
+      g.beginPath(); g.arc(W / 2, 760, 30 + eo(p) * 190, 0, 7); g.stroke(); g.restore();
+    }
+  }
+  g.fillStyle = RED; g.beginPath(); g.arc(W / 2, 760, 24 + pulse * 12, 0, 7); g.fill();
+  typed('Despertás.', W / 2, 1010, 76, pr(t, .7, 1.5), BONE, 'center', t);
+  if (t > 2.0) { g.fillStyle = '#050505'; g.fillRect(0, 930, W, 110); tw(76); g.textAlign = 'center'; g.fillStyle = BONE; g.fillText('Despertás.', W / 2, 1010); g.textAlign = 'left';
+    typed('No recordás nada.', W / 2, 1130, 62, pr(t, 2.1, 3.3), DIM, 'center', t); }
+}
+
+// 4,5 - 9 s: "CADA RECUERDO ESTÁ ROTO."
+function sceneBroken(t) {
+  g.fillStyle = BG; g.fillRect(0, 0, W, H);
+  const y = H * eio(pr(t, 0, 4.5)); g.fillStyle = 'rgba(232,224,207,.08)'; g.fillRect(0, y, W, 3);
+  const words = [['CADA', 600, .2], ['RECUERDO', 850, .7], ['ESTÁ', 1100, 1.2]];
+  for (const [w, yy, t0] of words) slam(w, 80, yy, fitSans(w, 920, 250), pr(t, t0, t0 + .7), BONE);
+  const size = fitSans('ROTO.', 920, 380), p = pr(t, 1.8, 2.5);
+  if (p > 0) {
+    const k = back(pr(t, 2.7, 3.3));
+    g.save(); g.translate(80, 1440 + 34 * cl(k)); g.rotate(k * 0.075);
+    slam('ROTO.', 0, 0, size, p, RED); g.restore();
+  }
+  typed('Cinco recuerdos. Un monstruo.', 80, 1640, 46, pr(t, 2.9, 4.0), DIM, 'left', t);
+}
+
+// 9 - 14 s: título
+const titleCv = document.createElement('canvas'); titleCv.width = W; titleCv.height = 760;
+let titleReady = false;
+function buildTitle() {
+  const tg = titleCv.getContext('2d'), keep = g.font;
+  const fitT = txt => { tg.font = `700 100px ${SANS}`; try { tg.fontStretch = 'condensed'; } catch (e) {} return Math.min(420, 100 * 940 / tg.measureText(txt).width); };
+  const s1 = fitT('RECUERDOS'), s2 = fitT('ROTOS');
+  tg.clearRect(0, 0, W, 760); tg.textAlign = 'center'; tg.textBaseline = 'alphabetic';
+  tg.font = `700 ${s1}px ${SANS}`; try { tg.fontStretch = 'condensed'; } catch (e) {}
+  tg.fillStyle = BONE; tg.fillText('RECUERDOS', W / 2, 300);
+  tg.font = `700 ${s2}px ${SANS}`; try { tg.fontStretch = 'condensed'; } catch (e) {} tg.fillStyle = RED; tg.fillText('ROTOS', W / 2, 680);
+  titleReady = true;
+}
+const CRACK = [[0, 600], [170, 520], [300, 585], [470, 480], [610, 560], [770, 450], [910, 515], [1080, 430]];
+function drawTitle(t, y0) {
+  if (!titleReady) buildTitle();
+  const settle = eoe(pr(t, .2, 1.4)), N = 19, sh = 760 / N, r = rng(31);
+  const brk = eoe(pr(t, 1.7, 2.2));
+  for (const part of [0, 1]) {
+    g.save();
+    g.beginPath();
+    if (part === 0) { g.moveTo(0, y0 - 50); g.lineTo(W, y0 - 50); for (let i = CRACK.length - 1; i >= 0; i--) g.lineTo(CRACK[i][0], y0 + CRACK[i][1]); }
+    else { g.moveTo(0, y0 + 900); g.lineTo(W, y0 + 900); for (let i = CRACK.length - 1; i >= 0; i--) g.lineTo(CRACK[i][0], y0 + CRACK[i][1]); }
+    g.closePath(); g.clip();
+    if (part === 1) g.translate(12 * brk, 20 * brk);
+    const rr = rng(31);
+    for (let i = 0; i < N; i++) {
+      const off = (rr() * 2 - 1) * 520 * (1 - settle);
+      g.globalAlpha = cl(settle * 1.4);
+      g.drawImage(titleCv, 0, i * sh, W, sh + 1, off, y0 + i * sh, W, sh + 1);
+    }
+    g.restore();
+  }
+  // la grieta
+  const cp = pr(t, 1.5, 1.9);
+  if (cp > 0) {
+    g.save(); g.strokeStyle = BG; g.lineWidth = 9; g.lineJoin = 'miter'; g.beginPath();
+    const total = CRACK.length - 1, upto = cp * total;
+    g.moveTo(CRACK[0][0], y0 + CRACK[0][1]);
+    for (let i = 1; i <= total; i++) {
+      const k = cl(upto - (i - 1));
+      if (k <= 0) break;
+      g.lineTo(CRACK[i - 1][0] + (CRACK[i][0] - CRACK[i - 1][0]) * k, y0 + CRACK[i - 1][1] + (CRACK[i][1] - CRACK[i - 1][1]) * k);
+    }
+    g.stroke(); g.restore();
+  }
+}
+function sceneTitle(t) {
+  g.fillStyle = BG; g.fillRect(0, 0, W, H);
+  drawTitle(t, 520);
+  typed('Un juego de terror', W / 2, 1420, 54, pr(t, 2.3, 3.0), BONE, 'center', .5);
+  if (t > 3.0) typed('en realidad virtual', W / 2, 1500, 54, pr(t, 3.0, 3.7), BONE, 'center', t);
+  const a = eo(pr(t, 3.6, 4.2));
+  if (a > 0) {
+    g.save(); g.globalAlpha = a; g.strokeStyle = DIM; g.lineWidth = 2;
+    g.strokeRect(W / 2 - 250, 1620 + (1 - a) * 30, 500, 76); g.restore();
+    label('GOOGLE CARDBOARD', W / 2, 1672 + (1 - a) * 30, 34, DIM, a, 'center', 10);
+  }
+}
+
+// 14 - 34 s: los cinco recuerdos
+const images = {};
+function sceneChapter(i, t) {
+  const ch = CHAPTERS[i], img = images[ch.img];
+  g.fillStyle = BG; g.fillRect(0, 0, W, H);
+  const glow = g.createRadialGradient(W / 2, 950, 100, W / 2, 950, 1000);
+  glow.addColorStop(0, ch.col + '33'); glow.addColorStop(1, ch.col + '00');
+  g.fillStyle = glow; g.fillRect(0, 0, W, H);
+
+  // número
+  const np = eoe(pr(t, 0.05, .8));
+  g.save(); g.globalAlpha = np; sans(330); g.textBaseline = 'alphabetic';
+  g.lineWidth = 4; g.strokeStyle = ch.col; g.strokeText(ch.n, 70 - (1 - np) * 260, 370); g.restore();
+  label('RECUERDO', 470, 250, 38, DIM, eo(pr(t, .4, 1)), 'left', 14);
+  g.fillStyle = ch.col; g.fillRect(470, 280, 300 * eoe(pr(t, .45, 1.2)), 5);
+  label(ch.n + ' / 05', 470, 345, 34, BONE, eo(pr(t, .6, 1.2)), 'left', 6);
+
+  // imagen
+  const fx = 70, fy = 440, fw = 940, fh = 1030, rp = eoe(pr(t, .15, 1.0));
+  g.save(); g.beginPath(); g.rect(fx, fy + fh * (1 - rp), fw, fh * rp); g.clip();
+  if (img) coverImage(img, fx, fy, fw, fh, 1.16 - .1 * (t / CH_LEN), 0, -20 * (t / CH_LEN));
+  else { const gr = g.createLinearGradient(fx, fy, fx + fw, fy + fh); gr.addColorStop(0, '#191715'); gr.addColorStop(1, ch.col + '55'); g.fillStyle = gr; g.fillRect(fx, fy, fw, fh); }
+  const sh = g.createLinearGradient(0, fy + fh * .55, 0, fy + fh);
+  sh.addColorStop(0, 'rgba(11,10,9,0)'); sh.addColorStop(1, 'rgba(11,10,9,.92)');
+  g.fillStyle = sh; g.fillRect(fx, fy, fw, fh);
+  g.restore();
+  // esquinas del marco
+  const cp = eo(pr(t, .7, 1.3)), L = 70 * cp; g.strokeStyle = ch.col; g.lineWidth = 5;
+  g.beginPath();
+  g.moveTo(fx - 14, fy - 14 + L); g.lineTo(fx - 14, fy - 14); g.lineTo(fx - 14 + L, fy - 14);
+  g.moveTo(fx + fw + 14 - L, fy + fh + 14); g.lineTo(fx + fw + 14, fy + fh + 14); g.lineTo(fx + fw + 14, fy + fh + 14 - L);
+  if (cp > 0) g.stroke();
+
+  // título y frase
+  slam(ch.title, 70, 1640, fitSans(ch.title, 940, 170), pr(t, .7, 1.4), BONE);
+  typed(ch.hook, 70, 1730, 46, pr(t, 1.2, 2.0), ch.col, 'left', t);
+
+  // progreso
+  for (let k = 0; k < 5; k++) {
+    g.fillStyle = k === i ? ch.col : 'rgba(232,224,207,.18)';
+    const w = k === i ? 110 : 44; let x = 70; for (let j = 0; j < k; j++) x += (j === i ? 110 : 44) + 16;
+    g.fillRect(x, 1820, k === i ? w * cl(.25 + .75 * t / CH_LEN) : w, 8);
+  }
+}
+
+// 34 - 40 s: sin controles, solo la mirada
+function viewer(cx, cy, s, a) {
+  g.save(); g.translate(cx, cy); g.scale(s, s); g.globalAlpha = a;
+  g.fillStyle = '#b08d5e'; g.strokeStyle = '#6e5433'; g.lineWidth = 6;
+  g.beginPath(); g.roundRect(-300, -170, 600, 340, 36); g.fill(); g.stroke();
+  g.fillStyle = BG; g.beginPath(); g.moveTo(-70, 170); g.quadraticCurveTo(0, 60, 70, 170); g.fill();
+  for (const dx of [-140, 140]) {
+    g.fillStyle = '#17120c'; g.beginPath(); g.arc(dx, -20, 92, 0, 7); g.fill();
+    g.strokeStyle = BONE; g.lineWidth = 5; g.beginPath(); g.arc(dx, -20, 92, 0, 7); g.stroke();
+    g.fillStyle = 'rgba(232,224,207,.16)'; g.beginPath(); g.arc(dx - 28, -48, 26, 0, 7); g.fill();
+  }
+  g.restore();
+}
+function sceneGaze(t) {
+  g.fillStyle = BG; g.fillRect(0, 0, W, H);
+  slam('SIN', 80, 470, fitSans('CONTROLES.', 920, 240), pr(t, .15, .8), BONE);
+  slam('CONTROLES.', 80, 680, fitSans('CONTROLES.', 920, 240), pr(t, .45, 1.1), BONE);
+
+  const cx = W / 2, cy = 1090, out = 1 - eo(pr(t, 3.5, 3.9));
+  if (out > 0) {
+    g.save(); g.globalAlpha = out;
+    // el objetivo: un orbe
+    const orb = g.createRadialGradient(cx, cy, 0, cx, cy, 260);
+    orb.addColorStop(0, 'rgba(217,195,65,.55)'); orb.addColorStop(1, 'rgba(217,195,65,0)');
+    g.globalAlpha = out * eo(pr(t, .9, 1.5)); g.fillStyle = orb; g.fillRect(cx - 280, cy - 280, 560, 560);
+    g.globalAlpha = out;
+    const fill = pr(t, 1.2, 2.7);
+    g.strokeStyle = 'rgba(232,224,207,.2)'; g.lineWidth = 12; g.beginPath(); g.arc(cx, cy, 96, 0, 7); g.stroke();
+    if (fill > 0) { g.strokeStyle = BONE; g.lineCap = 'round'; g.beginPath(); g.arc(cx, cy, 96, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * fill); g.stroke(); }
+    g.fillStyle = BONE; g.beginPath(); g.arc(cx, cy, 13, 0, 7); g.fill();
+    const b = pr(t, 2.7, 3.3);
+    if (b > 0 && b < 1) {
+      g.globalAlpha = out * (1 - b); g.lineWidth = 8; g.strokeStyle = '#d9c341';
+      g.beginPath(); g.arc(cx, cy, 96 + eo(b) * 220, 0, 7); g.stroke();
+      for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5, r0 = 130 + eo(b) * 120, r1 = r0 + 50;
+        g.beginPath(); g.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0); g.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); g.stroke(); }
+    }
+    g.restore();
+    slam('SOLO TU MIRADA.', 80, 1560, fitSans('SOLO TU MIRADA.', 920, 200), pr(t, 2.7, 3.3) * out, '#d9c341');
+  }
+  const vp = pr(t, 3.8, 4.5);
+  if (vp > 0) {
+    viewer(cx, cy, .25 + .75 * back(vp), cl(vp * 2));
+    typed('Un celular.', 80, 1500, 58, pr(t, 4.2, 4.7), BONE, 'left', .5);
+    if (t > 4.7) typed('Un visor de cartón.', 80, 1590, 58, pr(t, 4.7, 5.4), BONE, 'left', t);
+  }
+}
+
+// 40 - 45 s: algo te sigue
+function sceneMonster(t) {
+  g.fillStyle = '#060505'; g.fillRect(0, 0, W, H);
+  const vx = W / 2, vy = 820;
+  g.strokeStyle = 'rgba(232,224,207,.07)'; g.lineWidth = 3;
+  for (const [x, y] of [[0, 0], [W, 0], [0, H * .86], [W, H * .86], [0, H * .43], [W, H * .43]]) { g.beginPath(); g.moveTo(x, y); g.lineTo(vx, vy); g.stroke(); }
+  for (let k = 1; k <= 4; k++) { const s = Math.pow(.55, k), w = W * s, h = H * .86 * s; g.strokeRect(vx - w / 2, vy - h * (vy / (H * .86)), w, h); }
+  const lamp = g.createRadialGradient(vx, vy - 130, 0, vx, vy - 130, 420);
+  lamp.addColorStop(0, 'rgba(194,38,28,.26)'); lamp.addColorStop(1, 'rgba(194,38,28,0)');
+  g.fillStyle = lamp; g.fillRect(0, 0, W, H);
+
+  const s = .22 + .55 * eio(pr(t, 0, 5)), a = eo(pr(t, .2, 1.2));
+  g.save(); g.translate(vx, vy + 300 * s); g.scale(s, s); g.globalAlpha = a;
+  g.fillStyle = '#000';
+  g.beginPath(); g.moveTo(-150, 420); g.quadraticCurveTo(-230, -150, -90, -330); g.quadraticCurveTo(0, -470, 90, -330);
+  g.quadraticCurveTo(230, -150, 150, 420); g.closePath(); g.fill();
+  g.beginPath(); g.moveTo(-170, -200); g.quadraticCurveTo(-300, 100, -250, 380); g.lineTo(-200, 380); g.quadraticCurveTo(-210, 60, -120, -160); g.fill();
+  g.beginPath(); g.moveTo(170, -200); g.quadraticCurveTo(300, 100, 250, 380); g.lineTo(200, 380); g.quadraticCurveTo(210, 60, 120, -160); g.fill();
+  g.fillStyle = '#d8ceb6'; g.beginPath(); g.ellipse(0, -330, 82, 112, 0, 0, 7); g.fill();
+  g.fillStyle = '#000'; for (const dx of [-34, 34]) { g.beginPath(); g.ellipse(dx, -350, 17, 24, 0, 0, 7); g.fill(); }
+  g.restore();
+
+  slam('ALGO', 80, 1440, fitSans('TE SIGUE.', 920, 250), pr(t, 1.0, 1.7), BONE);
+  slam('TE SIGUE.', 80, 1660, fitSans('TE SIGUE.', 920, 250), pr(t, 1.3, 2.0), RED);
+  typed('¿Te animás a recordar?', 80, 1770, 50, pr(t, 2.9, 4.0), DIM, 'left', t);
+}
+
+// 45 - 52 s: cierre
+function sceneEnd(t) {
+  g.fillStyle = '#080a0b'; g.fillRect(0, 0, W, H);
+  // monitor cardíaco
+  const base = 600, pts = []; const beat = [[0, 0], [.02, -14], [.04, 0], [.07, 0], [.085, 30], [.1, -170], [.118, 70], [.135, 0], [.17, 0], [.2, -26], [.235, 0]];
+  for (let k = 0; k < 3; k++) for (const [x, y] of beat) pts.push([(k / 3 + x * .9 + .03) * W, base + y]);
+  pts.unshift([0, base]); pts.push([W, base]);
+  const head = eio(pr(t, 0, 2.2)) * W;
+  g.save(); g.strokeStyle = '#7fd1b9'; g.lineWidth = 5; g.lineJoin = 'round'; g.shadowColor = '#7fd1b9'; g.shadowBlur = 18; g.beginPath();
+  g.moveTo(pts[0][0], pts[0][1]); let hy = base;
+  for (let i = 1; i < pts.length; i++) {
+    if (pts[i][0] <= head) { g.lineTo(pts[i][0], pts[i][1]); hy = pts[i][1]; }
+    else { const k = (head - pts[i - 1][0]) / (pts[i][0] - pts[i - 1][0]); hy = pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * k; g.lineTo(head, hy); break; }
+  }
+  g.stroke();
+  if (head < W) { g.fillStyle = '#d5fff3'; g.beginPath(); g.arc(head, hy, 9, 0, 7); g.fill(); }
+  g.restore();
+
+  slam('RECUERDOS', W / 2, 1010, fitSans('RECUERDOS', 940, 300), pr(t, 1.0, 1.7), BONE, 'center');
+  slam('ROTOS', W / 2, 1330, fitSans('ROTOS', 940, 420), pr(t, 1.3, 2.0), RED, 'center');
+  typed('Vení a jugarlo.', W / 2, 1500, 66, pr(t, 2.5, 3.3), BONE, 'center', t);
+  const a = eo(pr(t, 3.4, 4.0));
+  if (a > 0) {
+    g.save(); g.globalAlpha = a; g.fillStyle = BONE; g.fillRect(W / 2 - 330, 1620 + (1 - a) * 30, 660, 92); g.restore();
+    label('FERIA DE CIENCIAS 2026', W / 2, 1682 + (1 - a) * 30, 40, BG, a, 'center', 8);
+  }
+  const f = pr(t, 6.2, 7); if (f > 0) { g.fillStyle = `rgba(0,0,0,${f})`; g.fillRect(0, 0, W, H); }
+}
+
+// ---------- línea de tiempo ----------
+function drawAt(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
+  if (t < 4.5) sceneWake(t);
+  else if (t < 9) sceneBroken(t - 4.5);
+  else if (t < CH_START) sceneTitle(t - 9);
+  else if (t < CH_START + 5 * CH_LEN) { const i = Math.min(4, Math.floor((t - CH_START) / CH_LEN)); sceneChapter(i, t - CH_START - i * CH_LEN); }
+  else if (t < 40) sceneGaze(t - 34);
+  else if (t < 45) sceneMonster(t - 40);
+  else sceneEnd(t - 45);
+
+  wipe(t, 4.5, RED); wipe(t, 9, BONE);
+  for (let i = 0; i < 5; i++) wipe(t, CH_START + i * CH_LEN, CHAPTERS[i].col);
+  wipe(t, 34, BONE); wipe(t, 40, '#000'); wipe(t, 45, RED);
+  finish(t);
+}
+window.drawAt = drawAt; window.DUR = DUR; window.FPS = FPS;
+
+// ---------- carga ----------
+function loadImg(name) { return new Promise(res => { const im = new Image(); im.onload = () => { images[name] = im; res(); }; im.onerror = () => res(); im.src = 'capturas/' + name; }); }
+Promise.all([document.fonts.load('60px "Special Elite"'), document.fonts.load('700 60px Bahnschrift'), ...CHAPTERS.map(ch => loadImg(ch.img))]).then(() => {
+  window.ready = true;
+  if (!location.search.includes('render')) {       // vista previa: ?t=12 arranca en el segundo 12
+    const t0 = performance.now(), from = parseFloat(new URLSearchParams(location.search).get('t') || '0');
+    (function loop() { drawAt(((performance.now() - t0) / 1000 + from) % DUR); requestAnimationFrame(loop); })();
+  }
+});
+</script>
+</body>
+</html>

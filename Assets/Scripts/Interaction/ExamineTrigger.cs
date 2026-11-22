@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -39,6 +38,15 @@ public class ExamineTrigger : MonoBehaviour, IGazeInteractable
     [Tooltip("Cuantos segundos se queda visible el cartel de aviso.")]
     [SerializeField] private float _lockedHintDuration = 2.5f;
 
+    [Tooltip("Opcional: texto en pantalla (VR) que se muestra al intentar examinar sin haber visto la pista.")]
+    [SerializeField] private VRHintText _hint;
+
+    [Tooltip("Mensaje que se muestra en 'Hint' cuando todavia no se vio la pista.")]
+    [SerializeField] private string _noClueMessage = "No sé la combinación. Tiene que estar anotada en algún lado.";
+
+    [Tooltip("Se dispara cada vez que el jugador intenta examinar sin haber visto la pista.")]
+    [SerializeField] private UnityEvent _onClueMissing;
+
     [Header("Eventos")]
     [Tooltip("Se dispara apenas se arranca el acercamiento. Util para apagar la linterna del jugador y prender una luz propia del candado, para que no quede tan brillante y se puedan leer los numeros.")]
     [SerializeField] private UnityEvent _onExamineStart;
@@ -54,27 +62,12 @@ public class ExamineTrigger : MonoBehaviour, IGazeInteractable
     {
         _renderer = GetComponent<Renderer>();
         SetGazed(false);
-
-        if (_lockedHintSign != null)
-        {
-            _lockedHintSign.SetActive(false);
-        }
+        TimedSign.Hide(_lockedHintSign);
     }
 
-    public void OnGazeEnter()
-    {
-        SetGazed(true);
-    }
-
-    public void OnGazeStay(float progress)
-    {
-        // El feedback de progreso ya lo muestra GazeReticle.
-    }
-
-    public void OnGazeExit()
-    {
-        SetGazed(false);
-    }
+    public void OnGazeEnter() => SetGazed(true);
+    public void OnGazeStay(float progress) { }
+    public void OnGazeExit() => SetGazed(false);
 
     public void OnGazeSelect()
     {
@@ -85,36 +78,19 @@ public class ExamineTrigger : MonoBehaviour, IGazeInteractable
 
         if (_clueTracker != null && !_clueTracker.HasSeenCode)
         {
-            ShowLockedHint();
+            if (_hint != null)
+            {
+                _hint.Show(_noClueMessage);
+            }
+
+            _onClueMissing?.Invoke();
+            TimedSign.Show(this, _lockedHintSign, _lockedHintDuration, ref _hintCoroutine);
             return;
         }
 
         _previousPoint = _teleportManager.CurrentOccupiedPoint;
         _teleportManager.RequestTeleport(_examinePoint.transform.position, _examinePoint);
         _onExamineStart?.Invoke();
-    }
-
-    private void ShowLockedHint()
-    {
-        if (_lockedHintSign == null)
-        {
-            return;
-        }
-
-        if (_hintCoroutine != null)
-        {
-            StopCoroutine(_hintCoroutine);
-        }
-
-        _hintCoroutine = StartCoroutine(ShowHintTemporarily());
-    }
-
-    private IEnumerator ShowHintTemporarily()
-    {
-        _lockedHintSign.SetActive(true);
-        yield return new WaitForSeconds(_lockedHintDuration);
-        _lockedHintSign.SetActive(false);
-        _hintCoroutine = null;
     }
 
     /// <summary>
@@ -132,11 +108,5 @@ public class ExamineTrigger : MonoBehaviour, IGazeInteractable
         _onExamineEnd?.Invoke();
     }
 
-    private void SetGazed(bool gazedAt)
-    {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
-        {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
-        }
-    }
+    private void SetGazed(bool gazedAt) => GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
 }

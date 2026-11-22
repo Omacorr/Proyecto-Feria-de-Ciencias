@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -33,6 +34,19 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     [Tooltip("Si se asigna, mirar este punto teletransporta a la posicion de ESTE Transform en vez de a la posicion propia. Util para puertas: la puerta se queda quieta donde se ve bien, pero el destino real es otro punto (por ejemplo, un Cube vacio puesto del otro lado de la puerta). Dejalo vacio para el comportamiento normal (moverse a la posicion de este mismo objeto).")]
     [SerializeField] private Transform _destinationOverride;
 
+    [Tooltip("Siempre con fundido aunque la escena use caminata (por ejemplo el punto de examinar el candado).")]
+    [SerializeField] private bool _alwaysFade;
+
+    [Header("Loop sin fade (opcional, requiere Destination Override)")]
+    [Tooltip("Destildado (por defecto): un punto con Destination Override usa fade, como siempre (puertas). Tildado: el jugador CAMINA hasta este mismo punto (el que esta mirando) y, al llegar, se lo pasa de golpe, sin fade, a la posicion X/Z de Destination Override (la altura de ojos no cambia). Pensado para el loop de Parte 4: 'caminar hacia adelante te devuelve al mismo punto'. Para que no se note el salto, Destination Override tiene que estar en un lugar que se vea IGUAL mirando en la MISMA direccion (el casco no se puede girar por codigo: si el destino esta rotado respecto de este punto, se nota). Si Destination Override es otro TeleportPoint, el jugador queda 'parado' en ese punto (se oculta) y este vuelve a verse adelante. En escenas con 'Use Walk Animation' destildado, el fade normal ya tapa el salto.")]
+    [SerializeField] private bool _seamlessLoop;
+
+    [Tooltip("Solo con 'Seamless Loop'. Tildado (recomendado): el salto ocurre SOLO si el jugador llega a este punto avanzando en el sentido del loop (alejandose de Destination Override). Si llega desde el otro lado, se queda en este punto como cualquier teletransporte normal, asi el loop no lo 'adelanta' por error. Destildado: salta siempre.")]
+    [SerializeField] private bool _loopOnlyWhenMovingAway = true;
+
+    [Tooltip("Solo con 'Seamless Loop'. Se dispara cada vez que el loop devuelve al jugador (despues del salto). Sirve para contar vueltas, un susurro, que aparezca la pintura o el monstruo a la N-esima vuelta, etc. En ese caso On Player Arrived de ESTE punto NO se dispara (el jugador no quedo parado aca); si Destination Override es un TeleportPoint, se dispara el On Player Arrived de ESE punto.")]
+    [SerializeField] private UnityEvent _onLoop;
+
     [Header("Audio (opcional)")]
     [Tooltip("AudioSource desde donde suena el clip al activar este punto (mismo patron que Door). Puede estar en el propio punto o en otro objeto - por ejemplo uno central si tenes varios TeleportPoint juntos y no queres que cada uno tenga su propia fuente de sonido.")]
     [SerializeField] private AudioSource _audioSource;
@@ -44,6 +58,46 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     [Tooltip("Se dispara cada vez que el jugador llega parado a este punto (lo llama TeleportManager apenas termina de moverlo). Util para marcar que el jugador 'ya vio' algo puesto en este lugar - por ejemplo, tp14 (frente a las notas con el codigo) puede cablear esto a CodeClueTracker.MarkSeen(). Tambien sirve para un sonido de LLEGADA (distinto al de arriba): arrastra un objeto con AudioSource aca y elegi la funcion AudioSource.Play() (con el clip ya asignado en ese AudioSource) - no hace falta tocar codigo para eso.")]
     [SerializeField] private UnityEvent _onPlayerArrived;
 
+    [Header("Visual externo (opcional)")]
+    [Tooltip("Tildado: otro componente (PortalVisual) dibuja este punto. El renderer viejo (orbe/cubo) queda SIEMPRE apagado (no se borra de la escena) y SetVisible solo prende/apaga el Collider. Destildado: comportamiento de siempre.")]
+    [SerializeField] private bool _hasExternalVisual;
+
+    // ---- Eventos C# para visuales externos (PortalVisual) y otros sistemas ----
+
+    /// <summary>Empezo a mirarse este punto.</summary>
+    public event Action GazeEntered;
+    /// <summary>Se dejo de mirar este punto.</summary>
+    public event Action GazeExited;
+    /// <summary>Progreso de la mirada (0..1), cada frame mientras se lo mira.</summary>
+    public event Action<float> GazeProgress;
+    /// <summary>La mirada completo la seleccion (se repite cada vez que GazeController re-selecciona).</summary>
+    public event Action Selected;
+    /// <summary>El jugador llego parado a este punto (mismo momento que On Player Arrived).</summary>
+    public event Action Arrived;
+    /// <summary>TeleportManager mostro u oculto este punto (SetVisible).</summary>
+    public event Action<bool> VisibilityChanged;
+
+    /// <summary>Ultimo valor pasado a SetVisible (true hasta que alguien diga lo contrario).</summary>
+    public bool IsVisible => _isVisible;
+
+    /// <summary>
+    /// Si es true, el renderer viejo queda siempre apagado y SetVisible solo
+    /// toca el Collider (el dibujo lo hace PortalVisual). Lo setea
+    /// PortalSetupTool en el Editor; tambien se puede cambiar en runtime.
+    /// </summary>
+    public bool HasExternalVisual
+    {
+        get => _hasExternalVisual;
+        set
+        {
+            _hasExternalVisual = value;
+            if (Application.isPlaying)
+            {
+                ApplyLegacyRenderers(!_hasExternalVisual && _isVisible);
+            }
+        }
+    }
+
     public bool OverridesPlayerHeight => _overridePlayerHeight;
     public float TargetPlayerHeight => _targetPlayerHeight;
 
@@ -53,23 +107,121 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     /// usa esto para forzar el fade a negro en estos casos puntuales (puertas,
     /// etc.), sin importar si "Use Walk Animation" esta tildado para el resto
     /// de la escena - caminar hacia un destino que no es visualmente el mismo
-    /// punto que se esta mirando queda raro.
+    /// punto que se esta mirando queda raro. Excepcion: con Seamless Loop
+    /// tildado da false (se camina hasta este punto y el salto es sin fade).
     /// </summary>
-    public bool UsesFadeTransition => _destinationOverride != null;
+    public bool UsesFadeTransition => (_destinationOverride != null && !_seamlessLoop) || _alwaysFade;
+
+    /// <summary>
+    /// True si tiene Destination Override sin ser loop (puerta): su posicion no
+    /// es un lugar donde el jugador se para. TeleportManager.Start lo usa para
+    /// no tomarlo como punto de spawn. (Un punto solo con Always Fade SI es un
+    /// lugar donde uno se para.)
+    /// </summary>
+    public bool HasDestinationOverride => _destinationOverride != null && !_seamlessLoop;
+
+    /// <summary>
+    /// True si este punto es un "loop sin fade": el jugador camina hasta este
+    /// punto y al llegar TeleportManager lo pasa de golpe a Destination
+    /// Override (ver tooltip de Seamless Loop).
+    /// </summary>
+    public bool IsSeamlessLoop => _destinationOverride != null && _seamlessLoop;
+
+    /// <summary>A donde salta el jugador al completar el loop (Destination Override).</summary>
+    public Transform LoopDestination => _destinationOverride;
+
+    public bool LoopOnlyWhenMovingAway => _loopOnlyWhenMovingAway;
+
+    /// <summary>
+    /// Corta el loop para siempre (en esta partida): el punto pasa a ser un
+    /// teletransporte comun a su propia posicion (sin Destination Override ni
+    /// salto). Pensado para cablearlo desde un UnityEvent, por ejemplo el
+    /// On Straightened de la pintura de Parte 4: enderezarla rompe el pasillo
+    /// infinito. Solo cambia el estado en runtime, no la escena guardada.
+    /// </summary>
+    public void DisableLoop()
+    {
+        if (!_seamlessLoop)
+        {
+            return;
+        }
+        _seamlessLoop = false;
+        _destinationOverride = null;
+        Debug.Log($"[TeleportPoint] {gameObject.name}: loop cortado, ahora es un punto comun.");
+    }
 
     private Renderer _renderer;
+    private Renderer[] _legacyRenderers;
     private Collider _collider;
+    private bool _isVisible = true;
 
     private void Awake()
     {
-        // GetComponentInChildren (no GetComponent): permite que el modelo visual
+        // Buscar en hijos (no solo GetComponent): permite que el modelo visual
         // sea un hijo (por ejemplo un modelo importado con jerarquia propia, como
         // el orbe), mientras el Collider de interaccion sigue viviendo en este
-        // mismo objeto. Sigue encontrando el caso simple de siempre (Renderer y
-        // Collider en el propio objeto) exactamente igual que antes.
-        _renderer = GetComponentInChildren<Renderer>();
+        // mismo objeto. Se saltean los renderers que arma PortalVisual (hijo
+        // "__PortalVisual"), por si su Awake corrio antes que este. Sin visual
+        // externo da exactamente lo mismo que GetComponentInChildren<Renderer>().
+        _renderer = FindLegacyRenderer();
         _collider = GetComponent<Collider>();
+        if (_hasExternalVisual)
+        {
+            ApplyLegacyRenderers(false);
+        }
         SetGazed(false);
+    }
+
+    private Renderer FindLegacyRenderer()
+    {
+        // Mismo orden que GetComponentInChildren (solo activos, primero el
+        // propio objeto) pero sin los renderers del visual externo.
+        foreach (Renderer r in GetComponentsInChildren<Renderer>(false))
+        {
+            if (!IsUnderPortalVisual(r.transform))
+            {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    private void CollectLegacyRenderers()
+    {
+        // Todos los renderers viejos (tambien inactivos), sin el visual externo.
+        var list = new System.Collections.Generic.List<Renderer>();
+        foreach (Renderer r in GetComponentsInChildren<Renderer>(true))
+        {
+            if (!IsUnderPortalVisual(r.transform)) list.Add(r);
+        }
+        _legacyRenderers = list.ToArray();
+    }
+
+    private bool IsUnderPortalVisual(Transform t)
+    {
+        for (; t != null && t != transform; t = t.parent)
+        {
+            if (t.name == PortalVisual.RootName)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void ApplyLegacyRenderers(bool enabledState)
+    {
+        if (_legacyRenderers == null)
+        {
+            CollectLegacyRenderers();
+        }
+        foreach (Renderer r in _legacyRenderers)
+        {
+            if (r != null)
+            {
+                r.enabled = enabledState;
+            }
+        }
     }
 
     private void OnEnable()
@@ -85,16 +237,20 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     public void OnGazeEnter()
     {
         SetGazed(true);
+        GazeEntered?.Invoke();
     }
 
     public void OnGazeStay(float progress)
     {
-        // El feedback de progreso ya lo muestra GazeReticle.
+        // El feedback de progreso ya lo muestra GazeReticle; el evento es para
+        // visuales externos (PortalVisual sube el brillo de la marca).
+        GazeProgress?.Invoke(progress);
     }
 
     public void OnGazeExit()
     {
         SetGazed(false);
+        GazeExited?.Invoke();
     }
 
     public void OnGazeSelect()
@@ -105,6 +261,8 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
             return;
         }
 
+        Selected?.Invoke();
+
         // Si ya esta en medio de otro teletransporte, RequestTeleport lo va a
         // ignorar igual - chequeamos aca tambien para no reproducir el sonido
         // de un teletransporte que en realidad no va a pasar.
@@ -113,7 +271,10 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
             _audioSource.PlayOneShot(_teleportSound);
         }
 
-        Vector3 destination = _destinationOverride != null ? _destinationOverride.position : transform.position;
+        // En modo loop sin fade se camina hasta ESTE punto (el que se esta
+        // mirando); el salto a Destination Override lo hace TeleportManager
+        // recien al llegar.
+        Vector3 destination = (_destinationOverride != null && !_seamlessLoop) ? _destinationOverride.position : transform.position;
         _teleportManager.RequestTeleport(destination, this);
     }
 
@@ -124,6 +285,16 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     public void NotifyArrived()
     {
         _onPlayerArrived?.Invoke();
+        Arrived?.Invoke();
+    }
+
+    /// <summary>
+    /// La llama TeleportManager justo despues de un salto de loop sin fade.
+    /// No hace falta llamarla a mano.
+    /// </summary>
+    public void NotifyLooped()
+    {
+        _onLoop?.Invoke();
     }
 
     /// <summary>
@@ -132,7 +303,14 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
     /// </summary>
     public void SetVisible(bool visible)
     {
-        if (_renderer != null)
+        _isVisible = visible;
+
+        if (_hasExternalVisual)
+        {
+            // El dibujo lo maneja PortalVisual: el renderer viejo, siempre apagado.
+            ApplyLegacyRenderers(false);
+        }
+        else if (_renderer != null)
         {
             _renderer.enabled = visible;
         }
@@ -146,13 +324,15 @@ public class TeleportPoint : MonoBehaviour, IGazeInteractable
         {
             SetGazed(false);
         }
+
+        VisibilityChanged?.Invoke(visible);
     }
 
     private void SetGazed(bool gazedAt)
     {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
+        if (!_hasExternalVisual)
         {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
+            GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
         }
     }
 }

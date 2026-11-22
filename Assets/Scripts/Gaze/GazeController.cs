@@ -14,6 +14,9 @@ public class GazeController : MonoBehaviour
     [Tooltip("Layers que puede detectar el gaze. Deberia incluir la layer Interactive.")]
     [SerializeField] private LayerMask _interactiveLayerMask;
 
+    [Tooltip("Opcional. Layers que TAPAN la mirada sin ser interactivas (por ejemplo paredes con MeshCollider). Si lo primero que toca el rayo esta en una de estas layers, se considera que no se mira nada. Sin esto el rayo atraviesa las paredes (los modelos importados no traen collider) y se pueden elegir puntos que estan del otro lado de una pared. Nothing (por defecto) = comportamiento de siempre.")]
+    [SerializeField] private LayerMask _occluderLayerMask;
+
     [Tooltip("Distancia maxima del raycast, en metros.")]
     [SerializeField] private float _maxGazeDistance = 10f;
 
@@ -30,6 +33,58 @@ public class GazeController : MonoBehaviour
     private IGazeInteractable _currentInteractable;
     private float _gazeTimer;
 
+    // Bloqueos "con dueño" (ver AddBlocker). Independientes de 'enabled', que
+    // lo siguen usando FaintTransition/FaintOverlay/AbyssFall/Peephole: la
+    // mirada solo funciona si el componente esta prendido Y no hay ningun
+    // bloqueo. Asi dos sistemas que bloquean a la vez no se pisan (uno no puede
+    // "devolver" la mirada mientras el otro todavia la necesita apagada).
+    private static readonly System.Collections.Generic.HashSet<Object> s_blockers = new System.Collections.Generic.HashSet<Object>();
+
+    // Por si el Editor tiene "Enter Play Mode Options" sin domain reload.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics()
+    {
+        s_blockers.Clear();
+    }
+
+    /// <summary>true si algun dueño tiene bloqueada la mirada (AddBlocker).</summary>
+    public static bool IsBlocked
+    {
+        get
+        {
+            if (s_blockers.Count == 0)
+            {
+                return false;
+            }
+            // Un dueño destruido sin llamar RemoveBlocker no puede dejar la
+            // mirada bloqueada para siempre.
+            s_blockers.RemoveWhere(o => o == null);
+            return s_blockers.Count > 0;
+        }
+    }
+
+    /// <summary>
+    /// Bloquea la mirada de TODOS los GazeController a nombre de 'owner' hasta
+    /// que ese mismo dueño llame RemoveBlocker (o se destruya). Llamarlo dos
+    /// veces con el mismo dueño cuenta como uno. Lo usa WakeUpFromFloor.
+    /// </summary>
+    public static void AddBlocker(Object owner)
+    {
+        if (owner != null)
+        {
+            s_blockers.Add(owner);
+        }
+    }
+
+    /// <summary>Saca el bloqueo de 'owner'. Si no habia, no hace nada.</summary>
+    public static void RemoveBlocker(Object owner)
+    {
+        if (owner != null)
+        {
+            s_blockers.Remove(owner);
+        }
+    }
+
     private void Awake()
     {
         if (_gazeCamera == null)
@@ -38,14 +93,84 @@ public class GazeController : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        // FaintTransition / AbyssFall apagan este componente para bloquear la
+        // mirada durante un desmayo o una caida. Sin este reset, el objeto que
+        // se estaba mirando quedaba "congelado" como mirado (sin OnGazeExit) y
+        // el aro de GazeReticle quedaba a medio llenar en pantalla.
+        ResetGaze();
+    }
+
+    /// <summary>
+    /// Olvida el objeto mirado actual (le manda OnGazeExit) y pone el progreso
+    /// en 0. En el frame siguiente, si se sigue mirando lo mismo, se vuelve a
+    /// detectar como una mirada NUEVA (OnGazeEnter + timer desde cero). Lo usa
+    /// TeleportManager despues de un "loop sin fade": el jugador aparece
+    /// mirando otra vez el mismo punto, y sin esto el timer seguia corriendo y
+    /// lo volvia a seleccionar solo, sin que el jugador lo decidiera.
+    /// </summary>
+    public void ResetGaze()
+    {
+        IGazeInteractable previous = _currentInteractable;
+        _currentInteractable = null;
+        CurrentGazedObject = null;
+        _gazeTimer = 0f;
+        GazeProgress = 0f;
+
+        if (previous == null)
+        {
+            return;
+        }
+
+        // Si el interactuable es un componente ya destruido (por ejemplo al
+        // descargar la escena), no se le puede avisar nada.
+        if (previous is Object unityObject && unityObject == null)
+        {
+            return;
+        }
+
+        previous.OnGazeExit();
+    }
+
     private void Update()
     {
+        if (IsBlocked)
+        {
+            // Igual que al apagarse: sin objeto mirado ni aro a medio llenar.
+            if (CurrentGazedObject != null || GazeProgress > 0f)
+            {
+                ResetGaze();
+            }
+            return;
+        }
+
+        if (_gazeCamera == null)
+        {
+            // Camera.main puede no existir todavia en Awake (o haber cambiado
+            // tras un cambio de escena): se reintenta en vez de tirar
+            // NullReferenceException en cada frame.
+            _gazeCamera = Camera.main;
+            if (_gazeCamera == null)
+            {
+                return;
+            }
+        }
+
         GameObject hitObject = null;
 
         Ray ray = new Ray(_gazeCamera.transform.position, _gazeCamera.transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, _maxGazeDistance, _interactiveLayerMask))
+        // Con Occluder Layer Mask en Nothing, la mascara es exactamente la de
+        // siempre. Si hay oclusores, un hit en una layer que NO es interactiva
+        // significa que hay una pared en el medio: no se mira nada.
+        int mask = _interactiveLayerMask.value | _occluderLayerMask.value;
+        if (Physics.Raycast(ray, out RaycastHit hit, _maxGazeDistance, mask))
         {
-            hitObject = hit.collider.gameObject;
+            GameObject hitGo = hit.collider.gameObject;
+            if ((_interactiveLayerMask.value & (1 << hitGo.layer)) != 0)
+            {
+                hitObject = hitGo;
+            }
         }
 
         if (hitObject != CurrentGazedObject)

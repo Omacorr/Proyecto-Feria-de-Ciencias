@@ -26,6 +26,12 @@ public class GazeReticle : MonoBehaviour
     private Vector3 _baseDotScale = Vector3.one;
     private float _sizeMultiplier = 1f;
 
+    // Estado ya aplicado: Update solo escribe en las Image cuando algo cambio
+    // (antes seteaba enabled/scale todos los frames aunque no pasara nada).
+    private bool _lastGazing;
+    private bool _stateApplied;
+    private float _lastFill = -1f;
+
     private void Awake()
     {
         if (_progressImage != null)
@@ -57,6 +63,8 @@ public class GazeReticle : MonoBehaviour
         {
             _dotImage.rectTransform.localScale = _baseDotScale * _sizeMultiplier;
         }
+        // Que Update vuelva a aplicar el latido sobre el nuevo tamaño.
+        _stateApplied = false;
     }
 
     private void Update()
@@ -68,13 +76,23 @@ public class GazeReticle : MonoBehaviour
 
         bool isGazingAtSomething = _gazeController.CurrentGazedObject != null;
 
+        bool changed = !_stateApplied || isGazingAtSomething != _lastGazing;
+
         if (_progressImage != null)
         {
-            _progressImage.enabled = isGazingAtSomething;
-            _progressImage.fillAmount = isGazingAtSomething ? _gazeController.GazeProgress : 0f;
+            if (changed)
+            {
+                _progressImage.enabled = isGazingAtSomething;
+            }
+            float fill = isGazingAtSomething ? _gazeController.GazeProgress : 0f;
+            if (fill != _lastFill)
+            {
+                _lastFill = fill;
+                _progressImage.fillAmount = fill;
+            }
         }
 
-        if (_dotImage != null)
+        if (_dotImage != null && changed)
         {
             // Latido: el punto crece un poco cuando hay algo interactivo en la
             // mira. Se combina con el multiplicador de tamaño elegido en
@@ -82,5 +100,8 @@ public class GazeReticle : MonoBehaviour
             float pulse = isGazingAtSomething ? 1.3f : 1f;
             _dotImage.rectTransform.localScale = _baseDotScale * (_sizeMultiplier * pulse);
         }
+
+        _lastGazing = isGazingAtSomething;
+        _stateApplied = true;
     }
 }

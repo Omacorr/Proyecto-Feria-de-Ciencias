@@ -37,8 +37,14 @@ public class PlayerFollowsCamera : MonoBehaviour
         }
 
         Vector3 position = transform.position;
-        position.x = _mainCamera.position.x;
-        position.z = _mainCamera.position.z;
+        Vector3 camPos = _mainCamera.position;
+        // Sin cambio de X/Z (la camara casi siempre esta quieta): no se toca el Transform.
+        if (position.x == camPos.x && position.z == camPos.z)
+        {
+            return;
+        }
+        position.x = camPos.x;
+        position.z = camPos.z;
         transform.position = position;
     }
 }

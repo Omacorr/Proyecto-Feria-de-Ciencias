@@ -32,6 +32,9 @@ public class MainMenuController : MonoBehaviour
     [Tooltip("Objeto de la puerta que se abre al Empezar (el del modelo). Si se deja vacio (junto con Camera Rig), Empezar carga directo con fundido.")]
     [SerializeField] private Transform _door;
 
+    [Tooltip("Bisagra opcional: si se asigna, la puerta gira alrededor de la vertical que pasa por este punto en vez de por su propio pivote. Sirve cuando la hoja es un nodo del modelo con el pivote en el origen del mundo.")]
+    [SerializeField] private Transform _doorHinge;
+
     [Tooltip("Grados que gira la puerta al abrirse, alrededor de la vertical. Negativo = abre para el otro lado.")]
     [SerializeField] private float _doorOpenAngle = 100f;
 
@@ -92,7 +95,19 @@ public class MainMenuController : MonoBehaviour
         {
             return;
         }
+
+        // Chequeo ANTES de abrir la puerta y fundir a negro: si el nombre no
+        // coincide con Build Settings, mejor que Empezar no haga nada (con un
+        // error claro en la consola / adb logcat) a quedar en negro para siempre.
+        if (string.IsNullOrEmpty(_gameSceneName) || !Application.CanStreamedLevelBeLoaded(_gameSceneName))
+        {
+            Debug.LogError("[MainMenuController] La escena '" + _gameSceneName + "' no esta agregada/tildada en File > Build Settings (o el nombre no coincide exacto). Empezar no hace nada.");
+            return;
+        }
         _isLoading = true;
+
+        // Cronometro de la feria: arranca con Empezar (el jugador no ve nada).
+        GameTimer.StartRun();
 
         if (_door != null && _cameraRig != null)
         {
@@ -104,6 +119,9 @@ public class MainMenuController : MonoBehaviour
         }
         else
         {
+            // Carga sincronica: GameTimer descuenta la carga con LoadBegin y
+            // detecta la escena nueva por SceneManager.sceneLoaded.
+            FaintOverlay.NotifyLoadBegin(_gameSceneName);
             SceneManager.LoadScene(_gameSceneName);
         }
     }
@@ -140,7 +158,8 @@ public class MainMenuController : MonoBehaviour
         //    la bisagra por el generador) _doorOpenAngle grados sobre la vertical.
         Debug.Log("[MainMenuController] Abriendo puerta '" + _door.name + "' pos=" +
                   _door.position.ToString("0.00") + " angulo=" + _doorOpenAngle);
-        yield return SwingAround(_door, _door.position, Vector3.up, _doorOpenAngle, _doorOpenDuration);
+        Vector3 hinge = _doorHinge != null ? _doorHinge.position : _door.position;
+        yield return SwingAround(_door, hinge, Vector3.up, _doorOpenAngle, _doorOpenDuration);
 
         // Respiro corto una vez abierta.
         yield return new WaitForSeconds(0.2f);
@@ -150,7 +169,11 @@ public class MainMenuController : MonoBehaviour
         float walk = _walkThroughPoint != null ? camToDoor + _extraWalkPastDoor : _walkDistance;
         Vector3 rigStart = _cameraRig.position;
         Vector3 rigEnd = rigStart + dir * walk;
-        yield return MovePosition(_cameraRig, rigStart, rigEnd, _walkDuration);
+        // En la escena del Menu la Main Camera esta SEPARADA de Player (en la
+        // raiz), asi que mover solo el rig no movia la vista: la camara se
+        // mueve junto con el rig, con el mismo desplazamiento.
+        Transform camFollower = (camT != _cameraRig && !camT.IsChildOf(_cameraRig)) ? camT : null;
+        yield return MovePosition(_cameraRig, rigStart, rigEnd, _walkDuration, camFollower);
 
         // 3. Fundido a negro (se queda en negro), "cargando" unos segundos, y
         //    recien ahi aparecer en el Tutorial.
@@ -169,7 +192,15 @@ public class MainMenuController : MonoBehaviour
             _loadingText.SetActive(true);
         }
 
+        // Cronometro: el reloj queda congelado mientras carga.
+        FaintOverlay.NotifyLoadBegin(_gameSceneName);
         AsyncOperation op = SceneManager.LoadSceneAsync(_gameSceneName);
+        if (op == null)
+        {
+            Debug.LogError("[MainMenuController] No pude cargar '" + _gameSceneName + "'. Esta en File > Build Settings?");
+            FaintOverlay.NotifySceneActivated(SceneManager.GetActiveScene().name);
+            yield break;
+        }
         op.allowSceneActivation = false;
 
         float t = 0f;
@@ -182,11 +213,17 @@ public class MainMenuController : MonoBehaviour
         }
 
         op.allowSceneActivation = true;
+        // Este objeto se destruye con la escena del Menu, asi que la activacion
+        // la avisa GameTimer por su cuenta (SceneManager.sceneLoaded).
     }
 
     private IEnumerator LoadWithFadeOnly()
     {
-        yield return _fade.FadeOutAndIn(() => SceneManager.LoadScene(_gameSceneName));
+        yield return _fade.FadeOutAndIn(() =>
+        {
+            FaintOverlay.NotifyLoadBegin(_gameSceneName);
+            SceneManager.LoadScene(_gameSceneName);
+        });
     }
 
     // Gira 't' 'angle' grados alrededor del eje 'axis' que pasa por 'pivot'
@@ -212,17 +249,25 @@ public class MainMenuController : MonoBehaviour
         t.position = pivot + rf * (startPos - pivot);
     }
 
-    private static IEnumerator MovePosition(Transform t, Vector3 from, Vector3 to, float duration)
+    /// <summary>
+    /// Mueve 't' de 'from' a 'to'. Si hay 'follower' (un objeto que no es hijo
+    /// de 't', por ejemplo la camara separada del rig), le aplica el mismo
+    /// desplazamiento.
+    /// </summary>
+    private static IEnumerator MovePosition(Transform t, Vector3 from, Vector3 to, float duration, Transform follower = null)
     {
+        Vector3 followerStart = follower != null ? follower.position : Vector3.zero;
         float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
             t.position = Vector3.Lerp(from, to, k);
+            if (follower != null) follower.position = followerStart + (t.position - from);
             yield return null;
         }
         t.position = to;
+        if (follower != null) follower.position = followerStart + (to - from);
     }
 
     private void ShowOnly(GameObject panel)

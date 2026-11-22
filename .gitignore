@@ -121,3 +121,10 @@ InitTestScene*.unity*
 *_BackUpThisFolder_ButDontShipItWithYourGame/
 *_BurstDebugInformation_DoNotShip/
 *.symbols.zip
+
+# Tablero local de estado de trabajo de Claude (no se comparte)
+/ESTADO_CLAUDE.md
+
+# Herramientas de la feria (binarios y datos locales)
+tools/operador/scrcpy/
+tools/operador/datos/

@@ -1,20 +1,15 @@
 using UnityEngine;
 
 /// <summary>
-/// Boton/icono de "volver" que solo existe mientras el jugador esta
-/// examinando el candado de cerca. Soluciona un problema real: antes, la
-/// UNICA forma de que ExamineTrigger.ReturnToPreviousPoint() se llamara era
-/// resolviendo el CodeLock (CodeLock.OnUnlocked -> ReturnToPreviousPoint) -
-/// si el jugador entraba a examinar y se queria ir SIN terminar de resolver
-/// el candado, el Collider de BaseLP (que ExamineTrigger apaga al entrar,
-/// para que no tape a los CodeDigit) se quedaba apagado para siempre, y no
-/// habia forma de volver a entrar en modo examinar.
+/// Boton de "volver" que solo existe mientras el jugador examina el candado
+/// de cerca. Sin el, quien entraba a examinar y se queria ir SIN resolver el
+/// codigo quedaba trabado: ExamineTrigger apaga el Collider de BaseLP al
+/// entrar (para no tapar a los CodeDigit) y solo volvia a prenderlo al
+/// resolver el CodeLock.
 ///
-/// Este objeto se activa/desactiva con los mismos eventos On Examine
-/// Start/On Examine End que ya tiene ExamineTrigger (agregale una fila mas
-/// a cada uno con GameObject.SetActive sobre este objeto) - asi solo es
-/// visible/interactuable mientras se esta examinando. Al mirarlo, llama
-/// directamente a ReturnToPreviousPoint(), sin pasar por el CodeLock.
+/// Se activa/desactiva con los eventos On Examine Start/End de ExamineTrigger
+/// (una fila SetActive sobre este objeto en cada uno). Al mirarlo llama a
+/// ReturnToPreviousPoint() sin pasar por el CodeLock.
 /// </summary>
 public class ExamineExitButton : MonoBehaviour, IGazeInteractable
 {
@@ -33,31 +28,14 @@ public class ExamineExitButton : MonoBehaviour, IGazeInteractable
         SetGazed(false);
     }
 
-    public void OnGazeEnter()
-    {
-        SetGazed(true);
-    }
-
-    public void OnGazeStay(float progress)
-    {
-        // El feedback de progreso ya lo muestra GazeReticle.
-    }
-
-    public void OnGazeExit()
-    {
-        SetGazed(false);
-    }
+    public void OnGazeEnter() => SetGazed(true);
+    public void OnGazeStay(float progress) { }
+    public void OnGazeExit() => SetGazed(false);
 
     public void OnGazeSelect()
     {
         _examineTrigger?.ReturnToPreviousPoint();
     }
 
-    private void SetGazed(bool gazedAt)
-    {
-        if (_renderer != null && _inactiveMaterial != null && _gazedAtMaterial != null)
-        {
-            _renderer.material = gazedAt ? _gazedAtMaterial : _inactiveMaterial;
-        }
-    }
+    private void SetGazed(bool gazedAt) => GazeHighlight.Swap(_renderer, _inactiveMaterial, _gazedAtMaterial, gazedAt);
 }
